@@ -6,7 +6,7 @@ interface Props {
   onSubmit: (formData: FormData) => void
 }
 
-const LoginSignup: FC<Props> = (props) => (
+const Login: FC<Props> = (props) => (
   <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-yellow-50 to-gray-100">
     <form className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
       <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Welcome to chesslog.me</h2>
@@ -45,4 +45,4 @@ const LoginSignup: FC<Props> = (props) => (
   </div>
 )
 
-export default LoginSignup
+export default Login

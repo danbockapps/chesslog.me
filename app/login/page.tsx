@@ -1,6 +1,6 @@
 import {FC} from 'react'
-import LoginSignup from '../ui/loginSignup'
+import Login from '../ui/login'
 import {login} from './actions'
 
-const LoginPage: FC = () => <LoginSignup buttonText="Log in" onSubmit={login} />
+const LoginPage: FC = () => <Login buttonText="Log in" onSubmit={login} />
 export default LoginPage
