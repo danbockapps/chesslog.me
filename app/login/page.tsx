@@ -2,10 +2,24 @@ import {FC} from 'react'
 import Button from '../ui/button'
 import {login} from './actions'
 
-const LoginPage: FC = () => (
+interface Props {
+  searchParams: {error?: '400'}
+}
+
+const LoginPage: FC<Props> = (props) => (
   <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-yellow-50 to-gray-100">
     <form className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
       <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Welcome to chesslog.me</h2>
+
+      {props.searchParams.error === '400' && (
+        <div
+          className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 mb-5 rounded relative"
+          role="alert"
+        >
+          <strong className="font-bold">Invalid email or password</strong>
+        </div>
+      )}
+
       <div className="mb-4">
         <label htmlFor="email" className="block text-gray-700 font-semibold mb-2">
           Email:
