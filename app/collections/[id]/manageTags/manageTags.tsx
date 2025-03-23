@@ -1,11 +1,12 @@
 import {createBrowserClient} from '@/app/lib/supabase/client'
+import AppLink from '@/app/ui/link'
+import SectionHeader from '@/app/ui/SectionHeader'
 import {Close} from '@mui/icons-material'
-import {Dialog, IconButton, Link} from '@mui/material'
+import {Dialog, IconButton} from '@mui/material'
 import {FC, useCallback, useEffect, useState} from 'react'
 import {useAppContext} from '../../context'
-import SectionHeader from '@/app/ui/SectionHeader'
-import DescriptionDialog from './descriptionDialog'
 import {saveTagDescription} from './actions'
+import DescriptionDialog from './descriptionDialog'
 
 interface Props {
   open: boolean
@@ -35,13 +36,16 @@ const ManageTags: FC<Props> = (props) => {
     if (error) {
       console.error('Error fetching tags:', error)
     } else {
-      setTags(data)
+      setTags(data.sort((a, b) => (a.name ?? '').localeCompare(b.name ?? '')))
     }
   }, [supabase, user.id])
 
   useEffect(() => {
     refresh()
   }, [refresh])
+
+  const privateTags = tags.filter((t) => !t.public)
+  const publicTags = tags.filter((t) => t.public)
 
   return (
     <Dialog
@@ -55,16 +59,25 @@ const ManageTags: FC<Props> = (props) => {
       <SectionHeader title="Manage Tags" description="Add, edit, and delete tags" />
 
       <div className="mt-4 overflow-auto flex flex-col items-start">
-        {tags.map((t) => (
-          <div key={t.id} className="mb-8">
+        <h3 className="self-center my-6">Private tags</h3>
+        {privateTags.map((t) => (
+          <div key={t.id} className="mb-8 flex flex-col items-start">
             <div className="bg-slate-200 px-2 py-1 rounded text-sm">{t.name}</div>
             <div>
               {t.description ?? (
-                <Link onClick={() => setDescToEdit(t.id)} sx={{fontSize: '0.8em'}}>
+                <AppLink onClick={() => setDescToEdit(t.id)} sx={{fontSize: '0.8em'}}>
                   Add description
-                </Link>
+                </AppLink>
               )}
             </div>
+          </div>
+        ))}
+
+        <h3 className="self-center my-6">Public tags</h3>
+        {publicTags.map((t) => (
+          <div key={t.id} className="mb-8 flex flex-col items-start">
+            <div className="bg-slate-200 px-2 py-1 rounded text-sm">{t.name}</div>
+            <div>{t.description ?? ''}</div>
           </div>
         ))}
       </div>

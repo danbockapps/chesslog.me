@@ -1,4 +1,4 @@
-import {Link} from '@mui/material'
+import AppLink from './link'
 
 interface Props {
   title: string
@@ -17,9 +17,9 @@ const SectionHeader: React.FC<Props> = ({title, description, link}) => {
         {description}
 
         {link && (
-          <Link sx={{marginLeft: '10px'}} onClick={link.onClick}>
+          <AppLink sx={{marginLeft: '10px'}} onClick={link.onClick}>
             {link.text}
-          </Link>
+          </AppLink>
         )}
       </p>
     </div>
