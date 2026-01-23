@@ -39,15 +39,6 @@ const importLichessGames = async (
     .map((l) => (l.trim() ? JSON.parse(l) : null))
     .filter((l) => l)
 
-  console.log('Sample game data:', JSON.stringify(data[0], null, 2))
-  console.log(`Total games fetched: ${data.length}`)
-
-  data.forEach((g) => {
-    if (!g.opening || !g.opening.name || !g.clock || !g.players.white.user) {
-      console.log('Incomplete game data:', JSON.stringify(g, null, 2))
-    }
-  })
-
   if (data.length > 0) {
     try {
       const gamesData = data.map((g) => ({
