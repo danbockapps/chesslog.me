@@ -2,7 +2,7 @@
 
 import {requireAuth, requireOwnership} from '@/lib/auth'
 import {db} from '@/lib/db'
-import {games, collections} from '@/lib/schema'
+import {collections, games} from '@/lib/schema'
 import {eq} from 'drizzle-orm'
 import {revalidatePath} from 'next/cache'
 
@@ -39,19 +39,28 @@ const importLichessGames = async (
     .map((l) => (l.trim() ? JSON.parse(l) : null))
     .filter((l) => l)
 
+  console.log('Sample game data:', JSON.stringify(data[0], null, 2))
+  console.log(`Total games fetched: ${data.length}`)
+
+  data.forEach((g) => {
+    if (!g.opening || !g.opening.name || !g.clock || !g.players.white.user) {
+      console.log('Incomplete game data:', JSON.stringify(g, null, 2))
+    }
+  })
+
   if (data.length > 0) {
     try {
       const gamesData = data.map((g) => ({
         site: 'lichess' as const,
         collectionId,
-        eco: g.opening.name,
+        eco: g.opening?.name ?? null,
         fen: g.lastFen,
         gameDttm: new Date(g.createdAt).toISOString(),
-        clockInitial: g.clock.initial,
-        clockIncrement: g.clock.increment,
+        clockInitial: g.clock.initial ?? null,
+        clockIncrement: g.clock.increment ?? null,
         lichessGameId: g.id,
-        whiteUsername: g.players.white.user.name,
-        blackUsername: g.players.black.user.name,
+        whiteUsername: g.players.white.user?.name ?? 'Unknown',
+        blackUsername: g.players.black.user?.name ?? 'Unknown',
         whiteRating: g.players.white.rating,
         blackRating: g.players.black.rating,
         winner: g.winner,
@@ -117,7 +126,7 @@ interface Game {
   source: string
   players: Players
   winner: string
-  opening: Opening
+  opening?: Opening
   clock: Clock
   lastFen: string
   lastMove: string

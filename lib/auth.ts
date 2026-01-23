@@ -42,7 +42,7 @@ interface DatabaseUserAttributes {
  * Use this in Server Components and Server Actions to ensure user is authenticated
  */
 export async function requireAuth() {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const sessionId = cookieStore.get(lucia.sessionCookieName)?.value
 
   if (!sessionId) {
@@ -88,7 +88,7 @@ export async function requireOwnership(collectionId: string, userId: string) {
  * Useful for optional authentication scenarios
  */
 export async function getUser() {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const sessionId = cookieStore.get(lucia.sessionCookieName)?.value
 
   if (!sessionId) {

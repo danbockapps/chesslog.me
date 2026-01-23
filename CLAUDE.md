@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-chesslog.me is a Next.js 14 application for tracking and analyzing chess games from Chess.com and Lichess. Users can import games, add notes, create tags, and review game positions using an interactive chess board.
+chesslog.me is a Next.js 16 application for tracking and analyzing chess games from Chess.com and Lichess. Users can import games, add notes, create tags, and review game positions using an interactive chess board.
 
 ## Development Commands
 
@@ -31,7 +31,8 @@ docker run -p 3000:3000 chesslog.me
 
 ### Tech Stack
 
-- **Framework:** Next.js 14.2.7 with App Router
+- **Framework:** Next.js 16.1.4 with App Router
+- **React:** 19.2.3
 - **Language:** TypeScript (strict mode)
 - **Styling:** Tailwind CSS + Material-UI components
 - **Database:** SQLite via better-sqlite3 + Drizzle ORM
@@ -260,8 +261,9 @@ const hashedPassword = await bcrypt.hash(password, 10)
 // Create user, then:
 const session = await lucia.createSession(userId, {})
 const sessionCookie = lucia.createSessionCookie(session.id)
-// Note: cookies() is synchronous in Next.js 14
-cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes)
+// Note: cookies() is async in Next.js 16
+const cookieStore = await cookies()
+cookieStore.set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes)
 
 // Protected route
 const user = await requireAuth() // Redirects if not authenticated
@@ -351,7 +353,7 @@ db.insert(games).values(gameData).onConflictDoUpdate({target: games.url, set: ga
    - Booleans are integers (0/1)
    - UUIDs are text strings
 5. **Foreign Keys:** SQLite foreign keys are enabled via pragma - migrations include CASCADE deletes
-6. **Next.js 14 cookies():** In Next.js 14, `cookies()` is synchronous (no `await` needed). This changes in Next.js 15.
+6. **Next.js 16 cookies():** In Next.js 16, `cookies()` is async and must be awaited: `const cookieStore = await cookies()`. This changed from Next.js 14 where it was synchronous.
 7. **Move Format:** Chess.com uses TCN (encoded), Lichess uses standard algebraic notation
 8. **Unique Constraints:** Games are deduplicated by URL (Chess.com) or lichess_game_id (Lichess)
 9. **Schema Changes:** After modifying `lib/schema.ts`, run `yarn drizzle-kit generate` to create migrations
