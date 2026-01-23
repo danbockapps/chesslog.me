@@ -47,7 +47,7 @@ export async function signup(email: string, password: string) {
   // Create session
   const session = await lucia.createSession(userId, {})
   const sessionCookie = lucia.createSessionCookie(session.id)
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   cookieStore.set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes)
 
   revalidatePath('/', 'layout')

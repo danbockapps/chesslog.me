@@ -13,16 +13,18 @@ import RefreshButton from './refreshButton'
 export const dynamic = 'force-dynamic'
 
 interface Props {
-  params: {id: string}
-  searchParams: {page: string}
+  params: Promise<{id: string}>
+  searchParams: Promise<{page: string}>
 }
 
 const PAGE_SIZE = 50
 
 const Collection: FC<Props> = async (props) => {
+  const params = await props.params
+  const searchParams = await props.searchParams
   const user = await requireAuth()
-  await requireOwnership(props.params.id, user.id)
-  const page = parseInt(props.searchParams.page) || 1
+  await requireOwnership(params.id, user.id)
+  const page = parseInt(searchParams.page) || 1
 
   const collection = db
     .select({
@@ -32,13 +34,13 @@ const Collection: FC<Props> = async (props) => {
       last_refreshed: collections.lastRefreshed,
     })
     .from(collections)
-    .where(eq(collections.id, props.params.id))
+    .where(eq(collections.id, params.id))
     .get()
 
   const gamesData = db
     .select()
     .from(games)
-    .where(eq(games.collectionId, props.params.id))
+    .where(eq(games.collectionId, params.id))
     .orderBy(desc(games.gameDttm))
     .limit(PAGE_SIZE)
     .offset((page - 1) * PAGE_SIZE)
@@ -76,12 +78,12 @@ const Collection: FC<Props> = async (props) => {
             <p className={`${captionClassNames} ml-auto mr-4`}>
               Last refreshed: {lastRefreshed?.toLocaleString() ?? 'Never'}
             </p>
-            <RefreshButton collectionId={props.params.id} {...{site, username, lastRefreshed}} />
+            <RefreshButton collectionId={params.id} {...{site, username, lastRefreshed}} />
           </>
         )}
 
         {page > 1 && (
-          <Link className="underline" href={`/collections/${props.params.id}`}>
+          <Link className="underline" href={`/collections/${params.id}`}>
             Back to first page
           </Link>
         )}
@@ -126,12 +128,12 @@ const Collection: FC<Props> = async (props) => {
 
       <div className="py-6 flex gap-4 justify-center underline">
         {[...Array(page - 1)].map((_, i) => (
-          <Link key={i} href={`/collections/${props.params.id}?page=${i + 1}`}>
+          <Link key={i} href={`/collections/${params.id}?page=${i + 1}`}>
             {i + 1}
           </Link>
         ))}
 
-        <Link href={`/collections/${props.params.id}?page=${page + 1}`}>Next page</Link>
+        <Link href={`/collections/${params.id}?page=${page + 1}`}>Next page</Link>
       </div>
     </div>
   )

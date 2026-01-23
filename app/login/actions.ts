@@ -34,7 +34,7 @@ export async function login(formData: FormData) {
   // Create session
   const session = await lucia.createSession(user.id, {})
   const sessionCookie = lucia.createSessionCookie(session.id)
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   cookieStore.set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes)
 
   revalidatePath('/', 'layout')
@@ -42,7 +42,7 @@ export async function login(formData: FormData) {
 }
 
 export async function logout() {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const sessionId = cookieStore.get(lucia.sessionCookieName)?.value
 
   if (sessionId) {
