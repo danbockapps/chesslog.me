@@ -1,10 +1,9 @@
-import {createBrowserClient} from '@/app/lib/supabase/client'
 import SectionHeader, {captionClassNames} from '@/app/ui/SectionHeader'
 import {FC, useCallback, useEffect, useState} from 'react'
 import {MultiValue} from 'react-select'
 import CreatableSelect from 'react-select/creatable'
 import {useAppContext} from '../context'
-import {deleteGameTags, insertGameTag, insertTag} from './actions/crudActions'
+import {deleteGameTags, insertGameTag, insertTag, getTags, getGameTags} from './actions/crudActions'
 import ManageTags from './manageTags/manageTags'
 
 interface Props {
@@ -21,19 +20,18 @@ const Tags: FC<Props> = (props) => {
   const [selectedTagIds, setSelectedTagIds] = useState<number[]>([])
   const [manageOpen, setManageOpen] = useState(false)
   const {user} = useAppContext()
-  const supabase = createBrowserClient()
 
   const refresh = useCallback(async () => {
     if (user) {
       const [newOptions, newSelectedTagIds] = await Promise.all([
-        supabase.from('tags').select('id, name').or(`owner_id.eq.${user.id}, public.eq.1`),
-        supabase.from('game_tag').select('tag_id').eq('game_id', props.gameId),
+        getTags(),
+        getGameTags(props.gameId),
       ])
 
-      setOptions(newOptions.data ?? [])
-      setSelectedTagIds(newSelectedTagIds.data?.map((d) => d.tag_id) ?? [])
+      setOptions(newOptions ?? [])
+      setSelectedTagIds(newSelectedTagIds ?? [])
     }
-  }, [supabase, user, props.gameId]) // None of these 3 ever change
+  }, [user, props.gameId])
 
   useEffect(() => {
     refresh()

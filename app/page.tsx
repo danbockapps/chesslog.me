@@ -1,13 +1,14 @@
 import Image from 'next/image'
 import {redirect} from 'next/navigation'
 import logo from '../public/logo.webp'
-import {createServerClient} from './lib/supabase/server'
+import {getUser} from '@/lib/auth'
+
+export const dynamic = 'force-dynamic'
 
 export default async function Home() {
-  const supabase = createServerClient()
-  const {data} = await supabase.auth.getUser()
+  const user = await getUser()
 
-  if (data?.user) redirect('/collections')
+  if (user) redirect('/collections')
 
   return (
     <main

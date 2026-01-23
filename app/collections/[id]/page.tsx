@@ -1,4 +1,7 @@
-import {createServerClient} from '@/app/lib/supabase/server'
+import {requireAuth, requireOwnership} from '@/lib/auth'
+import {db} from '@/lib/db'
+import {collections, games} from '@/lib/schema'
+import {eq, desc} from 'drizzle-orm'
 import {captionClassNames} from '@/app/ui/SectionHeader'
 import Link from 'next/link'
 import {FC} from 'react'
@@ -6,6 +9,8 @@ import {ChesscomResult} from './actions/importChesscomGames'
 import ChesscomGameAccordion from './chesscom/gameAccordion'
 import LichessGameAccordion from './lichess/gameAccordion'
 import RefreshButton from './refreshButton'
+
+export const dynamic = 'force-dynamic'
 
 interface Props {
   params: {id: string}
@@ -15,42 +20,48 @@ interface Props {
 const PAGE_SIZE = 50
 
 const Collection: FC<Props> = async (props) => {
-  const supabase = createServerClient()
+  const user = await requireAuth()
+  await requireOwnership(props.params.id, user.id)
   const page = parseInt(props.searchParams.page) || 1
 
-  const [collectionsResult, gamesResult] = await Promise.all([
-    supabase
-      .from('collections')
-      .select('name,username,site,last_refreshed')
-      .eq('id', props.params.id)
-      .single(),
+  const collection = db
+    .select({
+      name: collections.name,
+      username: collections.username,
+      site: collections.site,
+      last_refreshed: collections.lastRefreshed,
+    })
+    .from(collections)
+    .where(eq(collections.id, props.params.id))
+    .get()
 
-    supabase
-      .from('games')
-      .select()
-      .eq('collection_id', props.params.id)
-      .order('game_dttm', {ascending: false})
-      .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1),
-  ])
+  const gamesData = db
+    .select()
+    .from(games)
+    .where(eq(games.collectionId, props.params.id))
+    .orderBy(desc(games.gameDttm))
+    .limit(PAGE_SIZE)
+    .offset((page - 1) * PAGE_SIZE)
+    .all()
 
-  const {name, username, site, last_refreshed} = collectionsResult.data ?? {}
+  const {name, username, site, last_refreshed} = collection ?? {}
   const lastRefreshed = last_refreshed ? new Date(last_refreshed) : null
 
-  const games =
-    gamesResult.data?.map((g) => ({
+  const gamesList =
+    gamesData?.map((g) => ({
       id: g.id,
       url: g.url,
-      lichessGameId: g.lichess_game_id,
-      gameDttm: g.game_dttm && new Date(g.game_dttm),
-      whiteUsername: g.white_username,
-      blackUsername: g.black_username,
-      whiteResult: g.white_result as ChesscomResult,
-      blackResult: g.black_result as ChesscomResult,
+      lichessGameId: g.lichessGameId,
+      gameDttm: g.gameDttm && new Date(g.gameDttm),
+      whiteUsername: g.whiteUsername,
+      blackUsername: g.blackUsername,
+      whiteResult: g.whiteResult as ChesscomResult,
+      blackResult: g.blackResult as ChesscomResult,
       winner: g.winner,
       eco: g.eco,
-      timeControl: g.time_control,
-      clockInitial: g.clock_initial,
-      clockIncrement: g.clock_increment,
+      timeControl: g.timeControl,
+      clockInitial: g.clockInitial,
+      clockIncrement: g.clockIncrement,
       fen: g.fen,
     })) ?? []
 
@@ -76,7 +87,7 @@ const Collection: FC<Props> = async (props) => {
         )}
       </div>
       <div>
-        {games.map(
+        {gamesList.map(
           (g) =>
             g.gameDttm &&
             (site === 'chess.com' ? (

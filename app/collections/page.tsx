@@ -1,24 +1,24 @@
-import {createServerClient} from '../lib/supabase/server'
+import {requireAuth} from '@/lib/auth'
+import {db} from '@/lib/db'
+import {collections} from '@/lib/schema'
+import {eq} from 'drizzle-orm'
 import CreateNew from '../ui/createNew/createNew'
 import CollectionCard from './collectionCard'
 
+export const dynamic = 'force-dynamic'
+
 export default async function PrivatePage() {
-  const supabase = createServerClient()
+  const user = await requireAuth()
 
-  const {
-    data: {user},
-  } = await supabase.auth.getUser()
-
-  if (!user) return <>Please log in to continue.</>
-
-  const {data: collections} = await supabase
-    .from('collections')
+  const userCollections = db
     .select()
-    .filter('owner_id', 'eq', user?.id)
+    .from(collections)
+    .where(eq(collections.ownerId, user.id))
+    .all()
 
   return (
     <div className="flex gap-4 p-4 flex-col md:flex-wrap md:flex-row">
-      {collections?.map((c) => (
+      {userCollections?.map((c) => (
         <CollectionCard key={c.id} id={c.id} title={c.name ?? ''}>
           {c.name}
         </CollectionCard>

@@ -1,8 +1,7 @@
-import {createBrowserClient} from '@/app/lib/supabase/client'
 import Button from '@/app/ui/button'
 import SectionHeader, {captionClassNames} from '@/app/ui/SectionHeader'
 import {FC, useEffect, useState} from 'react'
-import {saveNotes} from './actions/crudActions'
+import {getNotes, saveNotes} from './actions/crudActions'
 
 interface Props {
   gameId: number
@@ -12,20 +11,15 @@ const Notes: FC<Props> = (props) => {
   const [notes, setNotes] = useState('')
   const [loading, setLoading] = useState(false)
   const [beenSaved, setBeenSaved] = useState(false)
-  const supabase = createBrowserClient()
 
+  // Changes when: user expands a different game accordion
   useEffect(() => {
     setLoading(true)
-    supabase
-      .from('games')
-      .select('notes')
-      .eq('id', props.gameId)
-      .single()
-      .then(({data}) => {
-        setNotes(data?.notes ?? '')
-        setLoading(false)
-      })
-  }, [supabase, props.gameId]) // Neither of these 2 ever changes
+    getNotes(props.gameId).then((data) => {
+      setNotes(data)
+      setLoading(false)
+    })
+  }, [props.gameId])
 
   return (
     <div className="flex flex-col">

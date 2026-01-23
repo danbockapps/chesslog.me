@@ -15,8 +15,8 @@ A Next.js application for importing, organizing, and analyzing your chess games 
 
 - **Framework:** Next.js 14 (App Router)
 - **Language:** TypeScript
-- **Database:** PostgreSQL (Supabase)
-- **Authentication:** Supabase Auth
+- **Database:** SQLite (better-sqlite3 + Drizzle ORM)
+- **Authentication:** Lucia Auth
 - **Styling:** Tailwind CSS + Material-UI
 - **Chess:** chess.js + react-chessboard
 - **Package Manager:** Yarn
@@ -27,19 +27,19 @@ A Next.js application for importing, organizing, and analyzing your chess games 
 
 - Node.js 18+
 - Yarn 1.22.22+
-- Supabase account (or local Supabase instance)
-- Chess.com account (to import Chess.com games)
 - Lichess API token (to import Lichess games)
 
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/danbockapps/chesslog.me.git
 cd chesslog.me
 ```
 
 2. Install dependencies:
+
 ```bash
 yarn install
 ```
@@ -47,39 +47,30 @@ yarn install
 3. Set up environment variables:
 
 Create `.env.local` file in the root directory:
-```bash
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-LICHESS_TOKEN=your_lichess_api_token
-```
 
-Optional:
 ```bash
-INTERNAL_SUPABASE_URL=your_internal_url  # If different from public URL
+DATABASE_PATH=./data/database.db
+LICHESS_TOKEN=your_lichess_api_token
 ```
 
 4. Set up the database:
 
-If using local Supabase:
+The database will be automatically created on first run. To manually run migrations:
+
 ```bash
-supabase start
-supabase db reset
+yarn drizzle-kit migrate
 ```
 
-If using hosted Supabase, run the migrations in `supabase/migrations/` in order.
+To generate new migrations after schema changes in `lib/schema.ts`:
 
-5. Generate TypeScript types from your database:
 ```bash
-# Local Supabase
-supabase gen types typescript --local > app/database.types.ts
-
-# Hosted Supabase
-supabase gen types typescript --project-id your_project_id > app/database.types.ts
+yarn drizzle-kit generate
 ```
 
 ### Running the Application
 
 **Development:**
+
 ```bash
 yarn dev
 ```
@@ -87,12 +78,14 @@ yarn dev
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 **Production:**
+
 ```bash
 yarn build
 yarn start
 ```
 
 **Docker:**
+
 ```bash
 docker build -t chesslog.me .
 docker run -p 3000:3000 chesslog.me
@@ -114,8 +107,15 @@ docker run -p 3000:3000 chesslog.me
 ## Project Structure
 
 ```
+lib/
+├── schema.ts           # Drizzle ORM schema definitions
+├── db.ts               # SQLite database initialization
+└── auth.ts             # Lucia auth + helper functions
+
+drizzle/
+└── *.sql               # Database migrations
+
 app/
-├── lib/supabase/       # Supabase client creation
 ├── login/              # Login page and actions
 ├── signup/             # Signup page and actions
 ├── collections/        # Collections list and detail pages
@@ -125,19 +125,14 @@ app/
 │       └── lichess/    # Lichess specific components
 ├── ui/                 # Reusable UI components
 └── utils/              # Utility functions
-
-supabase/
-└── migrations/         # Database schema migrations
 ```
 
 ## Environment Variables
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `NEXT_PUBLIC_SUPABASE_URL` | Yes | Your Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | Supabase anonymous/public key |
-| `LICHESS_TOKEN` | Yes* | Lichess API token for importing games |
-| `INTERNAL_SUPABASE_URL` | No | Server-side Supabase URL (if different) |
+| Variable        | Required | Description                                                  |
+| --------------- | -------- | ------------------------------------------------------------ |
+| `DATABASE_PATH` | No       | Path to SQLite database file (default: `./data/database.db`) |
+| `LICHESS_TOKEN` | Yes\*    | Lichess API token for importing games                        |
 
 \* Only required if importing Lichess games
 
@@ -149,23 +144,27 @@ supabase/
 
 ## Database
 
-The application uses PostgreSQL via Supabase with the following main tables:
+The application uses SQLite with Drizzle ORM and the following main tables:
 
+- **users** - User accounts (email + hashed password)
+- **sessions** - Active user sessions (Lucia Auth)
 - **profiles** - User profile information
 - **collections** - Game collections by platform/username
 - **games** - Individual chess games with metadata
 - **tags** - Reusable tags for categorizing games
-- **game_tag** - Many-to-many relationship between games and tags
+- **game_tags** - Many-to-many relationship between games and tags
 
-Row Level Security (RLS) is enabled to ensure users can only access their own data.
+The schema is defined in `lib/schema.ts` with foreign key constraints and cascade deletes for data integrity.
 
 ## API Integrations
 
 ### Chess.com
+
 - Archives: `https://api.chess.com/pub/player/{username}/games/{year}/{month}`
 - Move data: `https://www.chess.com/callback/live/game/{gameId}`
 
 ### Lichess
+
 - Games: `https://lichess.org/api/games/user/{username}`
 - Requires bearer token authentication
 
@@ -174,11 +173,13 @@ Row Level Security (RLS) is enabled to ensure users can only access their own da
 See [CLAUDE.md](./CLAUDE.md) for detailed architecture documentation and development guidelines.
 
 **Useful commands:**
+
 ```bash
-yarn dev                # Start development server
-yarn lint               # Run ESLint
-supabase start          # Start local Supabase
-supabase db reset       # Reset and migrate database
+yarn dev                  # Start development server
+yarn lint                 # Run ESLint
+yarn drizzle-kit generate # Generate migration from schema changes
+yarn drizzle-kit migrate  # Run migrations
+yarn drizzle-kit studio   # Open Drizzle Studio (database GUI)
 ```
 
 ## License
@@ -188,6 +189,7 @@ This project is private and not licensed for public use.
 ## Links
 
 - [Next.js Documentation](https://nextjs.org/docs)
-- [Supabase Documentation](https://supabase.io/docs)
+- [Drizzle ORM Documentation](https://orm.drizzle.team/docs/overview)
+- [Lucia Auth Documentation](https://lucia-auth.com/)
 - [Chess.com API](https://www.chess.com/news/view/published-data-api)
 - [Lichess API](https://lichess.org/api)

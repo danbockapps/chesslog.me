@@ -19,7 +19,7 @@ const decodeTcn = (n: string) => {
     w = n.length,
     C = []
   for (i = 0; i < w; i += 2)
-    (move = {}),
+    ((move = {}),
       (o = T.indexOf(n[i])),
       (s = T.indexOf(n[i + 1])) > 63 &&
         ((move.promotion = 'qnrbkp'[Math.floor((s - 64) / 3)] as PieceSymbol),
@@ -28,7 +28,7 @@ const decodeTcn = (n: string) => {
         ? (move.drop = 'qnrbkp'[o - 79] as PieceSymbol)
         : (move.from = (T[o % 8] + (Math.floor(o / 8) + 1)) as Square),
       (move.to = (T[s % 8] + (Math.floor(s / 8) + 1)) as Square),
-      C.push(move)
+      C.push(move))
   return C as ChessJsMoveParam[]
 }
 

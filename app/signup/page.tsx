@@ -1,7 +1,6 @@
 'use client'
 
 import React, {useState} from 'react'
-import {createBrowserClient} from '../lib/supabase/client'
 import Button from '../ui/button'
 import {signup} from './actions'
 
@@ -59,7 +58,7 @@ const SignUpPage: React.FC = () => {
           {errorMessage && <div className="text-red-500 text-sm mb-4">{errorMessage}</div>}
           {status === 'success' && (
             <div className="text-green-500 text-sm mb-4">
-              Success! Check your email to verify your account.
+              Account created successfully! Redirecting...
             </div>
           )}
 

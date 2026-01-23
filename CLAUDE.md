@@ -17,12 +17,10 @@ yarn build                  # Build production bundle
 yarn start                  # Start production server
 yarn lint                   # Run ESLint
 
-# Supabase local development
-supabase start             # Start local Supabase (DB, Auth, Storage, Studio)
-supabase stop              # Stop local services
-supabase db reset          # Reset database and run migrations
-supabase migration new <name>  # Create new migration file
-supabase gen types typescript --local > app/database.types.ts  # Regenerate types
+# Database (Drizzle ORM)
+yarn drizzle-kit generate   # Generate migration from schema changes
+yarn drizzle-kit migrate    # Run migrations
+yarn drizzle-kit studio     # Open Drizzle Studio (database GUI)
 
 # Docker
 docker build -t chesslog.me .
@@ -36,8 +34,8 @@ docker run -p 3000:3000 chesslog.me
 - **Framework:** Next.js 14.2.7 with App Router
 - **Language:** TypeScript (strict mode)
 - **Styling:** Tailwind CSS + Material-UI components
-- **Database:** PostgreSQL via Supabase
-- **Authentication:** Supabase Auth (JWT-based, cookie sessions)
+- **Database:** SQLite via better-sqlite3 + Drizzle ORM
+- **Authentication:** Lucia Auth (session-based, cookie sessions)
 - **Chess Logic:** chess.js + react-chessboard
 - **Deployment:** Docker container with standalone output
 
@@ -46,19 +44,23 @@ docker run -p 3000:3000 chesslog.me
 This application heavily uses Next.js Server Components and Server Actions instead of traditional API routes:
 
 - **Server Actions** located in `*/actions.ts` files handle all data mutations
-- **Server Components** fetch data directly from Supabase using `createClient()` from `app/lib/supabase/server.ts`
+- **Server Components** fetch data directly using Drizzle ORM (`db` from `lib/db.ts`)
+- **Authentication** uses Lucia helpers (`requireAuth()`, `getUser()` from `lib/auth.ts`)
 - **Client Components** (`'use client'`) are only used for interactive UI (modals, forms, chess board)
 - Minimal client-side state management (React hooks only, no Redux/Zustand)
 
 ### Directory Structure
 
 ```
+lib/
+├── schema.ts              # Drizzle ORM schema definitions
+├── db.ts                  # SQLite database initialization
+└── auth.ts                # Lucia auth + helper functions
+
+drizzle/
+└── *.sql                  # Database migration files
+
 app/
-├── lib/supabase/          # Supabase client factories
-│   ├── server.ts          # Server-side client (with cookie handling)
-│   ├── client.ts          # Browser client
-│   └── middleware.ts      # Session refresh middleware
-├── auth/                  # Email confirmation route
 ├── login/                 # Login page + server actions
 ├── signup/                # Signup page + server actions
 ├── collections/           # Collections list page
@@ -76,37 +78,59 @@ app/
 ### Database Schema
 
 **Key Tables:**
-- `profiles` - User profiles (1:1 with auth.users)
+
+- `users` - User accounts (email + hashed password)
+- `sessions` - Active user sessions (managed by Lucia)
+- `profiles` - User profiles (1:1 with users)
 - `collections` - Game collections owned by users
-  - `site`: 'chess.com' | 'lichess'
+  - `site`: 'lichess' | 'chess.com' (stored as text)
   - `username`: Chess platform username
-  - `last_refreshed`: Timestamp of last import
+  - `last_refreshed`: ISO8601 timestamp
 - `games` - Individual chess games
-  - Belongs to a collection
+  - Belongs to a collection (cascade delete)
   - Contains player info, ratings, ECO, FEN, time control
   - `url` (Chess.com) or `lichess_game_id` (unique constraints)
   - `notes`: User-written analysis
 - `tags` - Reusable tags/takeaways
-  - `public`: If true, visible to all users
+  - `public`: Boolean (if true, visible to all users)
   - `owner_id`: Creator of the tag
-- `game_tag` - Many-to-many junction table
+- `game_tags` - Many-to-many junction table
 
-**Row Level Security (RLS):** Enabled on all tables. Users can only access their own collections and games.
+**Data Types:**
 
-**Database Migrations:** Located in `supabase/migrations/*.sql`
+- IDs: UUIDs stored as text (except games.id and tags.id which are auto-increment integers)
+- Timestamps: ISO8601 strings in text columns
+- Booleans: Integers (0 = false, 1 = true)
+- Foreign keys: CASCADE on delete for data integrity
+
+**Database Migrations:** Located in `drizzle/*.sql`
+
+**Schema Definition:** Defined in `lib/schema.ts` using Drizzle ORM
 
 ### Authentication Flow
 
-1. User signs up via `/signup` → `signup()` server action → Supabase Auth
-2. Trigger function `handle_new_user()` creates profile entry
-3. User logs in via `/login` → `login()` server action → session cookies set
-4. Middleware (`middleware.ts`) refreshes session on every request
-5. Protected routes check session; redirect to `/login` if unauthenticated
+1. User signs up via `/signup` → `signup()` server action
+   - Creates user with bcrypt-hashed password
+   - Creates Lucia session
+   - Sets session cookie
+2. User logs in via `/login` → `login()` server action
+   - Verifies password with bcrypt
+   - Creates Lucia session and sets cookie
+3. Protected routes/actions call `requireAuth()` helper
+   - Validates session from cookie
+   - Auto-refreshes if session is fresh
+   - Redirects to `/login` if invalid
+4. Middleware (`middleware.ts`) handles session refresh on requests
+
+**Helper Functions (from `lib/auth.ts`):**
+
+- `requireAuth()` - Get authenticated user or redirect (for Server Components/Actions)
+- `getUser()` - Get user without redirecting, returns null if not authenticated
+- `requireOwnership(collectionId, userId)` - Verify user owns a collection
 
 **Environment Variables Required:**
-- `NEXT_PUBLIC_SUPABASE_URL` - Public Supabase project URL
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Anon/public key for browser
-- `INTERNAL_SUPABASE_URL` - Optional server-side URL (defaults to public URL)
+
+- `DATABASE_PATH` - Path to SQLite database file (default: `./data/database.db`)
 - `LICHESS_TOKEN` - Bearer token for Lichess API (for importing games)
 
 ### Game Import Flow
@@ -121,6 +145,7 @@ app/
 4. Page automatically revalidates via `revalidatePath()`
 
 **External API Endpoints:**
+
 - Chess.com: `https://api.chess.com/pub/player/{username}/games/{year}/{month}`
 - Chess.com moves: `https://www.chess.com/callback/live/game/{gameId}` (TCN format)
 - Lichess: `https://lichess.org/api/games/user/{username}` (NDJSON, requires bearer token)
@@ -137,11 +162,13 @@ app/
 ### TypeScript Path Aliases
 
 - `@/*` maps to project root (configured in `tsconfig.json`)
-- Example: `import {createClient} from '@/app/lib/supabase/server'`
+- Example: `import {db} from '@/lib/db'`
+- Example: `import {requireAuth} from '@/lib/auth'`
 
 ## Code Style Conventions
 
 **Prettier Configuration:**
+
 - No semicolons (`semi: false`)
 - Single quotes (`singleQuote: true`)
 - 100 character line width
@@ -149,44 +176,98 @@ app/
 - Uses `prettier-plugin-classnames` for Tailwind class sorting
 
 **Component Patterns:**
+
 - Server Components by default (no `'use client'` directive)
 - Client Components only when needed (forms, modals, interactive elements)
 - Server Actions marked with `'use server'` at top of async functions
 - Props interfaces defined inline or via `type` keyword
 - Minimal prop drilling; use React Context where appropriate (`AppContext` for user state)
 
+## Coding Standards
+
+### React Hooks
+
+**useEffect Dependency Arrays:**
+
+- Every item in a `useEffect` dependency array MUST have a comment explaining when it changes
+- Format: `// Changes when: [explanation]` above the useEffect
+- This helps future developers understand the effect's behavior and prevents bugs
+
+Example:
+
+```typescript
+// Changes when: user navigates to a different game
+// Changes when: game data is refreshed
+useEffect(() => {
+  loadGameMoves()
+}, [gameId, refreshKey])
+```
+
 ## Important Development Notes
 
-### Supabase Client Usage
+### Database & Auth Usage
 
-**Server-side:**
+**Server Components (reading data):**
+
 ```typescript
-import {createClient} from '@/app/lib/supabase/server'
+import {db} from '@/lib/db'
+import {requireAuth} from '@/lib/auth'
+import {collections} from '@/lib/schema'
+import {eq} from 'drizzle-orm'
 
 export default async function Page() {
-  const supabase = await createClient()
-  const {data} = await supabase.from('collections').select()
+  const user = await requireAuth()
+
+  const userCollections = db
+    .select()
+    .from(collections)
+    .where(eq(collections.ownerId, user.id))
+    .all()
+
   // ...
 }
 ```
 
-**Client-side:**
-```typescript
-import {createClient} from '@/app/lib/supabase/client'
+**Server Actions (mutations):**
 
-const supabase = createClient()
-const {data} = await supabase.from('games').select()
-```
-
-**Server Actions:**
 ```typescript
 'use server'
-import {createClient} from '@/app/lib/supabase/server'
+import {db} from '@/lib/db'
+import {requireAuth} from '@/lib/auth'
+import {games} from '@/lib/schema'
+import {revalidatePath} from 'next/cache'
 
-export async function myAction() {
-  const supabase = await createClient()
-  // ...
+export async function deleteGame(gameId: number) {
+  const user = await requireAuth()
+
+  // Delete game
+  db.delete(games).where(eq(games.id, gameId)).run()
+
+  // Refresh UI
+  revalidatePath('/collections')
 }
+```
+
+**Authentication:**
+
+```typescript
+import {lucia, requireAuth, getUser} from '@/lib/auth'
+import bcrypt from 'bcrypt'
+import {cookies} from 'next/headers'
+
+// Sign up
+const hashedPassword = await bcrypt.hash(password, 10)
+// Create user, then:
+const session = await lucia.createSession(userId, {})
+const sessionCookie = lucia.createSessionCookie(session.id)
+// Note: cookies() is synchronous in Next.js 14
+cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes)
+
+// Protected route
+const user = await requireAuth() // Redirects if not authenticated
+
+// Optional auth
+const user = await getUser() // Returns null if not authenticated
 ```
 
 ### Data Fetching Patterns
@@ -196,14 +277,58 @@ export async function myAction() {
 - Call `revalidatePath()` after mutations to refresh UI
 - Avoid client-side fetching unless necessary (e.g., lazy loading)
 
+### Drizzle ORM Patterns
+
+**Query Building:**
+
+```typescript
+import {db} from '@/lib/db'
+import {games, collections} from '@/lib/schema'
+import {eq, and, desc} from 'drizzle-orm'
+
+// Select with conditions
+const result = db
+  .select()
+  .from(games)
+  .where(and(eq(games.collectionId, id), eq(games.site, 'chess.com')))
+  .orderBy(desc(games.gameDttm))
+  .all()
+
+// Insert
+db.insert(games).values({collectionId, url /* ... */}).run()
+
+// Update
+db.update(games).set({notes: 'New note'}).where(eq(games.id, gameId)).run()
+
+// Delete
+db.delete(games).where(eq(games.id, gameId)).run()
+
+// Joins
+const result = db
+  .select()
+  .from(games)
+  .leftJoin(collections, eq(games.collectionId, collections.id))
+  .all()
+```
+
+**Upsert Pattern (for game imports):**
+
+```typescript
+// SQLite doesn't have native UPSERT in Drizzle
+// Use INSERT OR REPLACE or manual checking
+db.insert(games).values(gameData).onConflictDoUpdate({target: games.url, set: gameData}).run()
+```
+
 ### Chess.com vs Lichess Differences
 
 **Chess.com:**
+
 - Provides ECO codes, FEN, time control as "initial+increment"
 - Moves require separate API call (TCN format in callback endpoint)
 - Custom board component with navigation
 
 **Lichess:**
+
 - Provides clock_initial/clock_increment separately
 - Uses `winner` field instead of white_result/black_result
 - Games can be displayed in embedded iframe or custom board
@@ -218,8 +343,15 @@ export async function myAction() {
 
 ### Common Gotchas
 
-1. **Session Management:** Always use `createClient()` from correct location (server vs client)
-2. **RLS Policies:** If queries fail with empty results, check RLS policies in Supabase Studio
-3. **Move Format:** Chess.com uses TCN (encoded), Lichess uses standard algebraic notation
-4. **Unique Constraints:** Games are deduplicated by URL (Chess.com) or lichess_game_id (Lichess)
-5. **Type Safety:** Regenerate `database.types.ts` after schema migrations
+1. **Database Access:** Always import `db` from `@/lib/db` - never create multiple database instances
+2. **Authentication:** Use `requireAuth()` for protected routes, `getUser()` for optional auth
+3. **Query Methods:** Use `.all()` for multiple rows, `.get()` for single row, `.run()` for mutations
+4. **SQLite Types:**
+   - Timestamps are ISO8601 strings
+   - Booleans are integers (0/1)
+   - UUIDs are text strings
+5. **Foreign Keys:** SQLite foreign keys are enabled via pragma - migrations include CASCADE deletes
+6. **Next.js 14 cookies():** In Next.js 14, `cookies()` is synchronous (no `await` needed). This changes in Next.js 15.
+7. **Move Format:** Chess.com uses TCN (encoded), Lichess uses standard algebraic notation
+8. **Unique Constraints:** Games are deduplicated by URL (Chess.com) or lichess_game_id (Lichess)
+9. **Schema Changes:** After modifying `lib/schema.ts`, run `yarn drizzle-kit generate` to create migrations

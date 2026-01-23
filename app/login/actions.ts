@@ -2,39 +2,56 @@
 
 import {revalidatePath} from 'next/cache'
 import {redirect} from 'next/navigation'
-import {createServerClient} from '../lib/supabase/server'
+import {cookies} from 'next/headers'
+import {lucia} from '@/lib/auth'
+import {db} from '@/lib/db'
+import {users} from '@/lib/schema'
+import {eq} from 'drizzle-orm'
+import {compare} from 'bcrypt'
 
 export async function login(formData: FormData) {
-  const supabase = createServerClient()
+  const email = formData.get('email') as string
+  const password = formData.get('password') as string
 
-  // type-casting here for convenience
-  // in practice, you should validate your inputs
-  const data = {
-    email: formData.get('email') as string,
-    password: formData.get('password') as string,
+  if (!email || !password) {
+    redirect('/login?error=400')
   }
 
-  const {error} = await supabase.auth.signInWithPassword(data)
+  // Find user by email
+  const user = db.select().from(users).where(eq(users.email, email.toLowerCase())).get()
 
-  if (error) {
-    console.log('Error logging in:', error.code, error.status, error.message)
-    if (error.status === 400) redirect('/login?error=400')
-    else redirect('/error') // I don't know when this would ever happen
+  if (!user) {
+    redirect('/login?error=400')
   }
+
+  // Verify password
+  const validPassword = await compare(password, user.hashedPassword)
+
+  if (!validPassword) {
+    redirect('/login?error=400')
+  }
+
+  // Create session
+  const session = await lucia.createSession(user.id, {})
+  const sessionCookie = lucia.createSessionCookie(session.id)
+  const cookieStore = cookies()
+  cookieStore.set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes)
 
   revalidatePath('/', 'layout')
-  redirect('/')
+  redirect('/collections')
 }
 
 export async function logout() {
-  const supabase = createServerClient()
-  const {error} = await supabase.auth.signOut()
+  const cookieStore = cookies()
+  const sessionId = cookieStore.get(lucia.sessionCookieName)?.value
 
-  if (error) {
-    console.error('Error signing out:', error.message)
-    redirect('/error')
+  if (sessionId) {
+    await lucia.invalidateSession(sessionId)
   }
 
+  const sessionCookie = lucia.createBlankSessionCookie()
+  cookieStore.set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes)
+
   revalidatePath('/', 'layout')
-  redirect('/')
+  redirect('/login')
 }

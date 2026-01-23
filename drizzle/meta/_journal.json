@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1769128049308,
+      "tag": "0000_lethal_energizer",
+      "breakpoints": true
+    }
+  ]
+}

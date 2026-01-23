@@ -1,4 +1,3 @@
-import {createBrowserClient} from '@/app/lib/supabase/client'
 import AppLink from '@/app/ui/link'
 import SectionHeader from '@/app/ui/SectionHeader'
 import {Close} from '@mui/icons-material'
@@ -6,6 +5,7 @@ import {Dialog, IconButton} from '@mui/material'
 import {FC, useCallback, useEffect, useState} from 'react'
 import {useAppContext} from '../../context'
 import {saveTagDescription} from './actions'
+import {getTagsWithDetails} from '../actions/crudActions'
 import DescriptionDialog from './descriptionDialog'
 
 interface Props {
@@ -25,20 +25,14 @@ const ManageTags: FC<Props> = (props) => {
   const [descToEdit, setDescToEdit] = useState<number | null>(null)
   const {user} = useAppContext()
 
-  const supabase = createBrowserClient()
-
   const refresh = useCallback(async () => {
-    const {data, error} = await supabase
-      .from('tags')
-      .select('id, name, description, public')
-      .or(`owner_id.eq.${user.id}, public.eq.1`)
-
-    if (error) {
-      console.error('Error fetching tags:', error)
-    } else {
+    try {
+      const data = await getTagsWithDetails()
       setTags(data.sort((a, b) => (a.name ?? '').localeCompare(b.name ?? '')))
+    } catch (error) {
+      console.error('Error fetching tags:', error)
     }
-  }, [supabase, user.id])
+  }, [user.id])
 
   useEffect(() => {
     refresh()

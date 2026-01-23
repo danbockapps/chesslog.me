@@ -1,7 +1,9 @@
 'use server'
 
-import {Database} from '@/app/database.types'
-import {createServerClient} from '@/app/lib/supabase/server'
+import {requireAuth, requireOwnership} from '@/lib/auth'
+import {db} from '@/lib/db'
+import {games, collections} from '@/lib/schema'
+import {eq} from 'drizzle-orm'
 import {revalidatePath} from 'next/cache'
 
 const importLichessGames = async (
@@ -9,9 +11,12 @@ const importLichessGames = async (
   lastRefreshed: Date | null,
   username: string,
 ) => {
+  // Verify user owns this collection
+  const user = await requireAuth()
+  await requireOwnership(collectionId, user.id)
+
   console.log('importLichessGames')
   console.time('importLichessGames')
-  const supabase = createServerClient()
 
   const url = `https://lichess.org/api/games/user/${username}?${new URLSearchParams({
     max: '100',
@@ -36,36 +41,31 @@ const importLichessGames = async (
 
   if (data.length > 0) {
     try {
-      const {error} = await supabase.from('games').upsert(
-        data.map<Database['public']['Tables']['games']['Insert']>((g) => ({
-          site: 'lichess',
-          collection_id: collectionId,
-          eco: g.opening.name,
-          fen: g.lastFen,
-          game_dttm: new Date(g.createdAt).toISOString(),
-          clock_initial: g.clock.initial,
-          clock_increment: g.clock.increment,
-          lichess_game_id: g.id,
-          white_username: g.players.white.user.name,
-          black_username: g.players.black.user.name,
-          white_rating: g.players.white.rating,
-          black_rating: g.players.black.rating,
-          winner: g.winner,
-        })),
-        {onConflict: 'lichess_game_id', ignoreDuplicates: true}, // skip insert if id exists
-      )
+      const gamesData = data.map((g) => ({
+        site: 'lichess' as const,
+        collectionId,
+        eco: g.opening.name,
+        fen: g.lastFen,
+        gameDttm: new Date(g.createdAt).toISOString(),
+        clockInitial: g.clock.initial,
+        clockIncrement: g.clock.increment,
+        lichessGameId: g.id,
+        whiteUsername: g.players.white.user.name,
+        blackUsername: g.players.black.user.name,
+        whiteRating: g.players.white.rating,
+        blackRating: g.players.black.rating,
+        winner: g.winner,
+      }))
+
+      db.insert(games).values(gamesData).onConflictDoNothing({target: games.lichessGameId}).run()
 
       console.timeLog('importLichessGames', 'inserted')
 
-      if (error) {
-        console.log('Error inserting games for Lichess')
-        console.error(error)
-      } else {
-        await supabase
-          .from('collections')
-          .update({last_refreshed: new Date().toISOString()})
-          .eq('id', collectionId)
-      }
+      // Update last refreshed timestamp
+      db.update(collections)
+        .set({lastRefreshed: new Date().toISOString()})
+        .where(eq(collections.id, collectionId))
+        .run()
     } catch (e) {
       console.log('Caught error inserting games for Lichess')
       console.error(e)

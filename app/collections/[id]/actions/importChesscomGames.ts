@@ -1,7 +1,9 @@
 'use server'
 
-import {Database} from '@/app/database.types'
-import {createServerClient} from '@/app/lib/supabase/server'
+import {requireAuth, requireOwnership} from '@/lib/auth'
+import {db} from '@/lib/db'
+import {games, collections} from '@/lib/schema'
+import {eq} from 'drizzle-orm'
 import {revalidatePath} from 'next/cache'
 
 const importChesscomGames = async (
@@ -9,6 +11,10 @@ const importChesscomGames = async (
   lastRefreshed: Date | null,
   username: string,
 ) => {
+  // Verify user owns this collection
+  const user = await requireAuth()
+  await requireOwnership(collectionId, user.id)
+
   console.log('importChesscomGames')
   console.time('importChesscomGames')
 
@@ -56,7 +62,6 @@ const importChesscomGamesForMonth = async ({
   collectionId,
   lastRefreshed,
 }: ImportChesscomGamesForMonthProps) => {
-  const supabase = createServerClient()
   const mm = `${jsMonth < 9 ? '0' : ''}${jsMonth + 1}`
   console.timeLog('importChesscomGames', `fetching games for ${year}-${mm}`)
   const result = await fetch(`https://api.chess.com/pub/player/${username}/games/${year}/${mm}`)
@@ -64,38 +69,35 @@ const importChesscomGamesForMonth = async ({
   console.timeLog('importChesscomGames', `fetched ${data.games.length} games`)
 
   try {
-    const {error} = await supabase.from('games').upsert(
-      data.games
-        .filter((g) => !lastRefreshed || new Date(g.end_time * 1000) > lastRefreshed)
-        .map<Database['public']['Tables']['games']['Insert']>((g) => ({
-          site: 'chess.com',
-          collection_id: collectionId,
-          eco: g.eco,
-          fen: g.fen,
-          game_dttm: new Date(g.end_time * 1000).toISOString(),
-          time_control: g.time_control,
-          url: g.url,
-          white_username: g.white.username,
-          black_username: g.black.username,
-          white_rating: g.white.rating,
-          black_rating: g.black.rating,
-          white_result: g.white.result,
-          black_result: g.black.result,
-        })),
-      {onConflict: 'url', ignoreDuplicates: true}, // skip insert if id exists
-    )
+    const gamesData = data.games
+      .filter((g) => !lastRefreshed || new Date(g.end_time * 1000) > lastRefreshed)
+      .map((g) => ({
+        site: 'chess.com' as const,
+        collectionId,
+        eco: g.eco,
+        fen: g.fen,
+        gameDttm: new Date(g.end_time * 1000).toISOString(),
+        timeControl: g.time_control,
+        url: g.url,
+        whiteUsername: g.white.username,
+        blackUsername: g.black.username,
+        whiteRating: g.white.rating,
+        blackRating: g.black.rating,
+        whiteResult: g.white.result,
+        blackResult: g.black.result,
+      }))
+
+    if (gamesData.length > 0) {
+      db.insert(games).values(gamesData).onConflictDoNothing({target: games.url}).run()
+    }
 
     console.timeLog('importChesscomGames', 'attempted to insert')
 
-    if (error) {
-      console.log('Error inserting games for Chess.com')
-      console.error(error)
-    } else {
-      await supabase
-        .from('collections')
-        .update({last_refreshed: new Date().toISOString()})
-        .eq('id', collectionId)
-    }
+    // Update last refreshed timestamp
+    db.update(collections)
+      .set({lastRefreshed: new Date().toISOString()})
+      .where(eq(collections.id, collectionId))
+      .run()
   } catch (e) {
     console.log('Caught error inserting games for Chess.com')
     console.error(e)

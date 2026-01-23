@@ -1,7 +1,11 @@
 'use client'
 
-import {User} from '@supabase/supabase-js'
 import {createContext, FC, PropsWithChildren, useContext} from 'react'
+
+interface User {
+  id: string
+  email: string
+}
 
 interface AppContextType {
   user: User
