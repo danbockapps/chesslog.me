@@ -1,2 +1,2 @@
-docker build . -t ghcr.io/danbockapps/chessgamelog-nextjs
-docker push ghcr.io/danbockapps/chessgamelog-nextjs
+docker build . -t ghcr.io/danbockapps/chesslog.me-nextjs
+docker push ghcr.io/danbockapps/chesslog.me-nextjs

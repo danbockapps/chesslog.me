@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Chess Game Log is a Next.js 14 application for tracking and analyzing chess games from Chess.com and Lichess. Users can import games, add notes, create tags, and review game positions using an interactive chess board.
+chesslog.me is a Next.js 14 application for tracking and analyzing chess games from Chess.com and Lichess. Users can import games, add notes, create tags, and review game positions using an interactive chess board.
 
 ## Development Commands
 
@@ -25,8 +25,8 @@ supabase migration new <name>  # Create new migration file
 supabase gen types typescript --local > app/database.types.ts  # Regenerate types
 
 # Docker
-docker build -t chessgamelog .
-docker run -p 3000:3000 chessgamelog
+docker build -t chesslog.me .
+docker run -p 3000:3000 chesslog.me
 ```
 
 ## Architecture Overview

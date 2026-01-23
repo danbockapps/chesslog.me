@@ -1,6 +1,6 @@
 FROM node:18-alpine AS base
 
-LABEL org.opencontainers.image.source=https://github.com/danbockapps/ChessGameLog
+LABEL org.opencontainers.image.source=https://github.com/danbockapps/chesslog.me
 
 # Install dependencies only when needed
 FROM base AS deps

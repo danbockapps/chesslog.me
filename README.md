@@ -1,4 +1,4 @@
-# Chess Game Log
+# chesslog.me
 
 A Next.js application for importing, organizing, and analyzing your chess games from Chess.com and Lichess. Create collections of games, add notes and tags, and review positions with an interactive chess board.
 
@@ -35,8 +35,8 @@ A Next.js application for importing, organizing, and analyzing your chess games 
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/danbockapps/ChessGameLog.git
-cd chessgamelog
+git clone https://github.com/danbockapps/chesslog.me.git
+cd chesslog.me
 ```
 
 2. Install dependencies:
@@ -94,8 +94,8 @@ yarn start
 
 **Docker:**
 ```bash
-docker build -t chessgamelog .
-docker run -p 3000:3000 chessgamelog
+docker build -t chesslog.me .
+docker run -p 3000:3000 chesslog.me
 ```
 
 ## Usage
