@@ -20,6 +20,7 @@ A Next.js application for importing, organizing, and analyzing your chess games 
 - **Styling:** Tailwind CSS + Material-UI
 - **Chess:** chess.js + react-chessboard
 - **Package Manager:** Yarn
+- **Code Quality:** ESLint + Prettier (with pre-commit hooks via Husky)
 
 ## Getting Started
 
@@ -43,6 +44,8 @@ cd chesslog.me
 ```bash
 yarn install
 ```
+
+This will also automatically set up git hooks for code formatting.
 
 3. Set up environment variables:
 
@@ -172,7 +175,24 @@ The schema is defined in `lib/schema.ts` with foreign key constraints and cascad
 
 See [CLAUDE.md](./CLAUDE.md) for detailed architecture documentation and development guidelines.
 
-**Useful commands:**
+### Code Formatting
+
+This project uses **Prettier** for automatic code formatting with a **pre-commit hook** powered by Husky and lint-staged:
+
+- Code is automatically formatted on every commit
+- Only staged files are formatted (fast and efficient)
+- Formats: TypeScript, JavaScript, JSON, CSS, and Markdown files
+
+**Manual formatting:**
+
+```bash
+yarn prettier --write .   # Format all files
+yarn prettier --check .   # Check formatting without changes
+```
+
+The pre-commit hook runs automatically - no action needed from developers!
+
+### Useful Commands
 
 ```bash
 yarn dev                  # Start development server
