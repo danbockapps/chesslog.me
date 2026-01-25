@@ -29,7 +29,7 @@ const StepUsername: FC<Props> = (props) => (
     Enter your username on {props.type === 'chess.com' ? 'Chess.com' : 'Lichess'}.
     <Button
       onClick={() => props.setStep('name')}
-      variant="filled"
+      variant="contained"
       fullWidth
       disabled={!props.username}
     >

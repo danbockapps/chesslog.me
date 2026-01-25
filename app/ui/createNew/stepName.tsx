@@ -32,7 +32,7 @@ const StepName: FC<Props> = (props) => (
       onChange={(e) => props.setName(e.target.value)}
     />
     Optional: Enter a name for your collection.
-    <Button onClick={props.create} variant="filled" fullWidth>
+    <Button onClick={props.create} variant="contained" fullWidth>
       Create collection
     </Button>
   </>
