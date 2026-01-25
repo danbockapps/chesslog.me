@@ -1,6 +1,6 @@
 import {type NextRequest, NextResponse} from 'next/server'
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   // Public routes that don't require authentication
   const publicRoutes = ['/login', '/signup', '/']
   const isPublicRoute = publicRoutes.some((route) => request.nextUrl.pathname === route)
