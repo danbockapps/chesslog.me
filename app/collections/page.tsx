@@ -17,7 +17,7 @@ export default async function PrivatePage() {
     .all()
 
   return (
-    <div className="flex gap-4 p-4 flex-col md:flex-wrap md:flex-row">
+    <div className="collection-grid">
       {userCollections?.map((c) => (
         <CollectionCard key={c.id} id={c.id} title={c.name ?? ''}>
           {c.name}

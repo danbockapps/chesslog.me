@@ -2,7 +2,148 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --bg-dark: #0f1419;
+  --bg-glass: rgba(255, 255, 255, 0.05);
+  --border-glass: rgba(255, 255, 255, 0.1);
+  --text: #e0e0e0;
+  --text-muted: #888888;
+  --accent: #64b5f6;
+  --accent-alt: #81c784;
+}
+
+* {
+  font-family: 'Inter', 'Helvetica Neue', sans-serif;
+}
+
+html {
+  background: var(--bg-dark);
+}
+
+body {
+  background: var(--bg-dark);
+  color: var(--text);
+  line-height: 1.6;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+h1 {
+  font-size: 3.2rem;
+  margin: 0;
+}
+
+h2 {
+  font-size: 1.6rem;
+}
+
+h3 {
+  font-size: 1.3rem;
+}
+
+/* Glass Effect */
+@supports (backdrop-filter: blur(10px)) {
+  .glass {
+    background: var(--bg-glass);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-glass);
+  }
+}
+
+@supports not (backdrop-filter: blur(10px)) {
+  .glass {
+    background: rgba(20, 25, 35, 0.8);
+    border: 1px solid var(--border-glass);
+  }
+}
+
+/* Glassmorphism Buttons */
+@layer components {
+  .btn-glass {
+    @apply px-7 py-3 border border-[var(--border-glass)] bg-[var(--bg-glass)]
+           text-[var(--text)] rounded-lg font-medium cursor-pointer
+           transition-all duration-200 focus:outline-none disabled:opacity-50
+           hover:bg-[rgba(100,181,246,0.15)] hover:border-[var(--accent)] hover:text-[var(--accent)];
+  }
+
+  .btn-glass-primary {
+    @apply bg-[var(--accent)] border-[var(--accent)] text-[var(--bg-dark)]
+           hover:bg-transparent hover:text-[var(--accent)];
+  }
+}
+
+/* Collection Grid */
+.collection-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  padding: 40px;
+}
+
+/* Glass Card Styling */
+.collection-card {
+  padding: 28px;
+  border-radius: 12px;
+  transition: all 300ms ease;
+  position: relative;
+  class: glass;
+}
+
+.collection-card {
+  background: var(--bg-glass);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border-glass);
+}
+
+.collection-card:hover {
+  border-color: var(--accent);
+  background: rgba(100, 181, 246, 0.08);
+}
+
+.collection-card h3 {
+  margin: 0 0 12px 0;
+  font-size: 1.3rem;
+}
+
+.collection-meta {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 16px;
+}
+
+/* Accent line decoration */
+.accent-line {
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-alt));
+  margin: 16px 0;
+}
+
+/* Status badge */
+.status-badge {
+  display: inline-block;
+  background: rgba(100, 181, 246, 0.15);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 .lichess-iframe {
   width: 100%;
   height: 400px;
+  border: 1px solid var(--border-glass);
+  border-radius: 8px;
 }
