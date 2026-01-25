@@ -21,7 +21,7 @@ const SignUpPage: React.FC = () => {
   const disabled = ['loading', 'success'].includes(status)
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-yellow-50 to-gray-100">
+    <div className="min-h-screen flex items-center justify-center">
       <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
         <h2 className="text-2xl font-bold mb-6 text-center">Sign Up</h2>
         <form>

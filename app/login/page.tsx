@@ -9,7 +9,7 @@ interface Props {
 const LoginPage: FC<Props> = async (props) => {
   const searchParams = await props.searchParams
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-yellow-50 to-gray-100">
+    <div className="flex items-center justify-center min-h-screen">
       <form className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
         <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
           Welcome to chesslog.me

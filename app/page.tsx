@@ -1,7 +1,7 @@
+import {getUser} from '@/lib/auth'
 import Image from 'next/image'
 import {redirect} from 'next/navigation'
 import logo from '../public/logo.webp'
-import {getUser} from '@/lib/auth'
 
 export const dynamic = 'force-dynamic'
 
@@ -11,10 +11,7 @@ export default async function Home() {
   if (user) redirect('/collections')
 
   return (
-    <main
-      className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-yellow-50 to-gray-100
-        text-black"
-    >
+    <main className="flex flex-col items-center justify-center min-h-screen">
       <div className="text-center p-8 bg-black bg-opacity-10 rounded-lg shadow-lg">
         <Image
           src={logo}

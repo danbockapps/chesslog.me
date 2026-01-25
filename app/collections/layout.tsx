@@ -7,12 +7,12 @@ export default async function Layout({children}: Readonly<{children: React.React
 
   return (
     <AppContextProvider initialValue={user}>
-      <div className="flex justify-between items-center bg-gradient-to-r from-gray-800 to-gray-950 text-white h-16 pl-4">
+      <div className="flex justify-between items-center h-16 pl-4">
         <h1 className="text-xl font-bold">chesslog.me</h1>
         <MainMenu />
       </div>
 
-      <div className="min-h-screen bg-gradient-to-r from-yellow-50 to-gray-100">{children}</div>
+      <div className="min-h-screen">{children}</div>
     </AppContextProvider>
   )
 }
