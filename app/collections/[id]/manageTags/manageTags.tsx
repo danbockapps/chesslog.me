@@ -62,11 +62,9 @@ const ManageTags: FC<Props> = (props) => {
           <div key={t.id} className="mb-8 flex flex-col items-start">
             <div className="bg-slate-200 px-2 py-1 rounded text-sm">{t.name}</div>
             <div>
-              {t.description ?? (
-                <AppLink onClick={() => setDescToEdit(t.id)} sx={{fontSize: '0.8em'}}>
-                  Add description
-                </AppLink>
-              )}
+              <AppLink onClick={() => setDescToEdit(t.id)} sx={{fontSize: '0.8em'}}>
+                {t.description ?? 'Add description'}
+              </AppLink>
             </div>
           </div>
         ))}
