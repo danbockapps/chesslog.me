@@ -1,12 +1,12 @@
-import AppLink from '@/app/ui/link'
 import SectionHeader from '@/app/ui/SectionHeader'
-import {Close} from '@mui/icons-material'
-import {Dialog, IconButton} from '@mui/material'
+import {Close, Lock, Public as PublicIcon} from '@mui/icons-material'
+import {Box, Dialog, Divider, IconButton, Typography} from '@mui/material'
 import {FC, useCallback, useEffect, useState} from 'react'
 import {useAppContext} from '../../context'
 import {getTagsWithDetails} from '../actions/crudActions'
 import {saveTagDescription} from './actions'
 import DescriptionDialog from './descriptionDialog'
+import TagCard from './tagCard'
 
 interface Props {
   open: boolean
@@ -47,40 +47,101 @@ const ManageTags: FC<Props> = (props) => {
     <Dialog
       open={props.open}
       fullWidth
-      maxWidth="sm"
+      maxWidth="md"
       slotProps={{
         paper: {
-          sx: {height: {xs: '98%', md: 'auto'}, padding: {xs: 1, md: 2}},
+          sx: {
+            height: {xs: '98%', md: 'auto'},
+            maxHeight: '90vh',
+            padding: 0,
+          },
         },
       }}
     >
-      <SectionHeader title="Manage Tags" description="Add, edit, and delete tags" />
+      <Box sx={{p: 3, pb: 2, position: 'relative'}}>
+        <SectionHeader title="Manage Tags" description="View and edit your tag descriptions" />
+        <IconButton
+          onClick={props.close}
+          sx={{position: 'absolute', top: 8, right: 8}}
+          aria-label="close"
+        >
+          <Close />
+        </IconButton>
+      </Box>
 
-      <div className="mt-4 overflow-auto flex flex-col items-start">
-        <h3 className="self-center my-6">Private tags</h3>
-        {privateTags.map((t) => (
-          <div key={t.id} className="mb-8 flex flex-col items-start">
-            <div className="bg-slate-200 px-2 py-1 rounded text-sm">{t.name}</div>
-            <div>
-              <AppLink onClick={() => setDescToEdit(t.id)} sx={{fontSize: '0.8em'}}>
-                {t.description ?? 'Add description'}
-              </AppLink>
-            </div>
-          </div>
-        ))}
+      <Divider />
 
-        <h3 className="self-center my-6">Public tags</h3>
-        {publicTags.map((t) => (
-          <div key={t.id} className="mb-8 flex flex-col items-start">
-            <div className="bg-slate-200 px-2 py-1 rounded text-sm">{t.name}</div>
-            <div>{t.description ?? ''}</div>
-          </div>
-        ))}
-      </div>
+      <Box sx={{px: 3, py: 2, overflow: 'auto', maxHeight: 'calc(90vh - 120px)'}}>
+        {/* Private Tags Section */}
+        <Box sx={{mb: 4}}>
+          <Box sx={{display: 'flex', alignItems: 'center', gap: 1, mb: 2}}>
+            <Lock sx={{fontSize: 20, color: 'text.secondary'}} />
+            <Typography variant="h6" sx={{fontWeight: 600}}>
+              Your Private Tags
+            </Typography>
+          </Box>
 
-      <IconButton onClick={props.close} sx={{position: 'absolute', top: 1, right: 1}}>
-        <Close />
-      </IconButton>
+          {privateTags.length === 0 ? (
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{fontStyle: 'italic', py: 2, textAlign: 'center'}}
+            >
+              No private tags yet. Create tags when annotating games.
+            </Typography>
+          ) : (
+            <Box sx={{display: 'flex', flexDirection: 'column', gap: 2}}>
+              {privateTags.map((t) => (
+                <TagCard
+                  key={t.id}
+                  id={t.id}
+                  name={t.name}
+                  description={t.description}
+                  isPublic={false}
+                  onEditDescription={setDescToEdit}
+                />
+              ))}
+            </Box>
+          )}
+        </Box>
+
+        <Divider sx={{my: 3}} />
+
+        {/* Public Tags Section */}
+        <Box>
+          <Box sx={{display: 'flex', alignItems: 'center', gap: 1, mb: 2}}>
+            <PublicIcon sx={{fontSize: 20, color: 'text.secondary'}} />
+            <Typography variant="h6" sx={{fontWeight: 600}}>
+              Public Tags
+            </Typography>
+            <Typography variant="caption" color="text.secondary" sx={{ml: 0.5}}>
+              (Available to all users)
+            </Typography>
+          </Box>
+
+          {publicTags.length === 0 ? (
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{fontStyle: 'italic', py: 2, textAlign: 'center'}}
+            >
+              No public tags available.
+            </Typography>
+          ) : (
+            <Box sx={{display: 'flex', flexDirection: 'column', gap: 2}}>
+              {publicTags.map((t) => (
+                <TagCard
+                  key={t.id}
+                  id={t.id}
+                  name={t.name}
+                  description={t.description}
+                  isPublic={true}
+                />
+              ))}
+            </Box>
+          )}
+        </Box>
+      </Box>
 
       {descToEdit && (
         <DescriptionDialog
