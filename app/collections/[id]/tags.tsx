@@ -1,9 +1,10 @@
+'use client'
 import SectionHeader, {captionClassNames} from '@/app/ui/SectionHeader'
 import {FC, useCallback, useEffect, useState} from 'react'
 import {MultiValue} from 'react-select'
 import CreatableSelect from 'react-select/creatable'
 import {useAppContext} from '../context'
-import {deleteGameTags, insertGameTag, insertTag, getTags, getGameTags} from './actions/crudActions'
+import {deleteGameTags, getGameTags, getTags, insertGameTag, insertTag} from './actions/crudActions'
 import ManageTags from './manageTags/manageTags'
 
 interface Props {

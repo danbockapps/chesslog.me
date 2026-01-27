@@ -1,12 +1,12 @@
 import {requireAuth, requireOwnership} from '@/lib/auth'
 import {db} from '@/lib/db'
 import {collections, games} from '@/lib/schema'
-import {eq, desc} from 'drizzle-orm'
-import {captionClassNames} from '@/app/ui/SectionHeader'
+import {desc, eq} from 'drizzle-orm'
 import Link from 'next/link'
 import {FC} from 'react'
 import {ChesscomResult} from './actions/importChesscomGames'
 import ChesscomGameAccordion from './chesscom/gameAccordion'
+import LastRefreshedDisplay from './lastRefreshedDisplay'
 import LichessGameAccordion from './lichess/gameAccordion'
 import RefreshButton from './refreshButton'
 
@@ -75,9 +75,7 @@ const Collection: FC<Props> = async (props) => {
 
         {site && username && page === 1 && (
           <>
-            <p className={`${captionClassNames} ml-auto mr-4`}>
-              Last refreshed: {lastRefreshed?.toLocaleString() ?? 'Never'}
-            </p>
+            <LastRefreshedDisplay lastRefreshed={lastRefreshed} />
             <RefreshButton collectionId={params.id} {...{site, username, lastRefreshed}} />
           </>
         )}

@@ -1,3 +1,4 @@
+'use client'
 import Button from '@/app/ui/button'
 import SectionHeader, {captionClassNames} from '@/app/ui/SectionHeader'
 import {FC, useEffect, useState} from 'react'
