@@ -35,8 +35,10 @@ const ManageTags: FC<Props> = (props) => {
   }, [user.id])
 
   useEffect(() => {
-    refresh()
-  }, [refresh])
+    if (props.open) {
+      refresh()
+    }
+  }, [props.open, refresh])
 
   const privateTags = tags.filter((t) => !t.public)
   const publicTags = tags.filter((t) => t.public)
