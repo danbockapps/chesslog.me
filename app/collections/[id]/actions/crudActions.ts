@@ -84,7 +84,7 @@ export const insertGameTag = async (tagId: number, gameId: number) => {
 
   db.insert(gameTags).values({gameId, tagId}).run()
 
-  revalidatePath(`/collections/${game.collectionId}`)
+  // No revalidatePath needed - component handles state update locally
 }
 
 export const deleteGameTags = async (gameId: number, tagIds: number[]) => {
@@ -109,7 +109,7 @@ export const deleteGameTags = async (gameId: number, tagIds: number[]) => {
     .where(and(eq(gameTags.gameId, gameId), inArray(gameTags.tagId, tagIds)))
     .run()
 
-  revalidatePath(`/collections/${game.collectionId}`)
+  // No revalidatePath needed - component handles state update locally
 }
 
 export const getTags = async () => {
