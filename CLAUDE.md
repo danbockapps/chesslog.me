@@ -151,6 +151,43 @@ app/
 - Chess.com moves: `https://www.chess.com/callback/live/game/{gameId}` (TCN format)
 - Lichess: `https://lichess.org/api/games/user/{username}` (NDJSON, requires bearer token)
 
+### Tag System
+
+The application includes a comprehensive tag system for categorizing and organizing games:
+
+**Tag Types:**
+
+- **Private tags**: Created by users, visible only to the creator, fully editable
+- **Public tags**: System-wide tags visible to all users, not editable by regular users
+
+**Default Public Tags:**
+The database includes default public tags owned by a system user (`system@chesslog.me`):
+
+- "Played too slow" - Burned too much time early in the game and got in time trouble
+- "Played too fast" - Made moves impatiently or without proper consideration
+- "Opening theory" - Got a bad position early due to lack of opening knowledge
+- "Middlegame strategy" - Didn't know the right strategy for my side in the middlegame
+- "Endgame strategy" - Didn't know the right strategy for my side in the endgame
+- "Loose pieces" - Left a piece unprotected and regretted it
+- "King safety" - Allowed weaknesses around my king and regretted it
+- "Allowed tactic" - Allowed a tactic by my opponent
+- "Missed tactic" - Had a win but I missed it
+
+**Tag Management:**
+
+- Tags can be created inline when annotating games (via `CreatableSelect` component)
+- Tags can be managed via the "Manage tags" modal
+- Private tag descriptions are editable by their owners
+- Public tag descriptions are read-only for regular users
+- Tags are associated with games via the `game_tags` junction table
+
+**Adding New Public Tags:**
+To add more default public tags, create a new migration that:
+
+1. Inserts tags with `owner_id = 'system-00000000-0000-0000-0000-000000000000'`
+2. Sets `public = 1` (true in SQL boolean format)
+3. Includes descriptive text in the `description` field
+
 ### Chess Board Component
 
 - Located in `app/collections/[id]/chesscom/board.tsx`

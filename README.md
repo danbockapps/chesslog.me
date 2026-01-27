@@ -8,7 +8,7 @@ A Next.js application for importing, organizing, and analyzing your chess games 
 - **Organize** games into collections by username and platform
 - **Analyze** games with an interactive chess board (move-by-move navigation)
 - **Annotate** games with personal notes and reusable tags/takeaways
-- **Tag System** with private and public tags for categorizing games
+- **Tag System** with private and public tags for categorizing games. Public tags are not editable by the user. A selection of default public tags is included in the database by default.
 - **Automatic Deduplication** when refreshing collections
 
 ## Tech Stack
