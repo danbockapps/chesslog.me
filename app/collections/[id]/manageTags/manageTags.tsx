@@ -4,8 +4,8 @@ import {Close} from '@mui/icons-material'
 import {Dialog, IconButton} from '@mui/material'
 import {FC, useCallback, useEffect, useState} from 'react'
 import {useAppContext} from '../../context'
-import {saveTagDescription} from './actions'
 import {getTagsWithDetails} from '../actions/crudActions'
+import {saveTagDescription} from './actions'
 import DescriptionDialog from './descriptionDialog'
 
 interface Props {
@@ -46,8 +46,10 @@ const ManageTags: FC<Props> = (props) => {
       open={props.open}
       fullWidth
       maxWidth="sm"
-      PaperProps={{
-        sx: {height: {xs: '98%', md: 'auto'}, padding: {xs: 1, md: 2}},
+      slotProps={{
+        paper: {
+          sx: {height: {xs: '98%', md: 'auto'}, padding: {xs: 1, md: 2}},
+        },
       }}
     >
       <SectionHeader title="Manage Tags" description="Add, edit, and delete tags" />
