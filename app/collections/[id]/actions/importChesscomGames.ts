@@ -94,7 +94,10 @@ const importChesscomGamesForMonth = async ({
       }))
 
     if (gamesData.length > 0) {
-      db.insert(games).values(gamesData).onConflictDoNothing({target: games.url}).run()
+      db.insert(games)
+        .values(gamesData)
+        .onConflictDoNothing({target: [games.collectionId, games.url]})
+        .run()
     }
 
     console.timeLog('importChesscomGames', 'attempted to insert')

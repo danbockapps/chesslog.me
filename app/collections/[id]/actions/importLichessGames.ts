@@ -65,7 +65,10 @@ const importLichessGames = async (
         winner: g.winner,
       }))
 
-      db.insert(games).values(gamesData).onConflictDoNothing({target: games.lichessGameId}).run()
+      db.insert(games)
+        .values(gamesData)
+        .onConflictDoNothing({target: [games.collectionId, games.lichessGameId]})
+        .run()
 
       console.timeLog('importLichessGames', 'inserted')
 

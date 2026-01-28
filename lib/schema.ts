@@ -1,4 +1,4 @@
-import {sqliteTable, text, integer, primaryKey} from 'drizzle-orm/sqlite-core'
+import {sqliteTable, text, integer, primaryKey, unique} from 'drizzle-orm/sqlite-core'
 
 // Users table - for authentication
 export const users = sqliteTable('users', {
@@ -47,32 +47,40 @@ export const collections = sqliteTable('collections', {
 })
 
 // Games table - individual chess games
-export const games = sqliteTable('games', {
-  id: integer('id').primaryKey({autoIncrement: true}),
-  collectionId: text('collection_id')
-    .notNull()
-    .references(() => collections.id, {onDelete: 'cascade'}),
-  site: text('site').$type<'lichess' | 'chess.com'>(),
-  url: text('url').unique(), // Chess.com game URL
-  lichessGameId: text('lichess_game_id').unique(), // Lichess game ID
-  gameDttm: text('game_dttm'), // ISO8601 timestamp
-  eco: text('eco'),
-  fen: text('fen'),
-  timeControl: text('time_control'),
-  clockInitial: integer('clock_initial'),
-  clockIncrement: integer('clock_increment'),
-  whiteUsername: text('white_username'),
-  blackUsername: text('black_username'),
-  whiteRating: integer('white_rating'),
-  blackRating: integer('black_rating'),
-  whiteResult: text('white_result'),
-  blackResult: text('black_result'),
-  winner: text('winner'),
-  notes: text('notes'),
-  createdAt: text('created_at')
-    .notNull()
-    .$defaultFn(() => new Date().toISOString()),
-})
+export const games = sqliteTable(
+  'games',
+  {
+    id: integer('id').primaryKey({autoIncrement: true}),
+    collectionId: text('collection_id')
+      .notNull()
+      .references(() => collections.id, {onDelete: 'cascade'}),
+    site: text('site').$type<'lichess' | 'chess.com'>(),
+    url: text('url'), // Chess.com game URL
+    lichessGameId: text('lichess_game_id'), // Lichess game ID
+    gameDttm: text('game_dttm'), // ISO8601 timestamp
+    eco: text('eco'),
+    fen: text('fen'),
+    timeControl: text('time_control'),
+    clockInitial: integer('clock_initial'),
+    clockIncrement: integer('clock_increment'),
+    whiteUsername: text('white_username'),
+    blackUsername: text('black_username'),
+    whiteRating: integer('white_rating'),
+    blackRating: integer('black_rating'),
+    whiteResult: text('white_result'),
+    blackResult: text('black_result'),
+    winner: text('winner'),
+    notes: text('notes'),
+    createdAt: text('created_at')
+      .notNull()
+      .$defaultFn(() => new Date().toISOString()),
+  },
+  (table) => ({
+    // Composite unique constraints - same game can exist in multiple collections
+    uniqueLichessGame: unique().on(table.collectionId, table.lichessGameId),
+    uniqueChesscomGame: unique().on(table.collectionId, table.url),
+  }),
+)
 
 // Tags table - reusable tags/takeaways
 export const tags = sqliteTable('tags', {
