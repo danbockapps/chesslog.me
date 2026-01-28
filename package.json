@@ -24,7 +24,7 @@
     "react": "^19.2.3",
     "react-chessboard": "4.7.0",
     "react-dom": "^19.2.3",
-    "react-select": "^5.8.1"
+    "react-select": "^5.10.2"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",

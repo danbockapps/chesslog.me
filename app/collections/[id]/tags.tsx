@@ -1,17 +1,24 @@
 'use client'
+import {themeColors} from '@/app/theme/theme'
 import SectionHeader, {captionClassNames} from '@/app/ui/SectionHeader'
 import {FC, useCallback, useEffect, useState} from 'react'
-import {MultiValue} from 'react-select'
+import {MultiValue, StylesConfig, ThemeConfig} from 'react-select'
 import CreatableSelect from 'react-select/creatable'
 import {useAppContext} from '../context'
-import {deleteGameTags, getGameTags, getTags, insertGameTag, insertTag} from './actions/crudActions'
+import {
+  deleteGameTags,
+  getGameTags,
+  getTagsWithDetails,
+  insertGameTag,
+  insertTag,
+} from './actions/crudActions'
 import ManageTags from './manageTags/manageTags'
 
 interface Props {
   gameId: number
 }
 
-type Tag = {id: number; name: string | null}
+type Tag = {id: number; name: string | null; public: boolean}
 
 const Tags: FC<Props> = (props) => {
   const [values, setValues] = useState<MultiValue<Tag> | null>()
@@ -25,7 +32,7 @@ const Tags: FC<Props> = (props) => {
   const refresh = useCallback(async () => {
     if (user) {
       const [newOptions, newSelectedTagIds] = await Promise.all([
-        getTags(),
+        getTagsWithDetails(),
         getGameTags(props.gameId),
       ])
 
@@ -41,6 +48,55 @@ const Tags: FC<Props> = (props) => {
   const selectedOptions =
     values ??
     (selectedTagIds.map((tagId) => options.find((tag) => tag.id === tagId)) as MultiValue<Tag>)
+
+  // Detect if user prefers dark mode
+  const isDarkMode =
+    typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches
+  const colors = isDarkMode ? themeColors.dark : themeColors.light
+
+  const customStyles: StylesConfig<Tag, true> = {
+    multiValue: (base, {data}) => ({
+      ...base,
+      backgroundColor: data.public ? colors.success : colors.primary,
+    }),
+    multiValueLabel: (base) => ({
+      ...base,
+      color: 'white',
+      fontWeight: 500,
+    }),
+    multiValueRemove: (base) => ({
+      ...base,
+      color: 'white',
+      ':hover': {
+        backgroundColor: 'rgba(0, 0, 0, 0.1)',
+        color: 'white',
+      },
+    }),
+  }
+
+  const customTheme: ThemeConfig = (theme) => ({
+    ...theme,
+    colors: {
+      ...theme.colors,
+      primary: colors.primary,
+      primary75: colors.primary,
+      primary50: colors.primary,
+      primary25: isDarkMode ? colors.surfaceHover : colors.border,
+      danger: colors.error,
+      dangerLight: colors.error,
+      neutral0: colors.surface, // background
+      neutral5: colors.surfaceHover,
+      neutral10: colors.border,
+      neutral20: colors.border,
+      neutral30: colors.border,
+      neutral40: colors.textSecondary,
+      neutral50: colors.textSecondary,
+      neutral60: colors.textSecondary,
+      neutral70: colors.textPrimary,
+      neutral80: colors.textPrimary,
+      neutral90: colors.textPrimary,
+    },
+  })
 
   return (
     <div>
@@ -82,6 +138,8 @@ const Tags: FC<Props> = (props) => {
           setBeenSaved(true)
           setLoading(false)
         }}
+        styles={customStyles}
+        theme={customTheme}
         {...{options}}
         getOptionValue={({id}) => `${id}`}
         getOptionLabel={({name}) => name ?? ''}
