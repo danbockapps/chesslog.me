@@ -203,6 +203,42 @@ To add more default public tags, create a new migration that:
 - Example: `import {db} from '@/lib/db'`
 - Example: `import {requireAuth} from '@/lib/auth'`
 
+### Theme System
+
+**Single Source of Truth for Colors:**
+
+All color values are defined in `app/theme/theme.ts` in the `themeColors` object, with separate palettes for light and dark modes.
+
+**How it works:**
+
+1. **Color Definition**: `app/theme/theme.ts` exports `themeColors` with semantic color tokens:
+   - `background`, `surface`, `primary`, `secondary`, `textPrimary`, `textSecondary`, etc.
+   - Brand colors: `chesscom`, `lichess` (always same in both modes)
+
+2. **CSS Variables**: `ThemeProvider` component dynamically injects CSS variables based on system preference
+   - Automatically switches when user changes OS theme
+   - Variables follow format: `--color-background`, `--color-text-primary`, etc.
+
+3. **Tailwind Integration**: `tailwind.config.ts` extends theme with semantic classes:
+   - `bg-surface`, `text-text-primary`, `border-border`, etc.
+   - All reference CSS variables from theme.ts
+
+4. **MUI Integration**: MUI theme also reads from the same `themeColors` object
+
+**Usage in Components:**
+
+Use semantic Tailwind classes instead of arbitrary colors:
+
+```tsx
+// Good - uses semantic tokens
+<div className="bg-surface text-text-primary border-border">
+
+// Bad - hardcoded colors
+<div className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+```
+
+**To change colors:** Only edit `app/theme/theme.ts` - changes propagate everywhere automatically.
+
 ## Code Style Conventions
 
 **Prettier Configuration:**

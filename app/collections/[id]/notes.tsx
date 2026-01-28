@@ -29,7 +29,7 @@ const Notes: FC<Props> = (props) => {
         description="Any thoughts you want to remember about this game"
       />
       <textarea
-        className="self-stretch flex-1 p-2 mb-2 border"
+        className="self-stretch flex-1 p-2 mb-2 border border-border rounded bg-surface text-text-primary"
         value={notes ?? ''}
         onChange={(e) => setNotes(e.target.value)}
         disabled={loading}

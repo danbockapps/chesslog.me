@@ -19,9 +19,11 @@ const GameAccordionHeader: FC<Props> = (props) => (
       {props.whiteUsername} vs. {props.blackUsername}
     </div>
 
-    <div className="text-gray-500">{props.timeControl}</div>
-    <div className="hidden md:block ml-auto truncate max-w-sm text-gray-500">{props.opening}</div>
-    <div className="ml-auto md:ml-0 text-gray-500">{getRelativeTime(props.gameDttm)}</div>
+    <div className="text-text-secondary">{props.timeControl}</div>
+    <div className="hidden md:block ml-auto truncate max-w-sm text-text-secondary">
+      {props.opening}
+    </div>
+    <div className="ml-auto md:ml-0 text-text-secondary">{getRelativeTime(props.gameDttm)}</div>
   </>
 )
 
@@ -41,11 +43,11 @@ const getRelativeTime = (date: Date) => {
 const getDotColor = (points: 0 | 0.5 | 1) => {
   switch (points) {
     case 1:
-      return 'bg-green-500'
+      return 'bg-success'
     case 0.5:
-      return 'bg-gray-500'
+      return 'bg-text-secondary'
     case 0:
-      return 'bg-red-500'
+      return 'bg-error'
   }
 }
 

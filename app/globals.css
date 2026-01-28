@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  /* CSS variables are injected dynamically from theme.ts via ThemeProvider */
+  body {
+    background-color: var(--color-background);
+    color: var(--color-text-primary);
+  }
+}
+
 .lichess-iframe {
   width: 100%;
   height: 400px;

@@ -65,7 +65,7 @@ const Board: FC<ChesscomProps | LichessProps> = (props) => {
 
       <div className="py-2 flex">
         <button
-          className={`flex-1 ${backwardButtonsDisabled ? 'text-slate-300' : 'text-black'}`}
+          className={`flex-1 ${backwardButtonsDisabled ? 'text-text-muted' : 'text-text-primary'}`}
           disabled={backwardButtonsDisabled}
           onClick={async () => {
             if (!moves) await loadGame()
@@ -77,7 +77,7 @@ const Board: FC<ChesscomProps | LichessProps> = (props) => {
         </button>
 
         <button
-          className={`flex-1 ${backwardButtonsDisabled ? 'text-slate-300' : 'text-black'}`}
+          className={`flex-1 ${backwardButtonsDisabled ? 'text-text-muted' : 'text-text-primary'}`}
           disabled={backwardButtonsDisabled}
           onClick={async () => {
             if (moves && currentMove !== undefined && currentMove > 0) {
@@ -101,7 +101,7 @@ const Board: FC<ChesscomProps | LichessProps> = (props) => {
         </button>
 
         <button
-          className={`flex-1 ${forwardButtonsDisabled ? 'text-slate-300' : 'text-black'}`}
+          className={`flex-1 ${forwardButtonsDisabled ? 'text-text-muted' : 'text-text-primary'}`}
           disabled={forwardButtonsDisabled}
           onClick={() => {
             if (moves && currentMove !== undefined && currentMove < moves.length) {
@@ -114,7 +114,7 @@ const Board: FC<ChesscomProps | LichessProps> = (props) => {
         </button>
 
         <button
-          className={`flex-1 ${forwardButtonsDisabled ? 'text-slate-300' : 'text-black'}`}
+          className={`flex-1 ${forwardButtonsDisabled ? 'text-text-muted' : 'text-text-primary'}`}
           disabled={forwardButtonsDisabled}
           onClick={() => {
             if (moves && currentMove !== undefined) {

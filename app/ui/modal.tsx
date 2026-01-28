@@ -12,9 +12,9 @@ const Modal: React.FC<ModalProps> = ({isOpen, onClose, children}) => {
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50">
       <div className="fixed inset-0 bg-black opacity-50" onClick={onClose}></div>
-      <div className="bg-white rounded-lg shadow-lg p-6 z-10 max-w-lg w-full relative">
+      <div className="bg-surface rounded-lg shadow-lg p-6 z-10 max-w-lg w-full relative">
         <button
-          className="absolute top-2 right-2 text-gray-600 hover:text-gray-900"
+          className="absolute top-2 right-2 text-text-secondary hover:text-text-primary"
           onClick={onClose}
         >
           <svg

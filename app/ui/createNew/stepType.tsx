@@ -1,3 +1,4 @@
+import {Box} from '@mui/material'
 import Image from 'next/image'
 import {FC} from 'react'
 import {Step, Type} from './createNewModal'
@@ -10,22 +11,38 @@ interface Props {
 
 const StepType: FC<Props> = (props) => (
   <>
-    <button
+    <Box
+      component="button"
       onClick={() => {
         props.setType('manual')
         props.setStep('name')
       }}
-      className="w-full flex items-center justify-center h-14 bg-gray-200 text-gray-700 p-2 rounded"
+      sx={{
+        width: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '3.5rem',
+        bgcolor: 'action.selected',
+        color: 'text.primary',
+        p: 1,
+        borderRadius: 1,
+        border: 0,
+        cursor: 'pointer',
+        '&:hover': {
+          bgcolor: 'action.hover',
+        },
+      }}
     >
       <span className="flex-grow">Manual Collection</span>
-    </button>
+    </Box>
     Use this for OTB games.
     <button
       onClick={() => {
         props.setType('chess.com')
         props.setStep('username')
       }}
-      className="w-full flex items-center justify-center bg-[#2d2c28] text-gray-700 p-2 rounded"
+      className="w-full flex items-center justify-center bg-chesscom p-2 rounded"
     >
       <img
         src="https://images.chesscomfiles.com/uploads/v1/images_users/tiny_mce/PedroPinhata/phpNgJfyb.png"
@@ -39,10 +56,10 @@ const StepType: FC<Props> = (props) => (
         props.setType('lichess')
         props.setStep('username')
       }}
-      className="w-full flex items-center justify-center gap-2 bg-black text-white p-2 rounded"
+      className="w-full flex items-center justify-center gap-2 bg-lichess p-2 rounded"
     >
       <Image src={lichessLogo} width={24} height={24} alt="Lichess" className="h-10 w-10 mr-2" />
-      <span>Lichess</span>
+      <span className="text-white">Lichess</span>
     </button>
     Your games will be imported from Lichess.
   </>

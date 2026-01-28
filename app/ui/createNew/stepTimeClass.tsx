@@ -30,7 +30,7 @@ const StepTimeClass: FC<Props> = (props) => {
     <>
       <Back onClick={() => props.setStep('username')} />
       <div className="space-y-2">
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-text-secondary">
           Optional: Filter games by time control. Leave unselected to import all games.
         </p>
         <div className="space-y-2">
@@ -40,8 +40,8 @@ const StepTimeClass: FC<Props> = (props) => {
               onClick={() => props.setTimeClass(option.value)}
               className={`w-full p-3 rounded border-2 transition-colors ${
               props.timeClass === option.value
-                  ? 'border-blue-500 bg-blue-50'
-                  : 'border-gray-300 hover:border-gray-400'
+                  ? 'border-primary bg-primary/10'
+                  : 'border-border hover:border-text-secondary'
               }`}
             >
               {option.label}
