@@ -9,16 +9,19 @@ interface Props {
   collectionId: string
   site: 'chess.com' | 'lichess'
   username: string
+  timeClass: string | null | undefined
   lastRefreshed: Date | null
 }
 
-const RefreshButton: FC<Props> = ({collectionId, site, username, lastRefreshed}) => {
+const RefreshButton: FC<Props> = ({collectionId, site, username, timeClass, lastRefreshed}) => {
   const [loading, setLoading] = useState(false)
 
   const onClick = async () => {
     setLoading(true)
-    if (site === 'chess.com') await importChesscomGames(collectionId, lastRefreshed, username)
-    if (site === 'lichess') await importLichessGames(collectionId, lastRefreshed, username)
+    if (site === 'chess.com')
+      await importChesscomGames(collectionId, lastRefreshed, username, timeClass ?? null)
+    if (site === 'lichess')
+      await importLichessGames(collectionId, lastRefreshed, username, timeClass ?? null)
     setLoading(false)
   }
 

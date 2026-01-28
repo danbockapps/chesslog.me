@@ -3,11 +3,16 @@
 import {requireAuth} from '@/lib/auth'
 import {db} from '@/lib/db'
 import {collections} from '@/lib/schema'
-import {Type} from './createNewModal'
+import {Type, TimeClass} from './createNewModal'
 import {revalidatePath} from 'next/cache'
 import {redirect} from 'next/navigation'
 
-export async function createCollection(type: Type, username: string, name: string) {
+export async function createCollection(
+  type: Type,
+  username: string,
+  timeClass: TimeClass,
+  name: string,
+) {
   const user = await requireAuth()
 
   const collectionId = crypto.randomUUID()
@@ -19,6 +24,7 @@ export async function createCollection(type: Type, username: string, name: strin
       name: name.trim() || 'Untitled collection',
       username: username.trim() || null,
       site: type === 'lichess' || type === 'chess.com' ? type : null,
+      timeClass: timeClass,
     })
     .run()
 

@@ -31,6 +31,7 @@ const Collection: FC<Props> = async (props) => {
       name: collections.name,
       username: collections.username,
       site: collections.site,
+      timeClass: collections.timeClass,
       last_refreshed: collections.lastRefreshed,
     })
     .from(collections)
@@ -46,7 +47,7 @@ const Collection: FC<Props> = async (props) => {
     .offset((page - 1) * PAGE_SIZE)
     .all()
 
-  const {name, username, site, last_refreshed} = collection ?? {}
+  const {name, username, site, timeClass, last_refreshed} = collection ?? {}
   const lastRefreshed = last_refreshed ? new Date(last_refreshed) : null
 
   const gamesList =
@@ -76,7 +77,10 @@ const Collection: FC<Props> = async (props) => {
         {site && username && page === 1 && (
           <>
             <LastRefreshedDisplay lastRefreshed={lastRefreshed} />
-            <RefreshButton collectionId={params.id} {...{site, username, lastRefreshed}} />
+            <RefreshButton
+              collectionId={params.id}
+              {...{site, username, timeClass, lastRefreshed}}
+            />
           </>
         )}
 

@@ -37,6 +37,9 @@ export const collections = sqliteTable('collections', {
   name: text('name').notNull(),
   site: text('site').$type<'lichess' | 'chess.com'>(), // ENUM as text with type assertion
   username: text('username'),
+  timeClass: text('time_class').$type<
+    'ultraBullet' | 'bullet' | 'blitz' | 'rapid' | 'classical' | null
+  >(), // Time class filter
   lastRefreshed: text('last_refreshed'), // ISO8601 timestamp
   createdAt: text('created_at')
     .notNull()

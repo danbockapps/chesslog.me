@@ -2,7 +2,7 @@
 
 import {requireAuth, requireOwnership} from '@/lib/auth'
 import {db} from '@/lib/db'
-import {games, collections} from '@/lib/schema'
+import {collections, games} from '@/lib/schema'
 import {eq} from 'drizzle-orm'
 import {revalidatePath} from 'next/cache'
 
@@ -10,6 +10,7 @@ const importChesscomGames = async (
   collectionId: string,
   lastRefreshed: Date | null,
   username: string,
+  timeClass: string | null = null,
 ) => {
   // Verify user owns this collection
   const user = await requireAuth()
@@ -26,6 +27,7 @@ const importChesscomGames = async (
     username,
     collectionId,
     lastRefreshed,
+    timeClass,
   })
 
   if (
@@ -40,6 +42,7 @@ const importChesscomGames = async (
       username,
       collectionId,
       lastRefreshed,
+      timeClass,
     })
   }
 
@@ -53,6 +56,7 @@ interface ImportChesscomGamesForMonthProps {
   username: string
   collectionId: string
   lastRefreshed: Date | null
+  timeClass: string | null
 }
 
 const importChesscomGamesForMonth = async ({
@@ -61,6 +65,7 @@ const importChesscomGamesForMonth = async ({
   username,
   collectionId,
   lastRefreshed,
+  timeClass,
 }: ImportChesscomGamesForMonthProps) => {
   const mm = `${jsMonth < 9 ? '0' : ''}${jsMonth + 1}`
   console.timeLog('importChesscomGames', `fetching games for ${year}-${mm}`)
@@ -71,6 +76,7 @@ const importChesscomGamesForMonth = async ({
   try {
     const gamesData = data.games
       .filter((g) => !lastRefreshed || new Date(g.end_time * 1000) > lastRefreshed)
+      .filter((g) => !timeClass || g.time_class === timeClass)
       .map((g) => ({
         site: 'chess.com' as const,
         collectionId,

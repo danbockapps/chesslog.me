@@ -1,12 +1,13 @@
 import {FC} from 'react'
 import Back from '../back'
 import Button from '../button'
-import {Step, Type} from './createNewModal'
+import {Step, TimeClass, Type} from './createNewModal'
 
 interface Props {
   setType: (type: Type) => void
   setStep: (step: Step) => void
   type: Type
+  timeClass: TimeClass
   name: string
   setName: (name: string) => void
   create: () => void
@@ -20,7 +21,7 @@ const StepName: FC<Props> = (props) => (
           props.setType(null)
           props.setStep('type')
         } else {
-          props.setStep('username')
+          props.setStep('timeClass')
         }
       }}
     />

@@ -10,6 +10,7 @@ const importLichessGames = async (
   collectionId: string,
   lastRefreshed: Date | null,
   username: string,
+  timeClass: string | null = null,
 ) => {
   // Verify user owns this collection
   const user = await requireAuth()
@@ -18,13 +19,20 @@ const importLichessGames = async (
   console.log('importLichessGames')
   console.time('importLichessGames')
 
-  const url = `https://lichess.org/api/games/user/${username}?${new URLSearchParams({
+  const params: Record<string, string> = {
     max: '100',
     since: `${lastRefreshed?.getTime() ?? ''}`,
     moves: 'false',
     opening: 'true',
     lastFen: 'true',
-  })}`
+  }
+
+  // Add perfType filter if timeClass is specified
+  if (timeClass) {
+    params.perfType = timeClass
+  }
+
+  const url = `https://lichess.org/api/games/user/${username}?${new URLSearchParams(params)}`
 
   const qr = await fetch(url, {
     headers: {accept: 'application/x-ndjson', Authorization: 'Bearer ' + process.env.LICHESS_TOKEN},
