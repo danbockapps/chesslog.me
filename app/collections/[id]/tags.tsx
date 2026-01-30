@@ -57,7 +57,7 @@ const Tags: FC<Props> = (props) => {
   const customStyles: StylesConfig<Tag, true> = {
     multiValue: (base, {data}) => ({
       ...base,
-      backgroundColor: data.public ? colors.success : colors.primary,
+      backgroundColor: data.public ? colors.successFilled : colors.primaryFilled,
     }),
     multiValueLabel: (base) => ({
       ...base,

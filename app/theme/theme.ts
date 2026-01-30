@@ -8,6 +8,7 @@ export const themeColors = {
     surfaceHover: '#f5f5f5',
     primary: '#1976d2',
     primaryHover: '#1565c0',
+    primaryFilled: '#1976d2', // for filled backgrounds with white text (same as primary in light mode)
     secondary: '#9c27b0',
     textPrimary: '#1f2937', // gray-800
     textSecondary: '#6b7280', // gray-500
@@ -15,6 +16,7 @@ export const themeColors = {
     border: '#d1d5db', // gray-300
     borderLight: '#e5e7eb', // gray-200
     success: '#22c55e', // green-500
+    successFilled: '#22c55e', // for filled backgrounds with white text (same as success in light mode)
     error: '#ef4444', // red-500
     warning: '#f59e0b', // amber-500
     info: '#3b82f6', // blue-500
@@ -26,18 +28,20 @@ export const themeColors = {
     background: '#111827', // gray-900
     surface: '#1f2937', // gray-800
     surfaceHover: '#374151', // gray-700
-    primary: '#3b82f6', // blue-500
-    primaryHover: '#2563eb', // blue-600
-    secondary: '#a855f7', // purple-500
+    primary: '#60a5fa', // blue-400 (better contrast for text/links on dark backgrounds)
+    primaryHover: '#3b82f6', // blue-500
+    primaryFilled: '#2563eb', // blue-600 (for filled backgrounds with white text - better contrast)
+    secondary: '#c084fc', // purple-400
     textPrimary: '#f9fafb', // gray-50
     textSecondary: '#9ca3af', // gray-400
     textMuted: '#6b7280', // gray-500
     border: '#4b5563', // gray-600
     borderLight: '#374151', // gray-700
     success: '#22c55e', // green-500
+    successFilled: '#16a34a', // green-600 (for filled backgrounds with white text - better contrast)
     error: '#ef4444', // red-500
     warning: '#f59e0b', // amber-500
-    info: '#3b82f6', // blue-500
+    info: '#60a5fa', // blue-400
     // Brand colors (always same regardless of mode)
     chesscom: '#2d2c28',
     lichess: '#000000',
@@ -49,12 +53,14 @@ const lightTheme: ThemeOptions = {
     mode: 'light',
     primary: {
       main: themeColors.light.primary,
+      dark: themeColors.light.primary, // same as main in light mode
     },
     secondary: {
       main: themeColors.light.secondary,
     },
     success: {
       main: themeColors.light.success,
+      dark: themeColors.light.success, // same as main in light mode
     },
     error: {
       main: themeColors.light.error,
@@ -81,12 +87,14 @@ const darkTheme: ThemeOptions = {
     mode: 'dark',
     primary: {
       main: themeColors.dark.primary,
+      dark: '#2563eb', // blue-600 - for filled backgrounds with white text
     },
     secondary: {
       main: themeColors.dark.secondary,
     },
     success: {
       main: themeColors.dark.success,
+      dark: '#16a34a', // green-600 - for filled backgrounds with white text
     },
     error: {
       main: themeColors.dark.error,

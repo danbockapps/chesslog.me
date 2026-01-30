@@ -16,15 +16,15 @@ const TagCard: FC<Props> = ({id, name, description, isPublic, onEditDescription}
     <Box
       sx={{
         p: 2,
-        bgcolor: 'grey.50',
+        bgcolor: 'background.paper',
         borderRadius: 2,
         border: '1px solid',
-        borderColor: 'grey.200',
+        borderColor: 'divider',
         transition: 'all 0.2s',
         ...(!isPublic && {
           '&:hover': {
             borderColor: 'primary.main',
-            bgcolor: 'grey.100',
+            bgcolor: 'action.hover',
           },
         }),
       }}
@@ -35,7 +35,7 @@ const TagCard: FC<Props> = ({id, name, description, isPublic, onEditDescription}
           size="small"
           sx={{
             fontWeight: 500,
-            bgcolor: isPublic ? 'success.main' : 'primary.main',
+            bgcolor: isPublic ? 'success.dark' : 'primary.dark',
             color: 'white',
             '& .MuiChip-label': {px: 1.5},
           }}
