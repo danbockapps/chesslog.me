@@ -1,7 +1,7 @@
 'use client'
 import SectionHeader, {captionClassNames} from '@/app/ui/SectionHeader'
 import {FC, useCallback, useEffect, useState} from 'react'
-import {MultiValue, StylesConfig, ThemeConfig} from 'react-select'
+import {MultiValue} from 'react-select'
 import CreatableSelect from 'react-select/creatable'
 import {useAppContext} from '../context'
 import {
@@ -49,51 +49,6 @@ const Tags: FC<Props> = (props) => {
     values ??
     (selectedTagIds.map((tagId) => options.find((tag) => tag.id === tagId)) as MultiValue<Tag>)
 
-  const customStyles: StylesConfig<Tag, true> = {
-    multiValue: (base, {data}) => ({
-      ...base,
-      backgroundColor: data.public ? 'hsl(var(--su))' : 'hsl(var(--p))', // success or primary
-    }),
-    multiValueLabel: (base) => ({
-      ...base,
-      color: 'white',
-      fontWeight: 500,
-    }),
-    multiValueRemove: (base) => ({
-      ...base,
-      color: 'white',
-      ':hover': {
-        backgroundColor: 'rgba(0, 0, 0, 0.1)',
-        color: 'white',
-      },
-    }),
-  }
-
-  //TODO do we need this?
-  const customTheme: ThemeConfig = (theme) => ({
-    ...theme,
-    colors: {
-      ...theme.colors,
-      primary: 'hsl(var(--p))', // primary
-      primary75: 'hsl(var(--p))',
-      primary50: 'hsl(var(--p))',
-      primary25: 'hsl(var(--b3))', // base-300
-      danger: 'hsl(var(--er))', // error
-      dangerLight: 'hsl(var(--er))',
-      neutral0: 'hsl(var(--b2))', // base-200 (surface)
-      neutral5: 'hsl(var(--b3))', // base-300
-      neutral10: 'hsl(var(--b3))',
-      neutral20: 'hsl(var(--b3))',
-      neutral30: 'hsl(var(--b3))',
-      neutral40: 'hsl(var(--bc) / 0.6)', // base-content with opacity
-      neutral50: 'hsl(var(--bc) / 0.6)',
-      neutral60: 'hsl(var(--bc) / 0.6)',
-      neutral70: 'hsl(var(--bc))', // base-content
-      neutral80: 'hsl(var(--bc))',
-      neutral90: 'hsl(var(--bc))',
-    },
-  })
-
   return (
     <div>
       <SectionHeader
@@ -135,11 +90,34 @@ const Tags: FC<Props> = (props) => {
           setBeenSaved(true)
           setLoading(false)
         }}
-        styles={customStyles}
-        theme={customTheme}
         {...{options}}
         getOptionValue={({id}) => `${id}`}
         getOptionLabel={({name}) => name ?? ''}
+        unstyled
+        classNames={{
+          control: () =>
+            'min-h-12 px-3 py-2 bg-base-100 border border-base-300 rounded-lg hover:border-base-content/30 transition-colors flex flex-wrap gap-1',
+          valueContainer: () => 'flex flex-wrap gap-1 p-0',
+          multiValue: ({data}) =>
+            `badge gap-1 px-2 py-3 ${data.public ? 'badge-success' : 'badge-primary'}`,
+          multiValueLabel: () => 'text-sm',
+          multiValueRemove: () => 'hover:bg-base-content/20 rounded-full px-1 ml-1 cursor-pointer',
+          input: () => 'text-base-content m-0 p-0',
+          placeholder: () => 'text-base-content/50',
+          menu: () =>
+            'mt-2 bg-base-200 border border-base-300 rounded-lg shadow-lg overflow-hidden',
+          menuList: () => 'py-1',
+          option: ({isFocused, isSelected}) =>
+            `px-3 py-2 cursor-pointer transition-colors ${
+              isSelected
+                ? 'bg-primary text-primary-content'
+                : isFocused
+                  ? 'bg-base-300'
+                  : 'bg-base-200 text-base-content'
+            }`,
+          noOptionsMessage: () => 'px-3 py-2 text-base-content/50',
+          loadingMessage: () => 'px-3 py-2 text-base-content/50',
+        }}
       />
 
       <div className={`${captionClassNames} mt-5`}>
