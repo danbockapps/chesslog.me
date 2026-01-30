@@ -4,6 +4,7 @@ import Accordion from '@/app/ui/accordion'
 import {gameAccordionClassNames} from '@/app/ui/accordionClassNames'
 import {FormControlLabel, Switch} from '@mui/material'
 import {FC, useState} from 'react'
+import {useAppContext} from '../../context'
 import Board from '../chesscom/board'
 import GameAccordionHeader from '../gameAccordionHeader'
 import Notes from '../notes'
@@ -27,6 +28,7 @@ const {cardClassName, headerClassName, contentClassName, lichessClassName} = gam
 
 const LichessGameAccordion: FC<Props> = (props) => {
   const [embed, setEmbed] = useState(true)
+  const {isDarkMode} = useAppContext()
   const ourColor = props.whiteUsername === props.username ? 'white' : 'black'
 
   const ourResult =
@@ -57,6 +59,7 @@ const LichessGameAccordion: FC<Props> = (props) => {
 
         {embed ? (
           <iframe
+            key={isDarkMode ? 'dark' : 'light'} // Force re-render on theme change
             className="lichess-iframe"
             src={`https://lichess.org/embed/game/${props.lichessGameId}/${ourColor}`}
           />

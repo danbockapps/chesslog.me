@@ -27,7 +27,7 @@ const Tags: FC<Props> = (props) => {
   const [options, setOptions] = useState<Tag[]>([])
   const [selectedTagIds, setSelectedTagIds] = useState<number[]>([])
   const [manageOpen, setManageOpen] = useState(false)
-  const {user} = useAppContext()
+  const {user, isDarkMode} = useAppContext()
 
   const refresh = useCallback(async () => {
     if (user) {
@@ -41,6 +41,7 @@ const Tags: FC<Props> = (props) => {
     }
   }, [user, props.gameId])
 
+  // Changes when: user loads the component or navigates to this page
   useEffect(() => {
     refresh()
   }, [refresh])
@@ -49,9 +50,6 @@ const Tags: FC<Props> = (props) => {
     values ??
     (selectedTagIds.map((tagId) => options.find((tag) => tag.id === tagId)) as MultiValue<Tag>)
 
-  // Detect if user prefers dark mode
-  const isDarkMode =
-    typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches
   const colors = isDarkMode ? themeColors.dark : themeColors.light
 
   const customStyles: StylesConfig<Tag, true> = {
@@ -107,6 +105,7 @@ const Tags: FC<Props> = (props) => {
       />
 
       <CreatableSelect
+        key={isDarkMode ? 'dark' : 'light'} // Force re-render on theme change
         isMulti
         isDisabled={loading}
         isLoading={loading}
