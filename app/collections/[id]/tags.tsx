@@ -1,5 +1,4 @@
 'use client'
-import {themeColors} from '@/app/theme/theme'
 import SectionHeader, {captionClassNames} from '@/app/ui/SectionHeader'
 import {FC, useCallback, useEffect, useState} from 'react'
 import {MultiValue, StylesConfig, ThemeConfig} from 'react-select'
@@ -50,12 +49,10 @@ const Tags: FC<Props> = (props) => {
     values ??
     (selectedTagIds.map((tagId) => options.find((tag) => tag.id === tagId)) as MultiValue<Tag>)
 
-  const colors = isDarkMode ? themeColors.dark : themeColors.light
-
   const customStyles: StylesConfig<Tag, true> = {
     multiValue: (base, {data}) => ({
       ...base,
-      backgroundColor: data.public ? colors.successFilled : colors.primaryFilled,
+      backgroundColor: data.public ? 'hsl(var(--su))' : 'hsl(var(--p))', // success or primary
     }),
     multiValueLabel: (base) => ({
       ...base,
@@ -72,27 +69,28 @@ const Tags: FC<Props> = (props) => {
     }),
   }
 
+  //TODO do we need this?
   const customTheme: ThemeConfig = (theme) => ({
     ...theme,
     colors: {
       ...theme.colors,
-      primary: colors.primary,
-      primary75: colors.primary,
-      primary50: colors.primary,
-      primary25: isDarkMode ? colors.surfaceHover : colors.border,
-      danger: colors.error,
-      dangerLight: colors.error,
-      neutral0: colors.surface, // background
-      neutral5: colors.surfaceHover,
-      neutral10: colors.border,
-      neutral20: colors.border,
-      neutral30: colors.border,
-      neutral40: colors.textSecondary,
-      neutral50: colors.textSecondary,
-      neutral60: colors.textSecondary,
-      neutral70: colors.textPrimary,
-      neutral80: colors.textPrimary,
-      neutral90: colors.textPrimary,
+      primary: 'hsl(var(--p))', // primary
+      primary75: 'hsl(var(--p))',
+      primary50: 'hsl(var(--p))',
+      primary25: 'hsl(var(--b3))', // base-300
+      danger: 'hsl(var(--er))', // error
+      dangerLight: 'hsl(var(--er))',
+      neutral0: 'hsl(var(--b2))', // base-200 (surface)
+      neutral5: 'hsl(var(--b3))', // base-300
+      neutral10: 'hsl(var(--b3))',
+      neutral20: 'hsl(var(--b3))',
+      neutral30: 'hsl(var(--b3))',
+      neutral40: 'hsl(var(--bc) / 0.6)', // base-content with opacity
+      neutral50: 'hsl(var(--bc) / 0.6)',
+      neutral60: 'hsl(var(--bc) / 0.6)',
+      neutral70: 'hsl(var(--bc))', // base-content
+      neutral80: 'hsl(var(--bc))',
+      neutral90: 'hsl(var(--bc))',
     },
   })
 

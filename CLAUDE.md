@@ -34,7 +34,7 @@ docker run -p 3000:3000 chesslog.me
 - **Framework:** Next.js 16.1.4 with App Router
 - **React:** 19.2.3
 - **Language:** TypeScript (strict mode)
-- **Styling:** Tailwind CSS + Material-UI components
+- **Styling:** Tailwind CSS + daisyUI
 - **Database:** SQLite via better-sqlite3 + Drizzle ORM
 - **Authentication:** Lucia Auth (session-based, cookie sessions)
 - **Chess Logic:** chess.js + react-chessboard
@@ -72,8 +72,11 @@ app/
 │   └── context.tsx        # User context for child components
 ├── ui/                    # Reusable UI components
 │   ├── createNew/         # Collection creation modal flow
-│   └── *.tsx              # Accordion, Button, Card, Modal, Spinner, etc.
+│   └── *.tsx              # Accordion, Card, Modal, Spinner, Link, etc.
+├── globals.css            # Global styles + Tailwind v4 + daisyUI configuration
 └── utils/                 # Utility functions
+
+postcss.config.mjs         # PostCSS configuration for Tailwind v4
 ```
 
 ### Database Schema
@@ -205,39 +208,79 @@ To add more default public tags, create a new migration that:
 
 ### Theme System
 
-**Single Source of Truth for Colors:**
+The application uses **Tailwind CSS v4** with **daisyUI** for automatic light/dark mode switching based on system preferences.
 
-All color values are defined in `app/theme/theme.ts` in the `themeColors` object, with separate palettes for light and dark modes.
+**Configuration:**
+
+The project uses Tailwind CSS v4's new CSS-first configuration in `app/globals.css`:
+
+```css
+@import 'tailwindcss';
+@plugin "daisyui" {
+  themes:
+    light --default,
+    dark --prefersdark;
+}
+```
+
+Brand colors are defined inline in CSS using `@theme`:
+
+```css
+@theme {
+  --color-chesscom: #2d2c28;
+  --color-lichess: #000000;
+}
+```
+
+PostCSS configuration in `postcss.config.mjs`:
+
+```javascript
+const config = {
+  plugins: {
+    '@tailwindcss/postcss': {},
+  },
+}
+```
 
 **How it works:**
 
-1. **Color Definition**: `app/theme/theme.ts` exports `themeColors` with semantic color tokens:
-   - `background`, `surface`, `primary`, `secondary`, `textPrimary`, `textSecondary`, etc.
-   - Brand colors: `chesscom`, `lichess` (always same in both modes)
+1. **Theme Configuration**: daisyUI themes are configured directly in `app/globals.css` using Tailwind v4's `@plugin` directive
+   - `light` theme is the default
+   - `dark` theme is applied automatically when `prefers-color-scheme: dark`
+   - No manual JavaScript required for theme switching
+   - No separate `tailwind.config.ts` file needed (Tailwind v4 uses CSS-first configuration)
 
-2. **CSS Variables**: `ThemeProvider` component dynamically injects CSS variables based on system preference
-   - Automatically switches when user changes OS theme
-   - Variables follow format: `--color-background`, `--color-text-primary`, etc.
+2. **daisyUI Semantic Classes**: daisyUI provides semantic color classes that automatically adapt to the active theme:
+   - Background: `bg-base-100`, `bg-base-200`, `bg-base-300`
+   - Text: `text-base-content`, `text-primary`, `text-secondary`
+   - Components: `btn`, `modal`, `badge`, `toggle`, `divider`, etc.
+   - All classes automatically adjust colors based on the active theme
 
-3. **Tailwind Integration**: `tailwind.config.ts` extends theme with semantic classes:
-   - `bg-surface`, `text-text-primary`, `border-border`, etc.
-   - All reference CSS variables from theme.ts
-
-4. **MUI Integration**: MUI theme also reads from the same `themeColors` object
+3. **Brand Colors**: Chess.com and Lichess brand colors are defined in `app/globals.css` using `@theme` and remain constant across themes:
+   - Chess.com: `#2d2c28` (accessed via `bg-chesscom` or `text-chesscom`)
+   - Lichess: `#000000` (accessed via `bg-lichess` or `text-lichess`)
 
 **Usage in Components:**
 
-Use semantic Tailwind classes instead of arbitrary colors:
+Use daisyUI semantic classes for theme-aware styling:
 
 ```tsx
-// Good - uses semantic tokens
-<div className="bg-surface text-text-primary border-border">
+// Good - uses daisyUI semantic classes
+<div className="bg-base-200 text-base-content border-base-300">
+<button className="btn btn-primary">Click me</button>
 
-// Bad - hardcoded colors
-<div className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+// Avoid - hardcoded colors don't respect theme
+<div className="bg-white text-gray-900 border-gray-200">
 ```
 
-**To change colors:** Only edit `app/theme/theme.ts` - changes propagate everywhere automatically.
+**Component Examples:**
+
+- Buttons: `btn`, `btn-primary`, `btn-outline`, `btn-ghost`
+- Modals: `modal`, `modal-box`, `modal-open`
+- Form elements: `toggle`, `input`, `textarea`
+- Layout: `divider`, `badge`
+
+**Icons**: Currently using emoji placeholders (🔒, 🌐, ✏️, ×). Can be replaced with a proper icon library in the future.
 
 ## Code Style Conventions
 

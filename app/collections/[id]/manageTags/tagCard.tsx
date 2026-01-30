@@ -1,6 +1,4 @@
 import AppLink from '@/app/ui/link'
-import {Edit} from '@mui/icons-material'
-import {Box, Chip, Typography} from '@mui/material'
 import {FC} from 'react'
 
 interface Props {
@@ -13,58 +11,34 @@ interface Props {
 
 const TagCard: FC<Props> = ({id, name, description, isPublic, onEditDescription}) => {
   return (
-    <Box
-      sx={{
-        p: 2,
-        bgcolor: 'background.paper',
-        borderRadius: 2,
-        border: '1px solid',
-        borderColor: 'divider',
-        transition: 'all 0.2s',
-        ...(!isPublic && {
-          '&:hover': {
-            borderColor: 'primary.main',
-            bgcolor: 'action.hover',
-          },
-        }),
-      }}
+    <div
+      className={`p-4 bg-base-200 rounded-2xl border border-base-300 transition-all ${
+        !isPublic ? 'hover:border-primary hover:bg-base-300' : '' }`}
     >
-      <Box sx={{display: 'flex', alignItems: 'center', gap: 1, mb: 1}}>
-        <Chip
-          label={name}
-          size="small"
-          sx={{
-            fontWeight: 500,
-            bgcolor: isPublic ? 'success.dark' : 'primary.dark',
-            color: 'white',
-            '& .MuiChip-label': {px: 1.5},
-          }}
-        />
-      </Box>
+      <div className="flex items-center gap-2 mb-2">
+        <span
+          className={`badge badge-sm font-medium ${isPublic ? 'bg-success text-white' : 'bg-primary text-white'} px-3`}
+        >
+          {name}
+        </span>
+      </div>
 
-      <Box sx={{pl: 0.5}}>
+      <div className="pl-1">
         {isPublic ? (
-          <Typography variant="body2" color="text.secondary" sx={{lineHeight: 1.6}}>
+          <p className="text-sm text-base-content/70 leading-relaxed">
             {description || 'No description available'}
-          </Typography>
+          </p>
         ) : (
           <AppLink
             onClick={() => onEditDescription?.(id)}
-            sx={{
-              fontSize: '0.875rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 0.5,
-              '&:hover': {gap: 1},
-              transition: 'gap 0.2s',
-            }}
+            className="text-sm flex items-center gap-1 hover:gap-2 transition-all"
           >
-            <Edit sx={{fontSize: 16}} />
+            <span>✏️</span>
             {description || 'Add description'}
           </AppLink>
         )}
-      </Box>
-    </Box>
+      </div>
+    </div>
   )
 }
 

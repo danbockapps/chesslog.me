@@ -1,13 +1,14 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
 
-@layer base {
-  /* CSS variables are injected dynamically from theme.ts via ThemeProvider */
-  body {
-    background-color: var(--color-background);
-    color: var(--color-text-primary);
-  }
+@theme {
+  --color-chesscom: #2d2c28;
+  --color-lichess: #000000;
+}
+
+@plugin "daisyui" {
+  themes:
+    light --default,
+    dark --prefersdark;
 }
 
 .lichess-iframe {

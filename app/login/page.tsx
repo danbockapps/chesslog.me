@@ -1,5 +1,4 @@
 import {FC} from 'react'
-import Button from '../ui/button'
 import {login} from './actions'
 
 interface Props {
@@ -51,9 +50,9 @@ const LoginPage: FC<Props> = async (props) => {
           />
         </div>
         <div className="flex space-x-4">
-          <Button formAction={login} className="w-full">
+          <button formAction={login} className="w-full">
             Log in
-          </Button>
+          </button>
         </div>
       </form>
     </div>

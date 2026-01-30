@@ -1,7 +1,6 @@
 'use client'
 
 import React, {useState} from 'react'
-import Button from '../ui/button'
 import {signup} from './actions'
 
 const SignUpPage: React.FC = () => {
@@ -62,10 +61,9 @@ const SignUpPage: React.FC = () => {
             </div>
           )}
 
-          <Button
-            fullWidth
+          <button
+            className="btn w-full"
             type="submit"
-            loading={status === 'loading'}
             disabled={status === 'success'}
             onClick={async () => {
               setErrorMessage('')
@@ -84,8 +82,8 @@ const SignUpPage: React.FC = () => {
               }
             }}
           >
-            Sign Up
-          </Button>
+            {status === 'loading' && <span className="loading loading-spinner"></span>}
+          </button>
         </form>
       </div>
     </div>

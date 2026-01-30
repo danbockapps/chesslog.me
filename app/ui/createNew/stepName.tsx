@@ -1,6 +1,5 @@
 import {FC} from 'react'
 import Back from '../back'
-import Button from '../button'
 import {Step, TimeClass, Type} from './createNewModal'
 
 interface Props {
@@ -33,9 +32,9 @@ const StepName: FC<Props> = (props) => (
       onChange={(e) => props.setName(e.target.value)}
     />
     Optional: Enter a name for your collection.
-    <Button onClick={props.create} variant="contained" fullWidth>
+    <button onClick={props.create} className="btn w-full">
       Create collection
-    </Button>
+    </button>
   </>
 )
 

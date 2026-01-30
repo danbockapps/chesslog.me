@@ -1,4 +1,3 @@
-import {Box} from '@mui/material'
 import Image from 'next/image'
 import {FC} from 'react'
 import {Step, Type} from './createNewModal'
@@ -11,31 +10,16 @@ interface Props {
 
 const StepType: FC<Props> = (props) => (
   <>
-    <Box
-      component="button"
+    <button
       onClick={() => {
         props.setType('manual')
         props.setStep('name')
       }}
-      sx={{
-        width: '100%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '3.5rem',
-        bgcolor: 'action.selected',
-        color: 'text.primary',
-        p: 1,
-        borderRadius: 1,
-        border: 0,
-        cursor: 'pointer',
-        '&:hover': {
-          bgcolor: 'action.hover',
-        },
-      }}
+      className="w-full flex items-center justify-center h-14 bg-base-200 hover:bg-base-300 text-base-content p-4
+        rounded-lg border-0 cursor-pointer transition-colors"
     >
       <span className="flex-grow">Manual Collection</span>
-    </Box>
+    </button>
     Use this for OTB games.
     <button
       onClick={() => {

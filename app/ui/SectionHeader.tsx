@@ -17,7 +17,7 @@ const SectionHeader: React.FC<Props> = ({title, description, link}) => {
         {description}
 
         {link && (
-          <AppLink sx={{marginLeft: '10px'}} onClick={link.onClick}>
+          <AppLink className="ml-2" onClick={link.onClick}>
             {link.text}
           </AppLink>
         )}

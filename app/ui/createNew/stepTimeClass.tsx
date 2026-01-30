@@ -1,7 +1,6 @@
 import {FC} from 'react'
 import Back from '../back'
-import Button from '../button'
-import {Step, Type, TimeClass} from './createNewModal'
+import {Step, TimeClass, Type} from './createNewModal'
 
 interface Props {
   setStep: (step: Step) => void
@@ -49,9 +48,10 @@ const StepTimeClass: FC<Props> = (props) => {
           ))}
         </div>
       </div>
-      <Button onClick={() => props.setStep('name')} variant="contained" fullWidth>
+
+      <button onClick={() => props.setStep('name')} className="btn w-full">
         Next
-      </Button>
+      </button>
     </>
   )
 }

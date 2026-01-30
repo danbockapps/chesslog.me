@@ -1,6 +1,5 @@
 import {FC} from 'react'
 import Back from '../back'
-import Button from '../button'
 import {Step, Type} from './createNewModal'
 
 interface Props {
@@ -27,14 +26,13 @@ const StepUsername: FC<Props> = (props) => (
       onChange={(e) => props.setUsername(e.target.value)}
     />
     Enter your username on {props.type === 'chess.com' ? 'Chess.com' : 'Lichess'}.
-    <Button
+    <button
       onClick={() => props.setStep('timeClass')}
-      variant="contained"
-      fullWidth
+      className="btn w-full"
       disabled={!props.username}
     >
       Next
-    </Button>
+    </button>
   </>
 )
 

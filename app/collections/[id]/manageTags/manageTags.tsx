@@ -1,6 +1,4 @@
 import SectionHeader from '@/app/ui/SectionHeader'
-import {Close, Lock, Public as PublicIcon} from '@mui/icons-material'
-import {Box, Dialog, Divider, IconButton, Typography} from '@mui/material'
 import {FC, useCallback, useEffect, useState} from 'react'
 import {useAppContext} from '../../context'
 import {getTagsWithDetails} from '../actions/crudActions'
@@ -44,118 +42,96 @@ const ManageTags: FC<Props> = (props) => {
   const publicTags = tags.filter((t) => t.public)
 
   return (
-    <Dialog
-      open={props.open}
-      fullWidth
-      maxWidth="md"
-      slotProps={{
-        paper: {
-          sx: {
-            height: {xs: '98%', md: 'auto'},
-            maxHeight: '90vh',
-            padding: 0,
-          },
-        },
-      }}
-    >
-      <Box sx={{p: 3, pb: 2, position: 'relative'}}>
-        <SectionHeader title="Manage Tags" description="View and edit your tag descriptions" />
-        <IconButton
-          onClick={props.close}
-          sx={{position: 'absolute', top: 8, right: 8}}
-          aria-label="close"
-        >
-          <Close />
-        </IconButton>
-      </Box>
+    <dialog className={`modal ${props.open ? 'modal-open' : ''}`}>
+      <div className="modal-box w-full max-w-3xl h-auto max-h-[90vh] p-0">
+        <div className="p-6 pb-4 relative">
+          <SectionHeader title="Manage Tags" description="View and edit your tag descriptions" />
+          <button
+            onClick={props.close}
+            className="btn btn-ghost btn-sm btn-circle absolute top-2 right-2"
+            aria-label="close"
+          >
+            ×
+          </button>
+        </div>
 
-      <Divider />
+        <div className="divider m-0"></div>
 
-      <Box sx={{px: 3, py: 2, overflow: 'auto', maxHeight: 'calc(90vh - 120px)'}}>
-        {/* Private Tags Section */}
-        <Box sx={{mb: 4}}>
-          <Box sx={{display: 'flex', alignItems: 'center', gap: 1, mb: 2}}>
-            <Lock sx={{fontSize: 20, color: 'text.secondary'}} />
-            <Typography variant="h6" sx={{fontWeight: 600}}>
-              Your Private Tags
-            </Typography>
-          </Box>
+        <div className="px-6 py-4 overflow-auto max-h-[calc(90vh-120px)]">
+          {/* Private Tags Section */}
+          <div className="mb-8">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="text-base-content/70">🔒</span>
+              <h3 className="text-lg font-semibold">Your Private Tags</h3>
+            </div>
 
-          {privateTags.length === 0 ? (
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{fontStyle: 'italic', py: 2, textAlign: 'center'}}
-            >
-              No private tags yet. Create tags when annotating games.
-            </Typography>
-          ) : (
-            <Box sx={{display: 'flex', flexDirection: 'column', gap: 2}}>
-              {privateTags.map((t) => (
-                <TagCard
-                  key={t.id}
-                  id={t.id}
-                  name={t.name}
-                  description={t.description}
-                  isPublic={false}
-                  onEditDescription={setDescToEdit}
-                />
-              ))}
-            </Box>
-          )}
-        </Box>
+            {privateTags.length === 0 ? (
+              <p className="text-sm text-base-content/70 italic py-4 text-center">
+                No private tags yet. Create tags when annotating games.
+              </p>
+            ) : (
+              <div className="flex flex-col gap-4">
+                {privateTags.map((t) => (
+                  <TagCard
+                    key={t.id}
+                    id={t.id}
+                    name={t.name}
+                    description={t.description}
+                    isPublic={false}
+                    onEditDescription={setDescToEdit}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
 
-        <Divider sx={{my: 3}} />
+          <div className="divider my-6"></div>
 
-        {/* Public Tags Section */}
-        <Box>
-          <Box sx={{display: 'flex', alignItems: 'center', gap: 1, mb: 2}}>
-            <PublicIcon sx={{fontSize: 20, color: 'text.secondary'}} />
-            <Typography variant="h6" sx={{fontWeight: 600}}>
-              Public Tags
-            </Typography>
-            <Typography variant="caption" color="text.secondary" sx={{ml: 0.5}}>
-              (Available to all users)
-            </Typography>
-          </Box>
+          {/* Public Tags Section */}
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <span className="text-base-content/70">🌐</span>
+              <h3 className="text-lg font-semibold">Public Tags</h3>
+              <span className="text-xs text-base-content/70 ml-1">(Available to all users)</span>
+            </div>
 
-          {publicTags.length === 0 ? (
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{fontStyle: 'italic', py: 2, textAlign: 'center'}}
-            >
-              No public tags available.
-            </Typography>
-          ) : (
-            <Box sx={{display: 'flex', flexDirection: 'column', gap: 2}}>
-              {publicTags.map((t) => (
-                <TagCard
-                  key={t.id}
-                  id={t.id}
-                  name={t.name}
-                  description={t.description}
-                  isPublic={true}
-                />
-              ))}
-            </Box>
-          )}
-        </Box>
-      </Box>
+            {publicTags.length === 0 ? (
+              <p className="text-sm text-base-content/70 italic py-4 text-center">
+                No public tags available.
+              </p>
+            ) : (
+              <div className="flex flex-col gap-4">
+                {publicTags.map((t) => (
+                  <TagCard
+                    key={t.id}
+                    id={t.id}
+                    name={t.name}
+                    description={t.description}
+                    isPublic={true}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
 
-      {descToEdit && (
-        <DescriptionDialog
-          open={descToEdit !== null}
-          onClose={() => setDescToEdit(null)}
-          existingDescription={tags.find((t) => t.id === descToEdit)?.description ?? null}
-          onApply={async (description) => {
-            await saveTagDescription(descToEdit, description)
-            await refresh()
-            setDescToEdit(null)
-          }}
-        />
-      )}
-    </Dialog>
+        {descToEdit && (
+          <DescriptionDialog
+            open={descToEdit !== null}
+            onClose={() => setDescToEdit(null)}
+            existingDescription={tags.find((t) => t.id === descToEdit)?.description ?? null}
+            onApply={async (description) => {
+              await saveTagDescription(descToEdit, description)
+              await refresh()
+              setDescToEdit(null)
+            }}
+          />
+        )}
+      </div>
+      <form method="dialog" className="modal-backdrop" onClick={props.close}>
+        <button>close</button>
+      </form>
+    </dialog>
   )
 }
 
