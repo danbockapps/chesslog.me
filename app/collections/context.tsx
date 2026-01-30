@@ -19,7 +19,12 @@ interface ProviderProps {
 }
 
 export const AppContextProvider: FC<PropsWithChildren<ProviderProps>> = (props) => {
-  const [isDarkMode, setIsDarkMode] = useState(false)
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches
+    }
+    return false
+  })
 
   // Changes when: system theme preference changes
   useEffect(() => {
