@@ -99,7 +99,7 @@ const Tags: FC<Props> = (props) => {
             'min-h-12 px-3 py-2 bg-base-100 border border-base-300 rounded-lg hover:border-base-content/30 transition-colors flex flex-wrap gap-1',
           valueContainer: () => 'flex flex-wrap gap-1 p-0',
           multiValue: ({data}) =>
-            `badge gap-1 px-2 py-3 ${data.public ? 'badge-success' : 'badge-primary'}`,
+            `badge gap-1 px-2 py-3 ${data.public ? 'badge-primary text-primary-content' : 'badge-neutral text-neutral-content'}`,
           multiValueLabel: () => 'text-sm',
           multiValueRemove: () => 'hover:bg-base-content/20 rounded-full px-1 ml-1 cursor-pointer',
           input: () => 'text-base-content m-0 p-0',
