@@ -4,14 +4,20 @@ import {FC, useCallback, useEffect, useState} from 'react'
 import {MultiValue} from 'react-select'
 import CreatableSelect from 'react-select/creatable'
 import {useAppContext} from '../context'
-import {deleteGameTags, getGameTags, getTags, insertGameTag, insertTag} from './actions/crudActions'
+import {
+  deleteGameTags,
+  getGameTags,
+  getTagsWithDetails,
+  insertGameTag,
+  insertTag,
+} from './actions/crudActions'
 import ManageTags from './manageTags/manageTags'
 
 interface Props {
   gameId: number
 }
 
-type Tag = {id: number; name: string | null}
+type Tag = {id: number; name: string | null; public: boolean}
 
 const Tags: FC<Props> = (props) => {
   const [values, setValues] = useState<MultiValue<Tag> | null>()
@@ -25,7 +31,7 @@ const Tags: FC<Props> = (props) => {
   const refresh = useCallback(async () => {
     if (user) {
       const [newOptions, newSelectedTagIds] = await Promise.all([
-        getTags(),
+        getTagsWithDetails(),
         getGameTags(props.gameId),
       ])
 
@@ -34,6 +40,7 @@ const Tags: FC<Props> = (props) => {
     }
   }, [user, props.gameId])
 
+  // Changes when: user loads the component or navigates to this page
   useEffect(() => {
     refresh()
   }, [refresh])
@@ -85,6 +92,31 @@ const Tags: FC<Props> = (props) => {
         {...{options}}
         getOptionValue={({id}) => `${id}`}
         getOptionLabel={({name}) => name ?? ''}
+        unstyled
+        classNames={{
+          control: () =>
+            'min-h-12 px-3 py-2 bg-base-100 border border-base-300 rounded-lg hover:border-base-content/30 transition-colors flex flex-wrap gap-1',
+          valueContainer: () => 'flex flex-wrap gap-1 p-0',
+          multiValue: ({data}) =>
+            `badge gap-1 px-2 py-3 ${data.public ? 'badge-primary text-primary-content' : 'badge-neutral text-neutral-content'}`,
+          multiValueLabel: () => 'text-sm',
+          multiValueRemove: () => 'hover:bg-base-content/20 rounded-full px-1 ml-1 cursor-pointer',
+          input: () => 'text-base-content m-0 p-0',
+          placeholder: () => 'text-base-content/50',
+          menu: () =>
+            'mt-2 bg-base-200 border border-base-300 rounded-lg shadow-lg overflow-hidden',
+          menuList: () => 'py-1',
+          option: ({isFocused, isSelected}) =>
+            `px-3 py-2 cursor-pointer transition-colors ${
+              isSelected
+                ? 'bg-primary text-primary-content'
+                : isFocused
+                  ? 'bg-base-300'
+                  : 'bg-base-200 text-base-content'
+            }`,
+          noOptionsMessage: () => 'px-3 py-2 text-base-content/50',
+          loadingMessage: () => 'px-3 py-2 text-base-content/50',
+        }}
       />
 
       <div className={`${captionClassNames} mt-5`}>

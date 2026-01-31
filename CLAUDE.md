@@ -34,7 +34,7 @@ docker run -p 3000:3000 chesslog.me
 - **Framework:** Next.js 16.1.4 with App Router
 - **React:** 19.2.3
 - **Language:** TypeScript (strict mode)
-- **Styling:** Tailwind CSS + Material-UI components
+- **Styling:** Tailwind CSS + daisyUI
 - **Database:** SQLite via better-sqlite3 + Drizzle ORM
 - **Authentication:** Lucia Auth (session-based, cookie sessions)
 - **Chess Logic:** chess.js + react-chessboard
@@ -72,8 +72,11 @@ app/
 │   └── context.tsx        # User context for child components
 ├── ui/                    # Reusable UI components
 │   ├── createNew/         # Collection creation modal flow
-│   └── *.tsx              # Accordion, Button, Card, Modal, Spinner, etc.
+│   └── *.tsx              # Accordion, Card, Modal, Spinner, Link, etc.
+├── globals.css            # Global styles + Tailwind v4 + daisyUI configuration
 └── utils/                 # Utility functions
+
+postcss.config.mjs         # PostCSS configuration for Tailwind v4
 ```
 
 ### Database Schema
@@ -202,6 +205,82 @@ To add more default public tags, create a new migration that:
 - `@/*` maps to project root (configured in `tsconfig.json`)
 - Example: `import {db} from '@/lib/db'`
 - Example: `import {requireAuth} from '@/lib/auth'`
+
+### Theme System
+
+The application uses **Tailwind CSS v4** with **daisyUI** for automatic light/dark mode switching based on system preferences.
+
+**Configuration:**
+
+The project uses Tailwind CSS v4's new CSS-first configuration in `app/globals.css`:
+
+```css
+@import 'tailwindcss';
+@plugin "daisyui" {
+  themes:
+    light --default,
+    dark --prefersdark;
+}
+```
+
+Brand colors are defined inline in CSS using `@theme`:
+
+```css
+@theme {
+  --color-chesscom: #2d2c28;
+  --color-lichess: #000000;
+}
+```
+
+PostCSS configuration in `postcss.config.mjs`:
+
+```javascript
+const config = {
+  plugins: {
+    '@tailwindcss/postcss': {},
+  },
+}
+```
+
+**How it works:**
+
+1. **Theme Configuration**: daisyUI themes are configured directly in `app/globals.css` using Tailwind v4's `@plugin` directive
+   - `light` theme is the default
+   - `dark` theme is applied automatically when `prefers-color-scheme: dark`
+   - No manual JavaScript required for theme switching
+   - No separate `tailwind.config.ts` file needed (Tailwind v4 uses CSS-first configuration)
+
+2. **daisyUI Semantic Classes**: daisyUI provides semantic color classes that automatically adapt to the active theme:
+   - Background: `bg-base-100`, `bg-base-200`, `bg-base-300`
+   - Text: `text-base-content`, `text-primary`, `text-secondary`
+   - Components: `btn`, `modal`, `badge`, `toggle`, `divider`, etc.
+   - All classes automatically adjust colors based on the active theme
+
+3. **Brand Colors**: Chess.com and Lichess brand colors are defined in `app/globals.css` using `@theme` and remain constant across themes:
+   - Chess.com: `#2d2c28` (accessed via `bg-chesscom` or `text-chesscom`)
+   - Lichess: `#000000` (accessed via `bg-lichess` or `text-lichess`)
+
+**Usage in Components:**
+
+Use daisyUI semantic classes for theme-aware styling:
+
+```tsx
+// Good - uses daisyUI semantic classes
+<div className="bg-base-200 text-base-content border-base-300">
+<button className="btn btn-primary">Click me</button>
+
+// Avoid - hardcoded colors don't respect theme
+<div className="bg-white text-gray-900 border-gray-200">
+```
+
+**Component Examples:**
+
+- Buttons: `btn`, `btn-primary`, `btn-outline`, `btn-ghost`
+- Modals: `modal`, `modal-box`, `modal-open`
+- Form elements: `toggle`, `input`, `textarea`
+- Layout: `divider`, `badge`
+
+**Icons**: Currently using emoji placeholders (🔒, 🌐, ✏️, ×). Can be replaced with a proper icon library in the future.
 
 ## Code Style Conventions
 

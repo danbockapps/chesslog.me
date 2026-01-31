@@ -1,7 +1,6 @@
 'use client'
 
 import React, {useState} from 'react'
-import Button from '../ui/button'
 import {signup} from './actions'
 
 const SignUpPage: React.FC = () => {
@@ -22,11 +21,11 @@ const SignUpPage: React.FC = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center">
-      <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+      <div className="bg-base-100 p-8 rounded-lg shadow-lg w-full max-w-md">
         <h2 className="text-2xl font-bold mb-6 text-center">Sign Up</h2>
         <form>
           <div className="mb-4">
-            <label htmlFor="email" className="block text-gray-700 font-bold mb-2">
+            <label htmlFor="email" className="block text-base-content font-bold mb-2">
               Email
             </label>
             <input
@@ -34,14 +33,14 @@ const SignUpPage: React.FC = () => {
               id="email"
               value={email}
               onChange={handleEmailChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2
-                focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-base-300 rounded-lg focus:outline-none focus:ring-2
+                focus:ring-primary bg-base-100 text-base-content"
               placeholder="Enter your email"
               {...{disabled}}
             />
           </div>
           <div className="mb-6">
-            <label htmlFor="password" className="block text-gray-700 font-bold mb-2">
+            <label htmlFor="password" className="block text-base-content font-bold mb-2">
               Password
             </label>
             <input
@@ -49,23 +48,22 @@ const SignUpPage: React.FC = () => {
               id="password"
               value={password}
               onChange={handlePasswordChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2
-                focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-base-300 rounded-lg focus:outline-none focus:ring-2
+                focus:ring-primary bg-base-100 text-base-content"
               placeholder="Enter your password"
               {...{disabled}}
             />
           </div>
-          {errorMessage && <div className="text-red-500 text-sm mb-4">{errorMessage}</div>}
+          {errorMessage && <div className="text-error text-sm mb-4">{errorMessage}</div>}
           {status === 'success' && (
-            <div className="text-green-500 text-sm mb-4">
+            <div className="text-success text-sm mb-4">
               Account created successfully! Redirecting...
             </div>
           )}
 
-          <Button
-            fullWidth
+          <button
+            className="btn w-full"
             type="submit"
-            loading={status === 'loading'}
             disabled={status === 'success'}
             onClick={async () => {
               setErrorMessage('')
@@ -84,8 +82,8 @@ const SignUpPage: React.FC = () => {
               }
             }}
           >
-            Sign Up
-          </Button>
+            {status === 'loading' && <span className="loading loading-spinner"></span>}
+          </button>
         </form>
       </div>
     </div>

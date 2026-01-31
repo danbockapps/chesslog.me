@@ -13,11 +13,11 @@ A Next.js application for importing, organizing, and analyzing your chess games 
 
 ## Tech Stack
 
-- **Framework:** Next.js 14 (App Router)
+- **Framework:** Next.js 16 (App Router)
 - **Language:** TypeScript
 - **Database:** SQLite (better-sqlite3 + Drizzle ORM)
 - **Authentication:** Lucia Auth
-- **Styling:** Tailwind CSS + Material-UI
+- **Styling:** Tailwind CSS + daisyUI
 - **Chess:** chess.js + react-chessboard
 - **Package Manager:** Yarn
 - **Code Quality:** ESLint + Prettier (with pre-commit hooks via Husky)

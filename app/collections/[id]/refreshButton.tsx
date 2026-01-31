@@ -3,7 +3,6 @@
 import {FC, useState} from 'react'
 import importChesscomGames from './actions/importChesscomGames'
 import importLichessGames from './actions/importLichessGames'
-import Button from '@/app/ui/button'
 
 interface Props {
   collectionId: string
@@ -25,7 +24,12 @@ const RefreshButton: FC<Props> = ({collectionId, site, username, timeClass, last
     setLoading(false)
   }
 
-  return <Button {...{onClick, loading}}>Refresh</Button>
+  return (
+    <button className="btn" {...{onClick}}>
+      {loading && <span className="loading loading-spinner"></span>}
+      Refresh
+    </button>
+  )
 }
 
 export default RefreshButton

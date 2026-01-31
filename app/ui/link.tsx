@@ -1,12 +1,15 @@
-import Link, {LinkProps} from '@mui/material/Link'
-import {FC} from 'react'
+import {FC, AnchorHTMLAttributes} from 'react'
 
-// MUI Link doesn't have a cursor pointer by default (?!)
+interface LinkProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
+  children: React.ReactNode
+}
 
-const AppLink: FC<LinkProps> = (props) => {
-  const {sx, ...rest} = props
-
-  return <Link sx={{cursor: 'pointer', ...sx}} {...rest} />
+const AppLink: FC<LinkProps> = ({children, className = '', ...props}) => {
+  return (
+    <a className={`link link-hover ${className}`} {...props}>
+      {children}
+    </a>
+  )
 }
 
 export default AppLink

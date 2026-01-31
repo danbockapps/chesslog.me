@@ -6,7 +6,7 @@ interface Props {
   link?: {text: string; onClick: () => void}
 }
 
-export const captionClassNames = 'text-xs text-gray-500'
+export const captionClassNames = 'text-xs text-base-content/70'
 
 const SectionHeader: React.FC<Props> = ({title, description, link}) => {
   return (
@@ -17,7 +17,7 @@ const SectionHeader: React.FC<Props> = ({title, description, link}) => {
         {description}
 
         {link && (
-          <AppLink sx={{marginLeft: '10px'}} onClick={link.onClick}>
+          <AppLink className="ml-2 underline" onClick={link.onClick}>
             {link.text}
           </AppLink>
         )}

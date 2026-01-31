@@ -1,5 +1,4 @@
 'use client'
-import Button from '@/app/ui/button'
 import SectionHeader, {captionClassNames} from '@/app/ui/SectionHeader'
 import {FC, useEffect, useState} from 'react'
 import {getNotes, saveNotes} from './actions/crudActions'
@@ -29,7 +28,7 @@ const Notes: FC<Props> = (props) => {
         description="Any thoughts you want to remember about this game"
       />
       <textarea
-        className="self-stretch flex-1 p-2 mb-2 border"
+        className="self-stretch flex-1 p-2 mb-2 border border-base-300 rounded bg-base-100 text-base-content"
         value={notes ?? ''}
         onChange={(e) => setNotes(e.target.value)}
         disabled={loading}
@@ -40,9 +39,8 @@ const Notes: FC<Props> = (props) => {
           {loading ? 'Saving...' : beenSaved ? '✓ Notes saved' : ''}
         </div>
 
-        <Button
-          className="self-end w-32"
-          {...{loading}}
+        <button
+          className="btn self-end w-32"
           onClick={async () => {
             setLoading(true)
             await saveNotes(props.gameId, notes)
@@ -50,8 +48,9 @@ const Notes: FC<Props> = (props) => {
             setLoading(false)
           }}
         >
+          {loading && <span className="loading loading-spinner"></span>}
           Save notes
-        </Button>
+        </button>
       </div>
     </div>
   )

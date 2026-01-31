@@ -5,7 +5,10 @@ interface Props {
 }
 
 const Back: FC<Props> = (props) => (
-  <button onClick={props.onClick} className="flex items-center text-gray-700 p-2 rounded">
+  <button
+    onClick={props.onClick}
+    className="flex items-center text-base-content p-2 rounded hover:bg-base-200"
+  >
     <svg
       xmlns="http://www.w3.org/2000/svg"
       className="h-6 w-6"

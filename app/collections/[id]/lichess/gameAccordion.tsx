@@ -2,7 +2,6 @@
 
 import Accordion from '@/app/ui/accordion'
 import {gameAccordionClassNames} from '@/app/ui/accordionClassNames'
-import {FormControlLabel, Switch} from '@mui/material'
 import {FC, useState} from 'react'
 import Board from '../chesscom/board'
 import GameAccordionHeader from '../gameAccordionHeader'
@@ -49,11 +48,15 @@ const LichessGameAccordion: FC<Props> = (props) => {
       contentClassName={`${embed ? lichessClassName : ''} ${contentClassName}`}
     >
       <div>
-        <FormControlLabel
-          className="mb-1"
-          control={<Switch checked={embed} onChange={() => setEmbed(!embed)} />}
-          label="Lichess embedded board"
-        />
+        <label className="label">
+          <input
+            type="checkbox"
+            className="toggle"
+            checked={embed}
+            onChange={() => setEmbed(!embed)}
+          />
+          Lichess embedded board
+        </label>
 
         {embed ? (
           <iframe

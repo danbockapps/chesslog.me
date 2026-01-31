@@ -1,4 +1,3 @@
-import {Dialog} from '@mui/material'
 import {FC, useState} from 'react'
 
 interface Props {
@@ -12,20 +11,26 @@ const DescriptionDialog: FC<Props> = (props) => {
   const [description, setDescription] = useState(props.existingDescription ?? '')
 
   return (
-    <Dialog open={props.open} onClose={props.onClose}>
-      <div className="p-4">
+    <dialog className={`modal ${props.open ? 'modal-open' : ''}`}>
+      <div className="modal-box">
         <textarea
           className="w-60 h-40 border p-2"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
-        <div className="flex justify-end mt-4">
+        <div className="modal-action">
+          <button className="btn" onClick={props.onClose}>
+            Cancel
+          </button>
           <button className="btn btn-primary" onClick={() => props.onApply(description)}>
             Save
           </button>
         </div>
       </div>
-    </Dialog>
+      <form method="dialog" className="modal-backdrop" onClick={props.onClose}>
+        <button>close</button>
+      </form>
+    </dialog>
   )
 }
 export default DescriptionDialog
