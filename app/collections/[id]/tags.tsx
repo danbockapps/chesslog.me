@@ -26,7 +26,7 @@ const Tags: FC<Props> = (props) => {
   const [options, setOptions] = useState<Tag[]>([])
   const [selectedTagIds, setSelectedTagIds] = useState<number[]>([])
   const [manageOpen, setManageOpen] = useState(false)
-  const {user, isDarkMode} = useAppContext()
+  const {user} = useAppContext()
 
   const refresh = useCallback(async () => {
     if (user) {
@@ -58,7 +58,6 @@ const Tags: FC<Props> = (props) => {
       />
 
       <CreatableSelect
-        key={isDarkMode ? 'dark' : 'light'} // Force re-render on theme change
         isMulti
         isDisabled={loading}
         isLoading={loading}
