@@ -32,8 +32,8 @@ const LoginPage: FC<Props> = async (props) => {
             name="email"
             type="email"
             required
-            className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary
-              bg-surface text-text-primary"
+            className="w-full px-4 py-2 border border-base-300 rounded-lg focus:outline-none focus:ring-2
+              focus:ring-primary bg-surface text-text-primary"
           />
         </div>
         <div className="mb-6">
@@ -45,8 +45,8 @@ const LoginPage: FC<Props> = async (props) => {
             name="password"
             type="password"
             required
-            className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary
-              bg-surface text-text-primary"
+            className="w-full px-4 py-2 border border-base-300 rounded-lg focus:outline-none focus:ring-2
+              focus:ring-primary bg-surface text-text-primary"
           />
         </div>
         <div className="flex space-x-4">

@@ -27,7 +27,7 @@ const StepName: FC<Props> = (props) => (
     <input
       type="text"
       placeholder="Collection name"
-      className="w-full p-2 border border-border rounded bg-surface text-text-primary"
+      className="w-full p-2 border border-base-300 rounded bg-surface text-text-primary"
       value={props.name}
       onChange={(e) => props.setName(e.target.value)}
     />

@@ -32,8 +32,8 @@ const MainMenu: FC = () => {
       </button>
 
       {isMenuOpen && (
-        <div className="absolute right-4 top-10 mt-2 w-48 bg-surface border border-border rounded shadow-lg">
-          <div className="p-4 border-b border-border-light">
+        <div className="absolute right-4 top-10 mt-2 w-48 bg-surface border border-base-300 rounded shadow-lg">
+          <div className="p-4 border-b border-base-200">
             <p className="text-text-primary">{user.email}</p>
           </div>
           <button

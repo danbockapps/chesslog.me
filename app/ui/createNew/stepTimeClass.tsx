@@ -40,7 +40,7 @@ const StepTimeClass: FC<Props> = (props) => {
               className={`w-full p-3 rounded border-2 transition-colors ${
               props.timeClass === option.value
                   ? 'border-primary bg-primary/10'
-                  : 'border-border hover:border-text-secondary'
+                  : 'border-base-300 hover:border-base-content'
               }`}
             >
               {option.label}
