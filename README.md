@@ -1,6 +1,6 @@
 # chesslog.me
 
-A Next.js application for importing, organizing, and analyzing your chess games from Chess.com and Lichess. Create collections of games, add notes and tags, and review positions with an interactive chess board.
+A Next.js application to help users improve at chess by keeping track of what happens in their games so they know where to focus improvement. Create collections of games, add notes and tags. Optionally import games from Lichess and Chess.com. Visualize data with graphs (coming soon).
 
 ## Features
 
