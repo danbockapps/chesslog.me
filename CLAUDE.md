@@ -300,26 +300,6 @@ Use daisyUI semantic classes for theme-aware styling:
 - Props interfaces defined inline or via `type` keyword
 - Minimal prop drilling; use React Context where appropriate (`AppContext` for user state)
 
-## Coding Standards
-
-### React Hooks
-
-**useEffect Dependency Arrays:**
-
-- Every item in a `useEffect` dependency array MUST have a comment explaining when it changes
-- Format: `// Changes when: [explanation]` above the useEffect
-- This helps future developers understand the effect's behavior and prevents bugs
-
-Example:
-
-```typescript
-// Changes when: user navigates to a different game
-// Changes when: game data is refreshed
-useEffect(() => {
-  loadGameMoves()
-}, [gameId, refreshKey])
-```
-
 ## Important Development Notes
 
 ### Database & Auth Usage
