@@ -17,7 +17,7 @@ const TagCard: FC<Props> = ({id, name, description, isPublic, onEditDescription}
     >
       <div className="flex items-center gap-2 mb-2">
         <span
-          className={`badge badge-sm font-medium ${isPublic ? 'bg-success text-white' : 'bg-primary text-white'} px-3`}
+          className={`badge ${isPublic ? 'badge-primary text-primary-content' : 'badge-neutral text-neutral-content'} px-3`}
         >
           {name}
         </span>
