@@ -19,11 +19,11 @@ const GameAccordionHeader: FC<Props> = (props) => (
       {props.whiteUsername} vs. {props.blackUsername}
     </div>
 
-    <div className="text-text-secondary">{props.timeControl}</div>
-    <div className="hidden md:block ml-auto truncate max-w-sm text-text-secondary">
+    <div className="text-base-content/70">{props.timeControl}</div>
+    <div className="hidden md:block ml-auto truncate max-w-sm text-base-content/70">
       {props.opening}
     </div>
-    <div className="ml-auto md:ml-0 text-text-secondary">{getRelativeTime(props.gameDttm)}</div>
+    <div className="ml-auto md:ml-0 text-base-content/70">{getRelativeTime(props.gameDttm)}</div>
   </>
 )
 
@@ -45,7 +45,7 @@ const getDotColor = (points: 0 | 0.5 | 1) => {
     case 1:
       return 'bg-success'
     case 0.5:
-      return 'bg-text-secondary'
+      return 'bg-base-content/70'
     case 0:
       return 'bg-error'
   }

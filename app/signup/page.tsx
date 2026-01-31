@@ -21,11 +21,11 @@ const SignUpPage: React.FC = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center">
-      <div className="bg-surface p-8 rounded-lg shadow-lg w-full max-w-md">
+      <div className="bg-base-100 p-8 rounded-lg shadow-lg w-full max-w-md">
         <h2 className="text-2xl font-bold mb-6 text-center">Sign Up</h2>
         <form>
           <div className="mb-4">
-            <label htmlFor="email" className="block text-text-primary font-bold mb-2">
+            <label htmlFor="email" className="block text-base-content font-bold mb-2">
               Email
             </label>
             <input
@@ -34,13 +34,13 @@ const SignUpPage: React.FC = () => {
               value={email}
               onChange={handleEmailChange}
               className="w-full px-3 py-2 border border-base-300 rounded-lg focus:outline-none focus:ring-2
-                focus:ring-primary bg-surface text-text-primary"
+                focus:ring-primary bg-base-100 text-base-content"
               placeholder="Enter your email"
               {...{disabled}}
             />
           </div>
           <div className="mb-6">
-            <label htmlFor="password" className="block text-text-primary font-bold mb-2">
+            <label htmlFor="password" className="block text-base-content font-bold mb-2">
               Password
             </label>
             <input
@@ -49,7 +49,7 @@ const SignUpPage: React.FC = () => {
               value={password}
               onChange={handlePasswordChange}
               className="w-full px-3 py-2 border border-base-300 rounded-lg focus:outline-none focus:ring-2
-                focus:ring-primary bg-surface text-text-primary"
+                focus:ring-primary bg-base-100 text-base-content"
               placeholder="Enter your password"
               {...{disabled}}
             />

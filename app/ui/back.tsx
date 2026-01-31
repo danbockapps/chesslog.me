@@ -7,7 +7,7 @@ interface Props {
 const Back: FC<Props> = (props) => (
   <button
     onClick={props.onClick}
-    className="flex items-center text-text-primary p-2 rounded hover:bg-surface-hover"
+    className="flex items-center text-base-content p-2 rounded hover:bg-base-200"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"

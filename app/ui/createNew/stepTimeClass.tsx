@@ -29,7 +29,7 @@ const StepTimeClass: FC<Props> = (props) => {
     <>
       <Back onClick={() => props.setStep('username')} />
       <div className="space-y-2">
-        <p className="text-sm text-text-secondary">
+        <p className="text-sm text-base-content/70">
           Optional: Filter games by time control. Leave unselected to import all games.
         </p>
         <div className="space-y-2">

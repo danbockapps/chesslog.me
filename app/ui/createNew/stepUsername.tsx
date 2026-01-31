@@ -21,7 +21,7 @@ const StepUsername: FC<Props> = (props) => (
     <input
       type="text"
       placeholder="Username"
-      className="w-full p-2 border border-base-300 rounded bg-surface text-text-primary"
+      className="w-full p-2 border border-base-300 rounded bg-base-100 text-base-content"
       value={props.username}
       onChange={(e) => props.setUsername(e.target.value)}
     />

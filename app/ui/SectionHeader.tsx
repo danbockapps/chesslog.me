@@ -6,7 +6,7 @@ interface Props {
   link?: {text: string; onClick: () => void}
 }
 
-export const captionClassNames = 'text-xs text-text-secondary'
+export const captionClassNames = 'text-xs text-base-content/70'
 
 const SectionHeader: React.FC<Props> = ({title, description, link}) => {
   return (

@@ -9,8 +9,8 @@ const LoginPage: FC<Props> = async (props) => {
   const searchParams = await props.searchParams
   return (
     <div className="flex items-center justify-center min-h-screen">
-      <form className="bg-surface p-8 rounded-lg shadow-lg max-w-md w-full">
-        <h2 className="text-2xl font-bold mb-6 text-center text-text-primary">
+      <form className="bg-base-100 p-8 rounded-lg shadow-lg max-w-md w-full">
+        <h2 className="text-2xl font-bold mb-6 text-center text-base-content">
           Welcome to chesslog.me
         </h2>
 
@@ -24,7 +24,7 @@ const LoginPage: FC<Props> = async (props) => {
         )}
 
         <div className="mb-4">
-          <label htmlFor="email" className="block text-text-primary font-semibold mb-2">
+          <label htmlFor="email" className="block text-base-content font-semibold mb-2">
             Email:
           </label>
           <input
@@ -33,11 +33,11 @@ const LoginPage: FC<Props> = async (props) => {
             type="email"
             required
             className="w-full px-4 py-2 border border-base-300 rounded-lg focus:outline-none focus:ring-2
-              focus:ring-primary bg-surface text-text-primary"
+              focus:ring-primary bg-base-100 text-base-content"
           />
         </div>
         <div className="mb-6">
-          <label htmlFor="password" className="block text-text-primary font-semibold mb-2">
+          <label htmlFor="password" className="block text-base-content font-semibold mb-2">
             Password:
           </label>
           <input
@@ -46,7 +46,7 @@ const LoginPage: FC<Props> = async (props) => {
             type="password"
             required
             className="w-full px-4 py-2 border border-base-300 rounded-lg focus:outline-none focus:ring-2
-              focus:ring-primary bg-surface text-text-primary"
+              focus:ring-primary bg-base-100 text-base-content"
           />
         </div>
         <div className="flex space-x-4">
