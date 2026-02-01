@@ -9,12 +9,14 @@ import ChesscomGameAccordion from './chesscom/gameAccordion'
 import LastRefreshedDisplay from './lastRefreshedDisplay'
 import LichessGameAccordion from './lichess/gameAccordion'
 import RefreshButton from './refreshButton'
+import AnalyticsView from './analytics/analyticsView'
+import TabNavigation from './tabNavigation'
 
 export const dynamic = 'force-dynamic'
 
 interface Props {
   params: Promise<{id: string}>
-  searchParams: Promise<{page: string}>
+  searchParams: Promise<{page: string; view: string}>
 }
 
 const PAGE_SIZE = 50
@@ -25,6 +27,7 @@ const Collection: FC<Props> = async (props) => {
   const user = await requireAuth()
   await requireOwnership(params.id, user.id)
   const page = parseInt(searchParams.page) || 1
+  const view = searchParams.view || 'games'
 
   const collection = db
     .select({
@@ -38,17 +41,21 @@ const Collection: FC<Props> = async (props) => {
     .where(eq(collections.id, params.id))
     .get()
 
-  const gamesData = db
-    .select()
-    .from(games)
-    .where(eq(games.collectionId, params.id))
-    .orderBy(desc(games.gameDttm))
-    .limit(PAGE_SIZE)
-    .offset((page - 1) * PAGE_SIZE)
-    .all()
-
   const {name, username, site, timeClass, last_refreshed} = collection ?? {}
   const lastRefreshed = last_refreshed ? new Date(last_refreshed) : null
+
+  // Only fetch games if we're on the games view
+  const gamesData =
+    view === 'games'
+      ? db
+          .select()
+          .from(games)
+          .where(eq(games.collectionId, params.id))
+          .orderBy(desc(games.gameDttm))
+          .limit(PAGE_SIZE)
+          .offset((page - 1) * PAGE_SIZE)
+          .all()
+      : []
 
   const gamesList =
     gamesData?.map((g) => ({
@@ -90,53 +97,69 @@ const Collection: FC<Props> = async (props) => {
           </Link>
         )}
       </div>
-      <div>
-        {gamesList.map(
-          (g) =>
-            g.gameDttm &&
-            (site === 'chess.com' ? (
-              <ChesscomGameAccordion
-                key={g.url ?? g.lichessGameId}
-                id={g.id}
-                username={username!}
-                whiteUsername={g.whiteUsername!} // TODO
-                blackUsername={g.blackUsername!}
-                whiteResult={g.whiteResult}
-                blackResult={g.blackResult}
-                gameDttm={g.gameDttm}
-                eco={g.eco!}
-                timeControl={g.timeControl!}
-                url={g.url!}
-                fen={g.fen!}
-              />
-            ) : (
-              <LichessGameAccordion
-                key={g.lichessGameId}
-                id={g.id}
-                username={username!}
-                whiteUsername={g.whiteUsername!} // TODO
-                blackUsername={g.blackUsername!}
-                winner={g.winner as 'white' | 'black' | 'draw'}
-                gameDttm={g.gameDttm}
-                eco={g.eco!}
-                clockInitial={g.clockInitial!}
-                clockIncrement={g.clockIncrement!}
-                lichessGameId={g.lichessGameId!}
-                fen={g.fen!}
-              />
-            )),
-        )}
-      </div>
 
-      <div className="py-6 flex gap-4 justify-center underline">
-        {[...Array(page - 1)].map((_, i) => (
-          <Link key={i} href={`/collections/${params.id}?page=${i + 1}`}>
-            {i + 1}
-          </Link>
-        ))}
+      {/* Tab Navigation */}
+      <TabNavigation collectionId={params.id} />
 
-        <Link href={`/collections/${params.id}?page=${page + 1}`}>Next page</Link>
-      </div>
+      {/* Conditional Rendering */}
+      {view === 'games' ? (
+        <>
+          <div>
+            {gamesList.map(
+              (g) =>
+                g.gameDttm &&
+                (site === 'chess.com' ? (
+                  <ChesscomGameAccordion
+                    key={g.url ?? g.lichessGameId}
+                    id={g.id}
+                    username={username!}
+                    whiteUsername={g.whiteUsername!}
+                    blackUsername={g.blackUsername!}
+                    whiteResult={g.whiteResult}
+                    blackResult={g.blackResult}
+                    gameDttm={g.gameDttm}
+                    eco={g.eco!}
+                    timeControl={g.timeControl!}
+                    url={g.url!}
+                    fen={g.fen!}
+                  />
+                ) : (
+                  <LichessGameAccordion
+                    key={g.lichessGameId}
+                    id={g.id}
+                    username={username!}
+                    whiteUsername={g.whiteUsername!}
+                    blackUsername={g.blackUsername!}
+                    winner={g.winner as 'white' | 'black' | 'draw'}
+                    gameDttm={g.gameDttm}
+                    eco={g.eco!}
+                    clockInitial={g.clockInitial!}
+                    clockIncrement={g.clockIncrement!}
+                    lichessGameId={g.lichessGameId!}
+                    fen={g.fen!}
+                  />
+                )),
+            )}
+          </div>
+
+          <div className="py-6 flex gap-4 justify-center underline">
+            {[...Array(page - 1)].map((_, i) => (
+              <Link key={i} href={`/collections/${params.id}?page=${i + 1}`}>
+                {i + 1}
+              </Link>
+            ))}
+
+            <Link href={`/collections/${params.id}?page=${page + 1}`}>Next page</Link>
+          </div>
+        </>
+      ) : (
+        <AnalyticsView
+          collectionId={params.id}
+          userId={user.id}
+          username={username!}
+          site={site as 'chess.com' | 'lichess'}
+        />
+      )}
     </div>
   )
 }

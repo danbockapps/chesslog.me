@@ -1,4 +1,4 @@
-import {sqliteTable, text, integer, primaryKey, unique} from 'drizzle-orm/sqlite-core'
+import {sqliteTable, text, integer, primaryKey, unique, index} from 'drizzle-orm/sqlite-core'
 
 // Users table - for authentication
 export const users = sqliteTable('users', {
@@ -79,6 +79,8 @@ export const games = sqliteTable(
     // Composite unique constraints - same game can exist in multiple collections
     uniqueLichessGame: unique().on(table.collectionId, table.lichessGameId),
     uniqueChesscomGame: unique().on(table.collectionId, table.url),
+    // Indexes for analytics queries
+    collectionDttmIdx: index('idx_games_collection_dttm').on(table.collectionId, table.gameDttm),
   }),
 )
 
@@ -109,6 +111,9 @@ export const gameTags = sqliteTable(
   },
   (table) => ({
     pk: primaryKey({columns: [table.gameId, table.tagId]}),
+    // Indexes for analytics queries
+    gameIdIdx: index('idx_game_tags_game').on(table.gameId),
+    tagIdIdx: index('idx_game_tags_tag').on(table.tagId),
   }),
 )
 

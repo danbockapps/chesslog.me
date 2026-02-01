@@ -1,4 +1,5 @@
 import AppLink from '@/app/ui/link'
+import TagBadge from '@/app/ui/tagBadge'
 import {FC} from 'react'
 
 interface Props {
@@ -16,11 +17,7 @@ const TagCard: FC<Props> = ({id, name, description, isPublic, onEditDescription}
         !isPublic ? 'hover:border-primary hover:bg-base-300' : '' }`}
     >
       <div className="flex items-center gap-2 mb-2">
-        <span
-          className={`badge ${isPublic ? 'badge-primary text-primary-content' : 'badge-neutral text-neutral-content'} px-3`}
-        >
-          {name}
-        </span>
+        <TagBadge name={name || ''} isPublic={isPublic} maxWidth="none" />
       </div>
 
       <div className="pl-1">
