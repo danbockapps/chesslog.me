@@ -7,7 +7,6 @@ Add a data visualization and analytics dashboard to collection pages with:
 - **Tag distribution visualizations** (bar/pie charts) - PRIMARY FOCUS
 - **Word cloud** from game notes
 - **Read-only summary view** of all games with tags/notes (no chessboard)
-- **Additional stats**: Win/loss/draw pie chart, opening frequency
 
 ## UI Design
 
@@ -25,7 +24,6 @@ Add a tab switcher at the top of the collection detail page (`app/collections/[i
 │                                            │
 │ ANALYTICS VIEW (new)                       │
 │   - Tag Distribution Chart                 │
-│   - Win/Loss/Draw Pie Chart                │
 │   - Notes Word Cloud                       │
 │   - Read-only Summary (scrollable)         │
 └────────────────────────────────────────────┘
@@ -127,52 +125,7 @@ LIMIT 15
 </BarChart>
 ```
 
-### 2. Win/Loss/Draw Pie Chart
-
-**Purpose**: Quick visual of overall performance
-
-**Data Processing** (server-side):
-
-```typescript
-// For Chess.com collections
-const results = games
-  .map((game) => {
-    const isWhite = game.whiteUsername === collection.username
-    const myResult = isWhite ? game.whiteResult : game.blackResult
-    return myResult // 'win', 'checkmated', 'agreed', etc.
-  })
-  .reduce(
-    (acc, result) => {
-      if (result === 'win') acc.wins++
-      else if (['checkmated', 'timeout', 'resigned', 'abandoned'].includes(result)) acc.losses++
-      else acc.draws++
-      return acc
-    },
-    {wins: 0, draws: 0, losses: 0},
-  )
-
-// For Lichess collections
-const results = games.reduce(
-  (acc, game) => {
-    const isWhite = game.whiteUsername === collection.username
-    if (game.winner === 'draw') acc.draws++
-    else if ((isWhite && game.winner === 'white') || (!isWhite && game.winner === 'black'))
-      acc.wins++
-    else acc.losses++
-    return acc
-  },
-  {wins: 0, draws: 0, losses: 0},
-)
-```
-
-**Visual Design**:
-
-- Pie chart with 3 segments
-- Colors: Success green (wins), neutral gray (draws), error red (losses)
-- Center label: Win rate percentage
-- Legend below
-
-### 3. Notes Word Cloud
+### 2. Notes Word Cloud
 
 **Purpose**: Surface common themes/words in user's game analysis
 
@@ -236,7 +189,7 @@ const STOP_WORDS = new Set([
 />
 ```
 
-### 4. Read-Only Summary View
+### 3. Read-Only Summary View
 
 **Purpose**: Scrollable overview of all games showing tags and notes without chessboards
 
@@ -356,7 +309,6 @@ app/collections/[id]/
 │   ├── wordCloudProcessor.ts         # NEW: Text processing utilities
 │   └── charts/
 │       ├── tagDistribution.tsx       # NEW: Tag bar chart (client component)
-│       ├── winLossPie.tsx            # NEW: Win/loss pie chart (client component)
 │       └── notesWordCloud.tsx        # NEW: Word cloud (client component)
 ```
 
@@ -367,9 +319,8 @@ app/collections/[id]/
 ```typescript
 // app/collections/[id]/analytics/analyticsView.tsx
 import {db} from '@/lib/db'
-import {getTagDistribution, getResultStats} from './actions'
+import {getTagDistribution} from './actions'
 import TagDistributionChart from './charts/tagDistribution'
-import WinLossPie from './charts/winLossPie'
 import NotesWordCloud from './charts/notesWordCloud'
 import ReadOnlySummary from './readOnlySummary'
 
@@ -381,9 +332,8 @@ export default async function AnalyticsView({
   userId: string
 }) {
   // Fetch all analytics data in parallel
-  const [tagStats, resultStats, gamesWithNotes] = await Promise.all([
+  const [tagStats, gamesWithNotes] = await Promise.all([
     getTagDistribution(collectionId, userId),
-    getResultStats(collectionId),
     getGamesWithNotes(collectionId),
   ])
 
@@ -394,11 +344,6 @@ export default async function AnalyticsView({
       <section>
         <h2 className="text-lg font-semibold mb-3">Tag Distribution</h2>
         <TagDistributionChart data={tagStats} />
-      </section>
-
-      <section>
-        <h2 className="text-lg font-semibold mb-3">Performance Overview</h2>
-        <WinLossPie data={resultStats} />
       </section>
 
       <section>
@@ -501,7 +446,6 @@ yarn add -D @types/react-window
 
 ```tsx
 import {FixedSizeList} from 'react-window'
-
 ;<FixedSizeList
   height={600}
   itemCount={games.length}
@@ -539,17 +483,7 @@ import {FixedSizeList} from 'react-window'
 - ✅ Dark/light mode theming works
 - ✅ No performance issues with 100+ games
 
-### Phase 2: Win/Loss Pie Chart
-
-**Goal**: Add performance overview
-
-1. Create `getResultStats()` server action (handle both Chess.com and Lichess)
-2. Create `analytics/charts/winLossPie.tsx` client component
-3. Integrate into `analyticsView.tsx`
-4. Add empty state handling (no games)
-5. Test with both Chess.com and Lichess collections
-
-### Phase 3: Word Cloud
+### Phase 2: Word Cloud
 
 **Goal**: Notes text analysis
 
@@ -560,7 +494,7 @@ import {FixedSizeList} from 'react-window'
 5. Test with large note datasets
 6. Add sampling if performance issues
 
-### Phase 4: Read-Only Summary
+### Phase 3: Read-Only Summary
 
 **Goal**: Scrollable game overview
 
@@ -571,7 +505,7 @@ import {FixedSizeList} from 'react-window'
 5. Test scrolling performance with 200+ games
 6. Add virtual scrolling if needed
 
-### Phase 5: Polish & Optimization
+### Phase 4: Polish & Optimization
 
 **Goal**: Production readiness
 

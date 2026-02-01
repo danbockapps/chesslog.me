@@ -29,8 +29,7 @@ This phase successfully implements the core infrastructure for the analytics das
 **Server Actions** (`app/collections/[id]/analytics/actions.ts`):
 
 - `getTagDistribution()` - Aggregates tag usage across collection games
-- `getResultStats()` - Calculates win/loss/draw statistics (ready for Phase 2)
-- `getGamesWithNotes()` - Fetches notes for word cloud (ready for Phase 3)
+- `getGamesWithNotes()` - Fetches notes for word cloud (ready for Phase 2)
 
 **Theme Configuration** (`app/collections/[id]/analytics/chartTheme.ts`):
 
@@ -131,25 +130,19 @@ Endgame strategy            | 1 | public
 
 ## What's Next
 
-### Phase 2: Win/Loss Pie Chart
-
-- Implement result statistics visualization
-- Handle Chess.com and Lichess result formats
-- Display win rate percentage
-
-### Phase 3: Word Cloud
+### Phase 2: Word Cloud
 
 - Text processing utilities
 - Stop word filtering
 - D3-based word cloud rendering
 
-### Phase 4: Read-Only Summary
+### Phase 3: Read-Only Summary
 
 - Scrollable game overview cards
 - Optimized N+1 query prevention
 - Virtual scrolling for large datasets
 
-### Phase 5: Polish
+### Phase 4: Polish
 
 - Empty state improvements
 - Responsive design testing
