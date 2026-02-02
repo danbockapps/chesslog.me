@@ -11,6 +11,9 @@
   },
   "dependencies": {
     "@lucia-auth/adapter-sqlite": "^3.0.2",
+    "@visx/scale": "^3.12.0",
+    "@visx/text": "^3.12.0",
+    "@visx/wordcloud": "^3.12.0",
     "bcrypt": "^6.0.0",
     "better-sqlite3": "^12.6.2",
     "chess.js": "^1.0.0-beta.8",
@@ -19,7 +22,6 @@
     "next": "16.1.4",
     "react": "^19.2.3",
     "react-chessboard": "4.7.0",
-    "react-d3-cloud": "^1.0.6",
     "react-dom": "^19.2.3",
     "react-select": "^5.10.2",
     "recharts": "^3.7.0"

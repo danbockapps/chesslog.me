@@ -66,19 +66,20 @@ Add a tab switcher at the top of the collection detail page (`app/collections/[i
 yarn add recharts
 ```
 
-### Word Cloud: react-d3-cloud
+### Word Cloud: @visx/wordcloud
 
-**Why react-d3-cloud:**
+**Why @visx/wordcloud:**
 
-- Compatible with React 19
-- Lighter than react-wordcloud (~30kB vs ~80kB)
-- D3-based layout algorithm
-- Customizable colors, rotation, sizing
+- Part of the established @visx visualization library from Airbnb
+- Better TypeScript support
+- More reliable rendering
+- Flexible and composable API
+- Active maintenance and community support
 
 **Installation:**
 
 ```bash
-yarn add react-d3-cloud
+yarn add @visx/wordcloud @visx/text
 ```
 
 ## Data Visualizations
@@ -134,9 +135,11 @@ LIMIT 15
 1. Fetch all games with notes: `SELECT notes FROM games WHERE collection_id = ? AND notes IS NOT NULL AND notes != ''`
 2. Tokenize: Split on whitespace, lowercase, remove punctuation
 3. Filter stop words: Remove common words (the, and, is, to, in, etc.)
-4. Count frequency
-5. Filter minimum: Only show words appearing 2+ times
-6. Format for react-d3-cloud: `[{text: 'mistake', value: 5}, {text: 'endgame', value: 3}, ...]`
+4. Filter short words: Keep only words 3+ characters
+5. Count frequency
+6. Filter minimum: Only show words appearing 1+ times (configurable)
+7. Sort by frequency and limit to top 25 words
+8. Format for @visx/wordcloud: `[{text: 'mistake', value: 5}, {text: 'endgame', value: 3}, ...]`
 
 **Stop Words List** (minimal):
 
@@ -177,16 +180,37 @@ const STOP_WORDS = new Set([
 **Word Cloud Component**:
 
 ```tsx
-<WordCloud
-  data={wordData}
-  width={600}
-  height={400}
-  font="inherit"
-  spiral="rectangular"
+const fontScale = scaleLog({
+  domain: [Math.min(...data.map((w) => w.value)), Math.max(...data.map((w) => w.value))],
+  range: [10, 100],
+})
+
+<Wordcloud
+  words={data}
+  width={width}
+  height={height}
+  fontSize={(datum) => fontScale(datum.value)}
+  font="Impact"
   padding={2}
-  rotate={() => 0} // No rotation for readability
-  fill={() => `hsl(var(--p))`} // Theme-aware primary color
-/>
+  spiral="rectangular"
+  rotate={getRotationDegree} // Random ±60 degrees
+  random={() => 0.5} // Fixed randomness for consistency
+>
+  {(cloudWords) =>
+    cloudWords.map((w, i) => (
+      <Text
+        key={w.text}
+        fill={colors[i % colors.length]}
+        textAnchor="middle"
+        transform={`translate(${w.x}, ${w.y}) rotate(${w.rotate})`}
+        fontSize={w.size}
+        fontFamily={w.font}
+      >
+        {w.text}
+      </Text>
+    ))
+  }
+</Wordcloud>
 ```
 
 ### 3. Read-Only Summary View
@@ -462,17 +486,17 @@ import {FixedSizeList} from 'react-window'
 
 ## Implementation Phases
 
-### Phase 1: Foundation & Tag Distribution (Primary Focus) ✅ COMPLETE
+### Phase 1: Foundation & Tag Distribution ✅ COMPLETE
 
 **Goal**: Set up architecture and implement tag chart
 
-1. ✅ Install dependencies: `yarn add recharts react-d3-cloud`
+1. ✅ Install dependencies: `yarn add recharts @visx/wordcloud @visx/text @visx/scale`
 2. ✅ Create `app/collections/[id]/analytics/` folder structure
 3. ✅ Create `chartTheme.ts` with daisyUI color mappings
 4. ✅ Modify `page.tsx`: Add tab toggle state and conditional rendering
 5. ✅ Create `analytics/actions.ts` with `getTagDistribution()` server action
 6. ✅ Create `analytics/charts/tagDistribution.tsx` client component
-7. ✅ Create `analytics/analyticsView.tsx` server component (skeleton)
+7. ✅ Create `analytics/analyticsView.tsx` server component
 8. ✅ Generate and run database indexes migration
 9. ✅ Test tag distribution chart with various datasets
 
@@ -483,16 +507,26 @@ import {FixedSizeList} from 'react-window'
 - ✅ Dark/light mode theming works
 - ✅ No performance issues with 100+ games
 
-### Phase 2: Word Cloud
+### Phase 2: Word Cloud ✅ COMPLETE
 
 **Goal**: Notes text analysis
 
-1. Create `analytics/wordCloudProcessor.ts` utility
-2. Implement tokenization, stop word filtering, frequency counting
-3. Create `analytics/charts/notesWordCloud.tsx` client component
-4. Add to `analyticsView.tsx`
-5. Test with large note datasets
-6. Add sampling if performance issues
+1. ✅ Create `analytics/wordCloudProcessor.ts` utility
+2. ✅ Implement tokenization, stop word filtering, frequency counting
+3. ✅ Create `analytics/charts/notesWordCloud.tsx` client component using @visx
+4. ✅ Add to `analyticsView.tsx` with parallel data fetching
+5. ✅ Implement responsive sizing (mobile: 350×350, desktop: 800×500)
+6. ✅ Configure logarithmic font scaling and rectangular spiral layout
+7. ✅ Limit to top 25 words for optimal layout without overlap
+
+**Success Criteria**:
+
+- ✅ Words display without overlapping
+- ✅ Font sizes scale based on frequency
+- ✅ Responsive design works on mobile and desktop
+- ✅ Empty state handling when no notes exist
+- ✅ Stop words filtered out
+- ✅ Performance acceptable with multiple notes
 
 ### Phase 3: Read-Only Summary
 
