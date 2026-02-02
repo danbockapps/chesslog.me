@@ -5,6 +5,7 @@ import {desc, eq} from 'drizzle-orm'
 import Link from 'next/link'
 import {FC} from 'react'
 import {ChesscomResult} from './actions/importChesscomGames'
+import AnalyticsHeroBanner from './analyticsHeroBanner'
 import AnalyticsModalWrapper from './analytics/analyticsModalWrapper'
 import AnalyticsView from './analytics/analyticsView'
 import ChesscomGameAccordion from './chesscom/gameAccordion'
@@ -91,15 +92,6 @@ const Collection: FC<Props> = async (props) => {
             </>
           )}
 
-          {page === 1 && (
-            <Link
-              href={`/collections/${params.id}?analytics=open`}
-              className="btn btn-outline btn-sm"
-            >
-              📊 View Analytics
-            </Link>
-          )}
-
           {page > 1 && (
             <Link className="underline" href={`/collections/${params.id}`}>
               Back to first page
@@ -107,6 +99,9 @@ const Collection: FC<Props> = async (props) => {
           )}
         </div>
       </div>
+
+      {/* Analytics Hero Banner */}
+      {page === 1 && <AnalyticsHeroBanner collectionId={params.id} />}
 
       {/* Games List */}
       <div>
