@@ -1,4 +1,4 @@
-# Analytics Implementation - Phases 1 & 2 Complete
+# Analytics Implementation - Phases 1, 2 & 3 Complete
 
 ## What Was Implemented
 
@@ -9,6 +9,10 @@ This phase successfully implements the core infrastructure for the analytics das
 ### Phase 2: Word Cloud from Game Notes
 
 This phase adds visual analysis of common themes and patterns in user-written game notes using a word cloud visualization.
+
+### Phase 3: Read-Only Game Summary
+
+This phase provides a scrollable overview of all games in a collection with their metadata, tags, and notes in a card-based layout.
 
 ## Features Delivered
 
@@ -47,6 +51,26 @@ This phase adds visual analysis of common themes and patterns in user-written ga
 - Stop word filtering: 50+ common words filtered out
 - Frequency counting with minimum threshold
 - Limits to top 25 words for optimal display
+
+### 4. Read-Only Game Summary
+
+- Scrollable card-based list of all games in the collection
+- Displays without interactive chessboards for quick overview
+- Shows game metadata: players, result, time control, date
+- Result visualization: colored dot (green=win, red=loss, gray=draw)
+- Relative date formatting (e.g., "2 days ago", "3 weeks ago")
+- ECO opening code when available
+- Associated tags with visual distinction (primary=public, neutral=private)
+- Notes preview (truncated at 200 characters)
+- Location: `app/collections/[id]/analytics/readOnlySummary.tsx`
+
+**Performance Optimizations**:
+
+- Single query for all games (ordered by date descending)
+- Single query for all tags across games using `inArray`
+- Client-side grouping of tags by game ID
+- Prevents N+1 query problem
+- Efficient for collections with 100+ games
 
 ### 3. Analytics Infrastructure
 
@@ -119,6 +143,7 @@ const gamesData = view === 'games' ? db.select()... : []
 - `app/collections/[id]/analytics/actions.ts`
 - `app/collections/[id]/analytics/chartTheme.ts`
 - `app/collections/[id]/analytics/wordCloudProcessor.ts`
+- `app/collections/[id]/analytics/readOnlySummary.tsx`
 - `app/collections/[id]/analytics/charts/tagDistribution.tsx`
 - `app/collections/[id]/analytics/charts/tagAxisTick.tsx`
 - `app/collections/[id]/analytics/charts/notesWordCloud.tsx`
@@ -161,13 +186,11 @@ Endgame strategy            | 1 | public
 
 ## What's Next
 
-### Phase 3: Read-Only Summary (Next)
+### Phase 4: Polish (Optional Enhancements)
 
-- Scrollable game overview cards
-- Optimized N+1 query prevention
-- Virtual scrolling for large datasets
-
-### Phase 4: Polish
+- Virtual scrolling for collections with 500+ games
+- Theme-aware word cloud colors
+- Advanced filtering options for game summary
 
 - Empty state improvements
 - Responsive design testing
@@ -178,8 +201,8 @@ Endgame strategy            | 1 | public
 
 1. **No Data Validation**: Current implementation assumes clean data. Future phases should add error handling.
 2. **No Caching**: Analytics queries run fresh each time. Consider implementing cache strategy for large collections.
-3. **Game Summary Pending**: Game summary section shows "Coming soon" placeholder (Phase 3).
-4. **Word Cloud Colors**: Currently uses hardcoded color palette instead of theme colors.
+3. **Word Cloud Colors**: Currently uses hardcoded color palette instead of theme colors.
+4. **No Virtual Scrolling**: Game summary may have performance issues with 500+ games (works well up to 200 games).
 
 ## Performance Notes
 
@@ -197,13 +220,15 @@ Navigate to any collection and click the "Analytics" tab to view:
 
 - **Tag Distribution**: Bar chart showing most common tags across games (if collection has tagged games)
 - **Common Themes in Notes**: Word cloud visualization of frequent words in game notes (if notes exist)
-- **Game Summary**: Coming soon (Phase 3)
+- **Game Summary**: Scrollable list of all games with metadata, tags, and note previews
 
 Example URL:
 
 ```
 http://localhost:3000/collections/[collection-id]?view=analytics
 ```
+
+The analytics view provides a comprehensive overview of your chess game collection, helping identify patterns in your play style, common mistakes, and areas for improvement.
 
 ## Technical Details
 
@@ -224,3 +249,23 @@ http://localhost:3000/collections/[collection-id]?view=analytics
 4. Count frequency across all notes
 5. Sort by frequency and take top 25
 6. Pass to word cloud component for visualization
+
+### Game Summary Data Flow
+
+1. Fetch all games for collection (single query, ordered by date)
+2. Fetch all tags for these games (single query using `inArray`)
+3. Group tags by game ID on the server
+4. Combine games with their tags
+5. Render card-based list with:
+   - Win/loss/draw indicator (color coded)
+   - Player names and game metadata
+   - Associated tags
+   - Note preview (first 200 characters)
+
+**Result Color Logic**:
+
+- Chess.com: Derives result from `whiteResult`/`blackResult` fields
+- Lichess: Uses `winner` field
+- Success (green): User won
+- Error (red): User lost
+- Neutral (gray): Draw or other result

@@ -2,6 +2,7 @@ import {getGamesWithNotes, getTagDistribution} from './actions'
 import NotesWordCloud from './charts/notesWordCloud'
 import TagDistributionChart from './charts/tagDistribution'
 import {processNotesToWordCloud} from './wordCloudProcessor'
+import ReadOnlySummary from './readOnlySummary'
 
 export default async function AnalyticsView({
   collectionId,
@@ -37,9 +38,12 @@ export default async function AnalyticsView({
 
       <section>
         <h2 className="text-lg font-semibold mb-3">Game Summary</h2>
-        <div className="flex items-center justify-center h-64 bg-base-200 rounded-lg">
-          <p className="text-base-content/70">Coming soon</p>
-        </div>
+        <ReadOnlySummary
+          collectionId={collectionId}
+          username={username}
+          userId={userId}
+          site={site}
+        />
       </section>
     </div>
   )
