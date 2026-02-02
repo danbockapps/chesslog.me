@@ -2,6 +2,7 @@
 import {scaleLog} from '@visx/scale'
 import {Text} from '@visx/text'
 import {Wordcloud} from '@visx/wordcloud'
+import {useChartColors} from '../useChartColors'
 import {useIsMobile} from '../useIsMobile'
 
 export interface WordData {
@@ -17,9 +18,8 @@ function getRotationDegree() {
   return rand * degree
 }
 
-const colors = ['#143059', '#2F6B9A', '#82a6c2']
-
 export default function NotesWordCloud({data}: {data: WordData[]}) {
+  const chartColors = useChartColors()
   const isMobile = useIsMobile()
 
   const width = isMobile ? 350 : 800
@@ -59,7 +59,7 @@ export default function NotesWordCloud({data}: {data: WordData[]}) {
           cloudWords.map((w, i) => (
             <Text
               key={w.text}
-              fill={colors[i % colors.length]}
+              fill={chartColors.primary}
               textAnchor={'middle'}
               transform={`translate(${w.x}, ${w.y}) rotate(${w.rotate})`}
               fontSize={w.size}
