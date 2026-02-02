@@ -27,7 +27,7 @@ const DescriptionDialog: FC<Props> = (props) => {
           </button>
         </div>
       </div>
-      <form method="dialog" className="modal-backdrop" onClick={props.onClose}>
+      <form method="dialog" className="modal-backdrop backdrop-blur-sm" onClick={props.onClose}>
         <button>close</button>
       </form>
     </dialog>

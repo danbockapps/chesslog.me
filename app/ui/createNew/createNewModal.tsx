@@ -62,7 +62,7 @@ const CreateNewModal: FC<Props> = (props) => {
           )}
         </div>
       </div>
-      <form method="dialog" className="modal-backdrop">
+      <form method="dialog" className="modal-backdrop backdrop-blur-sm">
         <button onClick={() => props.setIsOpen(false)}>close</button>
       </form>
     </dialog>

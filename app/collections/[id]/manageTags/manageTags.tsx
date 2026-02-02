@@ -128,7 +128,7 @@ const ManageTags: FC<Props> = (props) => {
           />
         )}
       </div>
-      <form method="dialog" className="modal-backdrop" onClick={props.close}>
+      <form method="dialog" className="modal-backdrop backdrop-blur-sm" onClick={props.close}>
         <button>close</button>
       </form>
     </dialog>
