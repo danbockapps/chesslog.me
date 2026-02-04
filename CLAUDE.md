@@ -212,30 +212,39 @@ The application uses **Tailwind CSS v4** with **daisyUI** for automatic light/da
 
 **Configuration:**
 
-The project uses Tailwind CSS v4's CSS-first configuration in `app/globals.css`. Custom light and dark themes are defined using `@plugin "daisyui/theme"` blocks with amber as the primary color:
+The project uses Tailwind CSS v4's CSS-first configuration in `app/globals.css`. Custom light and dark themes are defined using `@plugin "daisyui/theme"` blocks with teal as the primary color:
 
 ```css
 @import 'tailwindcss';
 @plugin "daisyui";
 
-/* Light theme with amber primary */
+/* Light theme with teal primary */
 @plugin "daisyui/theme" {
   name: 'light';
   default: true;
   color-scheme: light;
-  --color-primary: oklch(0.666 0.179 56); /* amber-600 */
-  --color-secondary: oklch(0.555 0.163 49); /* amber-700 */
-  --color-accent: oklch(0.769 0.171 70); /* amber-500 */
+
+  --color-primary: oklch(0.6 0.118 185); /* teal-600 */
+  --color-primary-content: oklch(1 0 0); /* white */
+  --color-secondary: oklch(0.511 0.096 186); /* teal-700 */
+  --color-secondary-content: oklch(1 0 0); /* white */
+  --color-accent: oklch(0.704 0.14 183); /* teal-500 */
+  --color-accent-content: oklch(0.2 0 0); /* dark */
 }
 
-/* Dark theme with amber primary */
+/* Dark theme with teal primary */
 @plugin "daisyui/theme" {
   name: 'dark';
+  default: false;
   prefersdark: true;
   color-scheme: dark;
-  --color-primary: oklch(0.769 0.171 70); /* amber-500 */
-  --color-secondary: oklch(0.666 0.179 56); /* amber-600 */
-  --color-accent: oklch(0.555 0.163 49); /* amber-700 */
+
+  --color-primary: oklch(0.777 0.152 182); /* teal-400 */
+  --color-primary-content: oklch(0.2 0 0); /* dark */
+  --color-secondary: oklch(0.704 0.14 183); /* teal-500 */
+  --color-secondary-content: oklch(1 0 0); /* white */
+  --color-accent: oklch(0.6 0.118 185); /* teal-600 */
+  --color-accent-content: oklch(1 0 0); /* white */
 }
 
 @theme {
@@ -249,7 +258,8 @@ The project uses Tailwind CSS v4's CSS-first configuration in `app/globals.css`.
 1. **Theme Configuration**: Custom daisyUI themes define the app's color palette
    - `light` theme is the default
    - `dark` theme is applied automatically when `prefers-color-scheme: dark`
-   - Primary/secondary/accent colors use amber shades, adjusted for each theme
+   - Primary/secondary/accent colors use teal shades, adjusted for each theme
+   - Each semantic color has a corresponding `-content` variant for text
    - No manual JavaScript required for theme switching
 
 2. **daisyUI Semantic Classes**: Use these throughout the app:
