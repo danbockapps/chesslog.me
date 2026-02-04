@@ -140,7 +140,8 @@ export default async function Home() {
           </Link>
           <Link
             href="/signup"
-            className="text-sm bg-primary hover:bg-secondary text-white px-4 py-2 rounded-lg transition-colors font-medium"
+            className="text-sm bg-primary hover:bg-secondary text-primary-content px-4 py-2 rounded-lg transition-colors
+              font-medium"
           >
             Get started
           </Link>
@@ -173,8 +174,8 @@ export default async function Home() {
             >
               <Link
                 href="/signup"
-                className="inline-flex items-center justify-center gap-2 bg-primary hover:bg-secondary text-white px-6 py-3
-                  rounded-lg transition-all font-medium text-lg hover:shadow-lg hover:shadow-primary/20"
+                className="inline-flex items-center justify-center gap-2 bg-primary hover:bg-secondary text-primary-content
+                  px-6 py-3 rounded-lg transition-all font-medium text-lg hover:shadow-lg hover:shadow-primary/20"
               >
                 Start for free
                 <span className="text-xl">&rarr;</span>
@@ -533,8 +534,8 @@ export default async function Home() {
           </p>
           <Link
             href="/signup"
-            className="inline-flex items-center justify-center gap-2 bg-primary hover:bg-secondary text-white px-8 py-4
-              rounded-lg transition-all font-medium text-lg hover:shadow-lg hover:shadow-primary/20
+            className="inline-flex items-center justify-center gap-2 bg-primary hover:bg-secondary text-primary-content
+              px-8 py-4 rounded-lg transition-all font-medium text-lg hover:shadow-lg hover:shadow-primary/20
               animate-fade-in-up"
             style={{animationDelay: '0.3s'}}
           >
