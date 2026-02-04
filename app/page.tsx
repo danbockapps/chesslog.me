@@ -56,16 +56,16 @@ function FeatureCard({
 }) {
   return (
     <div
-      className="group relative bg-base-100 border border-base-300 rounded-xl p-6 hover:border-amber-500/50
-        hover:shadow-lg hover:shadow-amber-500/5 transition-all duration-500 animate-fade-in-up"
+      className="group relative bg-base-100 border border-base-300 rounded-xl p-6 hover:border-primary/50
+        hover:shadow-lg hover:shadow-primary/5 transition-all duration-500 animate-fade-in-up"
       style={{animationDelay: delay}}
     >
       <div
-        className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100
+        className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100
           transition-opacity duration-500 rounded-xl"
       />
       <div className="relative">
-        <div className="text-3xl mb-4 text-amber-600 dark:text-amber-500">{icon}</div>
+        <div className="text-3xl mb-4 text-primary">{icon}</div>
         <h3 className="text-lg font-semibold text-base-content mb-2">{title}</h3>
         <p className="text-base-content/70 text-sm leading-relaxed">{description}</p>
       </div>
@@ -76,9 +76,7 @@ function FeatureCard({
 function StatBlock({value, label, delay}: {value: string; label: string; delay: string}) {
   return (
     <div className="text-center animate-fade-in-up" style={{animationDelay: delay}}>
-      <div className="text-4xl md:text-5xl font-bold text-amber-600 dark:text-amber-500 mb-1">
-        {value}
-      </div>
+      <div className="text-4xl md:text-5xl font-bold text-primary mb-1">{value}</div>
       <div className="text-sm text-base-content/60 uppercase tracking-wider">{label}</div>
     </div>
   )
@@ -104,8 +102,8 @@ function TestimonialCard({
         &ldquo;{quote}&rdquo;
       </blockquote>
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center">
-          <ChessPiece piece="knight" className="text-lg text-amber-600 dark:text-amber-500" />
+        <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+          <ChessPiece piece="knight" className="text-lg text-primary" />
         </div>
         <div>
           <div className="font-medium text-base-content text-sm">{author}</div>
@@ -128,7 +126,7 @@ export default async function Home() {
       {/* Navigation */}
       <nav className="relative z-10 flex items-center justify-between px-6 md:px-12 py-6 animate-fade-in">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-gradient-to-br from-amber-500 to-amber-700 rounded flex items-center justify-center">
+          <div className="w-8 h-8 bg-gradient-to-br from-accent to-secondary rounded flex items-center justify-center">
             <ChessPiece piece="king" className="text-white text-lg" />
           </div>
           <span className="text-xl font-semibold tracking-tight">chesslog.me</span>
@@ -142,8 +140,7 @@ export default async function Home() {
           </Link>
           <Link
             href="/signup"
-            className="text-sm bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg transition-colors
-              font-medium"
+            className="text-sm bg-primary hover:bg-secondary text-white px-4 py-2 rounded-lg transition-colors font-medium"
           >
             Get started
           </Link>
@@ -160,7 +157,7 @@ export default async function Home() {
             >
               Your chess games tell a&nbsp;story.
               <br />
-              <span className="text-amber-600 dark:text-amber-500">Learn to read it.</span>
+              <span className="text-primary">Learn to read it.</span>
             </h1>
             <p
               className="text-lg md:text-xl text-base-content/70 max-w-2xl mb-8 leading-relaxed animate-fade-in-up"
@@ -176,15 +173,15 @@ export default async function Home() {
             >
               <Link
                 href="/signup"
-                className="inline-flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-700 text-white px-6 py-3
-                  rounded-lg transition-all font-medium text-lg hover:shadow-lg hover:shadow-amber-500/20"
+                className="inline-flex items-center justify-center gap-2 bg-primary hover:bg-secondary text-white px-6 py-3
+                  rounded-lg transition-all font-medium text-lg hover:shadow-lg hover:shadow-primary/20"
               >
                 Start for free
                 <span className="text-xl">&rarr;</span>
               </Link>
               <a
                 href="#how-it-works"
-                className="inline-flex items-center justify-center gap-2 border border-base-300 hover:border-amber-500/50 px-6
+                className="inline-flex items-center justify-center gap-2 border border-base-300 hover:border-primary/50 px-6
                   py-3 rounded-lg transition-all font-medium text-base-content/80 hover:text-base-content"
               >
                 See how it works
@@ -231,7 +228,7 @@ export default async function Home() {
                   'Your "tactical weakness" is actually a focus problem',
                 ].map((item, i) => (
                   <li key={i} className="flex items-start gap-3 text-base-content/80">
-                    <span className="text-amber-600 dark:text-amber-500 mt-1">
+                    <span className="text-primary mt-1">
                       <ChessPiece piece="pawn" className="text-sm" />
                     </span>
                     {item}
@@ -326,8 +323,8 @@ export default async function Home() {
                             key={i}
                             className={`aspect-square ${
                             (Math.floor(i / 4) + (i % 4)) % 2 === 0
-                                ? 'bg-amber-600/30'
-                                : 'bg-amber-900/20'
+                                ? 'bg-primary/30'
+                                : 'bg-secondary/20'
                             }`}
                           />
                         ))}
@@ -339,8 +336,8 @@ export default async function Home() {
                       <div className="h-3 w-full bg-base-300 rounded" />
                       <div className="h-3 w-5/6 bg-base-300 rounded" />
                       <div className="flex gap-2 mt-4">
-                        <div className="h-6 w-16 bg-amber-500/20 rounded-full" />
-                        <div className="h-6 w-20 bg-amber-500/20 rounded-full" />
+                        <div className="h-6 w-16 bg-primary/20 rounded-full" />
+                        <div className="h-6 w-20 bg-primary/20 rounded-full" />
                       </div>
                     </div>
                   </div>
@@ -381,7 +378,7 @@ export default async function Home() {
                         {[65, 45, 80, 35, 55, 70, 40].map((height, i) => (
                           <div key={i} className="flex-1 flex flex-col items-center gap-1">
                             <div
-                              className="w-full bg-amber-500/40 rounded-t"
+                              className="w-full bg-primary/40 rounded-t"
                               style={{height: `${height}%`}}
                             />
                             <div className="h-2 w-full bg-base-300 rounded" />
@@ -416,7 +413,7 @@ export default async function Home() {
             <h2 className="text-3xl md:text-4xl font-bold mb-6">
               You&apos;ve read the books.
               <br />
-              <span className="text-amber-600 dark:text-amber-500">Now what?</span>
+              <span className="text-primary">Now what?</span>
             </h2>
             <p className="text-base-content/70 leading-relaxed max-w-2xl mx-auto mb-4">
               Chess books and courses are great. But after you&apos;ve consumed enough content,
@@ -441,10 +438,7 @@ export default async function Home() {
               style={{animationDelay: '0.2s'}}
             >
               <div className="flex items-center gap-3 mb-4">
-                <div
-                  className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-500 to-amber-700 flex items-center
-                    justify-center"
-                >
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-accent to-secondary flex items-center justify-center">
                   <span className="text-white text-sm font-bold">ST</span>
                 </div>
                 <div>
@@ -460,8 +454,8 @@ export default async function Home() {
                   &ldquo;I need to do more tactics puzzles. I keep missing wins.&rdquo;
                 </div>
               </div>
-              <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4">
-                <div className="text-xs font-medium text-amber-700 dark:text-amber-500 mb-1">
+              <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
+                <div className="text-xs font-medium text-secondary dark:text-primary mb-1">
                   Coach&apos;s comment
                 </div>
                 <div className="text-sm text-base-content/80">
@@ -472,7 +466,7 @@ export default async function Home() {
               </div>
             </div>
             <div className="order-1 md:order-2 animate-fade-in-up" style={{animationDelay: '0.1s'}}>
-              <div className="inline-block text-xs font-medium text-amber-600 dark:text-amber-500 uppercase tracking-wider mb-4">
+              <div className="inline-block text-xs font-medium text-primary uppercase tracking-wider mb-4">
                 For coaches
               </div>
               <h2 className="text-3xl md:text-4xl font-bold mb-6">
@@ -529,7 +523,7 @@ export default async function Home() {
           >
             Ready to see what your games
             <br />
-            <span className="text-amber-600 dark:text-amber-500">are really telling you?</span>
+            <span className="text-primary">are really telling you?</span>
           </h2>
           <p
             className="text-lg text-base-content/70 mb-8 animate-fade-in-up"
@@ -539,8 +533,8 @@ export default async function Home() {
           </p>
           <Link
             href="/signup"
-            className="inline-flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-700 text-white px-8 py-4
-              rounded-lg transition-all font-medium text-lg hover:shadow-lg hover:shadow-amber-500/20
+            className="inline-flex items-center justify-center gap-2 bg-primary hover:bg-secondary text-white px-8 py-4
+              rounded-lg transition-all font-medium text-lg hover:shadow-lg hover:shadow-primary/20
               animate-fade-in-up"
             style={{animationDelay: '0.3s'}}
           >
@@ -554,7 +548,7 @@ export default async function Home() {
       <footer className="relative z-10 px-6 md:px-12 py-8 border-t border-base-300">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-gradient-to-br from-amber-500 to-amber-700 rounded flex items-center justify-center">
+            <div className="w-6 h-6 bg-gradient-to-br from-accent to-secondary rounded flex items-center justify-center">
               <ChessPiece piece="king" className="text-white text-xs" />
             </div>
             <span className="text-sm text-base-content/60">chesslog.me</span>

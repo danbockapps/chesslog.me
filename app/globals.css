@@ -1,14 +1,38 @@
 @import 'tailwindcss';
+@plugin "daisyui";
+
+/* Light theme with amber primary */
+@plugin "daisyui/theme" {
+  name: 'light';
+  default: true;
+  color-scheme: light;
+
+  --color-primary: oklch(0.666 0.179 56); /* amber-600 */
+  --color-primary-content: oklch(1 0 0); /* white */
+  --color-secondary: oklch(0.555 0.163 49); /* amber-700 */
+  --color-secondary-content: oklch(1 0 0); /* white */
+  --color-accent: oklch(0.769 0.171 70); /* amber-500 */
+  --color-accent-content: oklch(0.2 0 0); /* dark */
+}
+
+/* Dark theme with amber primary */
+@plugin "daisyui/theme" {
+  name: 'dark';
+  default: false;
+  prefersdark: true;
+  color-scheme: dark;
+
+  --color-primary: oklch(0.769 0.171 70); /* amber-500 */
+  --color-primary-content: oklch(0.2 0 0); /* dark */
+  --color-secondary: oklch(0.666 0.179 56); /* amber-600 */
+  --color-secondary-content: oklch(1 0 0); /* white */
+  --color-accent: oklch(0.555 0.163 49); /* amber-700 */
+  --color-accent-content: oklch(1 0 0); /* white */
+}
 
 @theme {
   --color-chesscom: #2d2c28;
   --color-lichess: #000000;
-}
-
-@plugin "daisyui" {
-  themes:
-    light --default,
-    dark --prefersdark;
 }
 
 .lichess-iframe {
@@ -16,7 +40,7 @@
   height: 400px;
 }
 
-/* Landing page animations */
+/* Animations */
 @keyframes fade-in {
   from {
     opacity: 0;

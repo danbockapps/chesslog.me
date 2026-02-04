@@ -212,51 +212,54 @@ The application uses **Tailwind CSS v4** with **daisyUI** for automatic light/da
 
 **Configuration:**
 
-The project uses Tailwind CSS v4's new CSS-first configuration in `app/globals.css`:
+The project uses Tailwind CSS v4's CSS-first configuration in `app/globals.css`. Custom light and dark themes are defined using `@plugin "daisyui/theme"` blocks with amber as the primary color:
 
 ```css
 @import 'tailwindcss';
-@plugin "daisyui" {
-  themes:
-    light --default,
-    dark --prefersdark;
+@plugin "daisyui";
+
+/* Light theme with amber primary */
+@plugin "daisyui/theme" {
+  name: 'light';
+  default: true;
+  color-scheme: light;
+  --color-primary: oklch(0.666 0.179 56); /* amber-600 */
+  --color-secondary: oklch(0.555 0.163 49); /* amber-700 */
+  --color-accent: oklch(0.769 0.171 70); /* amber-500 */
 }
-```
 
-Brand colors are defined inline in CSS using `@theme`:
+/* Dark theme with amber primary */
+@plugin "daisyui/theme" {
+  name: 'dark';
+  prefersdark: true;
+  color-scheme: dark;
+  --color-primary: oklch(0.769 0.171 70); /* amber-500 */
+  --color-secondary: oklch(0.666 0.179 56); /* amber-600 */
+  --color-accent: oklch(0.555 0.163 49); /* amber-700 */
+}
 
-```css
 @theme {
   --color-chesscom: #2d2c28;
   --color-lichess: #000000;
 }
 ```
 
-PostCSS configuration in `postcss.config.mjs`:
-
-```javascript
-const config = {
-  plugins: {
-    '@tailwindcss/postcss': {},
-  },
-}
-```
-
 **How it works:**
 
-1. **Theme Configuration**: daisyUI themes are configured directly in `app/globals.css` using Tailwind v4's `@plugin` directive
+1. **Theme Configuration**: Custom daisyUI themes define the app's color palette
    - `light` theme is the default
    - `dark` theme is applied automatically when `prefers-color-scheme: dark`
+   - Primary/secondary/accent colors use amber shades, adjusted for each theme
    - No manual JavaScript required for theme switching
-   - No separate `tailwind.config.ts` file needed (Tailwind v4 uses CSS-first configuration)
 
-2. **daisyUI Semantic Classes**: daisyUI provides semantic color classes that automatically adapt to the active theme:
+2. **daisyUI Semantic Classes**: Use these throughout the app:
    - Background: `bg-base-100`, `bg-base-200`, `bg-base-300`
    - Text: `text-base-content`, `text-primary`, `text-secondary`
-   - Components: `btn`, `modal`, `badge`, `toggle`, `divider`, etc.
-   - All classes automatically adjust colors based on the active theme
+   - Components: `btn btn-primary`, `modal`, `badge`, `toggle`, etc.
+   - Opacity variants work: `bg-primary/20`, `border-primary/50`
+   - All classes automatically adjust based on the active theme
 
-3. **Brand Colors**: Chess.com and Lichess brand colors are defined in `app/globals.css` using `@theme` and remain constant across themes:
+3. **Platform Colors**: Chess.com and Lichess brand colors are defined via `@theme`:
    - Chess.com: `#2d2c28` (accessed via `bg-chesscom` or `text-chesscom`)
    - Lichess: `#000000` (accessed via `bg-lichess` or `text-lichess`)
 
@@ -268,9 +271,13 @@ Use daisyUI semantic classes for theme-aware styling:
 // Good - uses daisyUI semantic classes
 <div className="bg-base-200 text-base-content border-base-300">
 <button className="btn btn-primary">Click me</button>
+<span className="text-primary">Highlighted text</span>
+<div className="bg-primary/20">Subtle primary background</div>
+<div className="bg-gradient-to-br from-accent to-secondary">Gradient</div>
 
 // Avoid - hardcoded colors don't respect theme
 <div className="bg-white text-gray-900 border-gray-200">
+<span className="text-amber-600">Don't use raw color names</span>
 ```
 
 **Component Examples:**
