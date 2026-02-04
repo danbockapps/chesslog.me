@@ -1,32 +1,32 @@
 @import 'tailwindcss';
 @plugin "daisyui";
 
-/* Light theme with amber primary */
+/* Light theme with teal primary */
 @plugin "daisyui/theme" {
   name: 'light';
   default: true;
   color-scheme: light;
 
-  --color-primary: oklch(0.666 0.179 56); /* amber-600 */
+  --color-primary: oklch(0.6 0.118 185); /* teal-600 */
   --color-primary-content: oklch(1 0 0); /* white */
-  --color-secondary: oklch(0.555 0.163 49); /* amber-700 */
+  --color-secondary: oklch(0.511 0.096 186); /* teal-700 */
   --color-secondary-content: oklch(1 0 0); /* white */
-  --color-accent: oklch(0.769 0.171 70); /* amber-500 */
+  --color-accent: oklch(0.704 0.14 183); /* teal-500 */
   --color-accent-content: oklch(0.2 0 0); /* dark */
 }
 
-/* Dark theme with amber primary */
+/* Dark theme with teal primary */
 @plugin "daisyui/theme" {
   name: 'dark';
   default: false;
   prefersdark: true;
   color-scheme: dark;
 
-  --color-primary: oklch(0.769 0.171 70); /* amber-500 */
+  --color-primary: oklch(0.777 0.152 182); /* teal-400 */
   --color-primary-content: oklch(0.2 0 0); /* dark */
-  --color-secondary: oklch(0.666 0.179 56); /* amber-600 */
+  --color-secondary: oklch(0.704 0.14 183); /* teal-500 */
   --color-secondary-content: oklch(1 0 0); /* white */
-  --color-accent: oklch(0.555 0.163 49); /* amber-700 */
+  --color-accent: oklch(0.6 0.118 185); /* teal-600 */
   --color-accent-content: oklch(1 0 0); /* white */
 }
 
