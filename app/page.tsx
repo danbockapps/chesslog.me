@@ -1,35 +1,9 @@
 import {getUser} from '@/lib/auth'
 import Link from 'next/link'
 import {redirect} from 'next/navigation'
+import {ChessboardPattern} from '@/app/ui/ChessboardPattern'
 
 export const dynamic = 'force-dynamic'
-
-function ChessboardPattern() {
-  return (
-    <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-      <div className="absolute -top-1/4 -right-1/4 w-[800px] h-[800px] rotate-12 opacity-[0.03] dark:opacity-[0.05]">
-        <div className="grid grid-cols-8 w-full h-full">
-          {Array.from({length: 64}).map((_, i) => (
-            <div
-              key={i}
-              className={`aspect-square ${(Math.floor(i / 8) + (i % 8)) % 2 === 0 ? 'bg-primary' : 'bg-transparent'}`}
-            />
-          ))}
-        </div>
-      </div>
-      <div className="absolute -bottom-1/4 -left-1/4 w-[600px] h-[600px] -rotate-12 opacity-[0.03] dark:opacity-[0.05]">
-        <div className="grid grid-cols-8 w-full h-full">
-          {Array.from({length: 64}).map((_, i) => (
-            <div
-              key={i}
-              className={`aspect-square ${(Math.floor(i / 8) + (i % 8)) % 2 === 0 ? 'bg-primary' : 'bg-transparent'}`}
-            />
-          ))}
-        </div>
-      </div>
-    </div>
-  )
-}
 
 function ChessPiece({piece, className = ''}: {piece: string; className?: string}) {
   const pieces: Record<string, string> = {
@@ -129,7 +103,7 @@ export default async function Home() {
           <div className="w-8 h-8 bg-gradient-to-br from-accent to-secondary rounded flex items-center justify-center">
             <ChessPiece piece="king" className="text-white text-lg" />
           </div>
-          <span className="text-xl font-semibold tracking-tight">chesslog.me</span>
+          <span className="text-xl font-semibold tracking-tight font-display">chesslog.me</span>
         </div>
         <div className="flex items-center gap-4">
           <Link
@@ -153,7 +127,7 @@ export default async function Home() {
         <div className="max-w-5xl mx-auto">
           <div className="max-w-3xl">
             <h1
-              className="text-4xl md:text-6xl lg:text-7xl font-bold leading-[1.1] mb-6 animate-fade-in-up"
+              className="text-4xl md:text-6xl lg:text-7xl font-bold leading-[1.1] mb-6 animate-fade-in-up font-display"
               style={{animationDelay: '0.1s'}}
             >
               Your chess games tell a&nbsp;story.
@@ -197,7 +171,7 @@ export default async function Home() {
         <div className="max-w-5xl mx-auto">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="animate-fade-in-up" style={{animationDelay: '0.1s'}}>
-              <h2 className="text-3xl md:text-4xl font-bold mb-6">
+              <h2 className="text-3xl md:text-4xl font-bold mb-6 font-display">
                 Your brain is lying to you about your chess.
               </h2>
               <p className="text-base-content/70 leading-relaxed mb-4">
@@ -246,7 +220,7 @@ export default async function Home() {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
             <h2
-              className="text-3xl md:text-4xl font-bold mb-4 animate-fade-in-up"
+              className="text-3xl md:text-4xl font-bold mb-4 animate-fade-in-up font-display"
               style={{animationDelay: '0.1s'}}
             >
               Simple process, powerful insights
@@ -288,7 +262,7 @@ export default async function Home() {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
             <h2
-              className="text-3xl md:text-4xl font-bold mb-4 animate-fade-in-up"
+              className="text-3xl md:text-4xl font-bold mb-4 animate-fade-in-up font-display"
               style={{animationDelay: '0.1s'}}
             >
               See it in action
@@ -411,7 +385,7 @@ export default async function Home() {
       <section className="relative z-10 px-6 md:px-12 py-20 bg-base-200/30">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-8 animate-fade-in-up" style={{animationDelay: '0.1s'}}>
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">
+            <h2 className="text-3xl md:text-4xl font-bold mb-6 font-display">
               You&apos;ve read the books.
               <br />
               <span className="text-primary">Now what?</span>
@@ -470,7 +444,7 @@ export default async function Home() {
               <div className="inline-block text-xs font-medium text-primary uppercase tracking-wider mb-4">
                 For coaches
               </div>
-              <h2 className="text-3xl md:text-4xl font-bold mb-6">
+              <h2 className="text-3xl md:text-4xl font-bold mb-6 font-display">
                 Correct your students' misconceptions
               </h2>
               <p className="text-base-content/70 leading-relaxed mb-4">
@@ -519,7 +493,7 @@ export default async function Home() {
       <section className="relative z-10 px-6 md:px-12 py-24 bg-base-200/30">
         <div className="max-w-3xl mx-auto text-center">
           <h2
-            className="text-3xl md:text-5xl font-bold mb-6 animate-fade-in-up"
+            className="text-3xl md:text-5xl font-bold mb-6 animate-fade-in-up font-display"
             style={{animationDelay: '0.1s'}}
           >
             Ready to see what your games
@@ -552,7 +526,7 @@ export default async function Home() {
             <div className="w-6 h-6 bg-gradient-to-br from-accent to-secondary rounded flex items-center justify-center">
               <ChessPiece piece="king" className="text-white text-xs" />
             </div>
-            <span className="text-sm text-base-content/60">chesslog.me</span>
+            <span className="text-sm text-base-content/60 font-display">chesslog.me</span>
           </div>
           <div className="text-sm text-base-content/50">
             Built for chess players who want to actually improve.

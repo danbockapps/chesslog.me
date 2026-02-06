@@ -33,6 +33,9 @@
 @theme {
   --color-chesscom: #2d2c28;
   --color-lichess: #000000;
+
+  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display), ui-serif, Georgia, serif;
 }
 
 .lichess-iframe {
