@@ -1,8 +1,8 @@
 'use client'
 
+import {AuthLayout} from '@/app/ui/AuthLayout'
 import React, {useState} from 'react'
 import {signup} from './actions'
-import {AuthLayout} from '@/app/ui/AuthLayout'
 
 const SignUpPage: React.FC = () => {
   const [email, setEmail] = useState('')
@@ -160,23 +160,6 @@ const SignUpPage: React.FC = () => {
           )}
         </button>
       </form>
-
-      <p className="mt-8 text-center text-base-content/30 text-sm leading-relaxed">
-        By creating an account, you agree to our{' '}
-        <a
-          href="#"
-          className="text-base-content/50 hover:text-base-content/70 underline underline-offset-2"
-        >
-          Terms
-        </a>{' '}
-        and{' '}
-        <a
-          href="#"
-          className="text-base-content/50 hover:text-base-content/70 underline underline-offset-2"
-        >
-          Privacy Policy
-        </a>
-      </p>
     </AuthLayout>
   )
 }
