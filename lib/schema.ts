@@ -34,7 +34,7 @@ export const collections = sqliteTable('collections', {
   ownerId: text('owner_id')
     .notNull()
     .references(() => users.id, {onDelete: 'cascade'}),
-  name: text('name').notNull(),
+  name: text('name'),
   site: text('site').$type<'lichess' | 'chess.com'>(), // ENUM as text with type assertion
   username: text('username'),
   timeClass: text('time_class').$type<

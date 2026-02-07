@@ -1,4 +1,5 @@
 import {requireAuth, requireOwnership} from '@/lib/auth'
+import {getCollectionDisplayName} from '@/lib/collectionUtils'
 import {db} from '@/lib/db'
 import {collections, games} from '@/lib/schema'
 import {desc, eq} from 'drizzle-orm'
@@ -41,7 +42,8 @@ const Collection: FC<Props> = async (props) => {
     .where(eq(collections.id, params.id))
     .get()
 
-  const {name, username, site, timeClass, last_refreshed} = collection ?? {}
+  const {username, site, timeClass, last_refreshed} = collection ?? {}
+  const displayName = collection ? getCollectionDisplayName(collection) : ''
   const lastRefreshed = last_refreshed ? new Date(last_refreshed) : null
 
   // Only fetch games if analytics modal is not open
@@ -79,7 +81,7 @@ const Collection: FC<Props> = async (props) => {
     <div className="p-4">
       <Link href="/collections">⬅ Collections</Link>
       <div className="py-6 flex justify-between items-center">
-        <h1 className="text-xl">{name ?? ''}</h1>
+        <h1 className="text-xl">{displayName}</h1>
 
         <div className="flex gap-2 items-center">
           {site && username && page === 1 && (

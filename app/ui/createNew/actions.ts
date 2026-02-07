@@ -11,9 +11,15 @@ export async function createCollection(
   type: Type,
   username: string,
   timeClass: TimeClass,
-  name: string,
+  name: string | null,
 ) {
   const user = await requireAuth()
+
+  const isPlatform = type === 'lichess' || type === 'chess.com'
+
+  if (isPlatform && !timeClass) {
+    throw new Error('Time class is required for platform collections')
+  }
 
   const collectionId = crypto.randomUUID()
 
@@ -21,9 +27,9 @@ export async function createCollection(
     .values({
       id: collectionId,
       ownerId: user.id,
-      name: name.trim() || 'Untitled collection',
+      name: isPlatform ? null : name?.trim() || 'Untitled collection',
       username: username.trim() || null,
-      site: type === 'lichess' || type === 'chess.com' ? type : null,
+      site: isPlatform ? type : null,
       timeClass: timeClass,
     })
     .run()

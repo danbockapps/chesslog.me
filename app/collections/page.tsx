@@ -1,4 +1,5 @@
 import {requireAuth} from '@/lib/auth'
+import {getCollectionDisplayName} from '@/lib/collectionUtils'
 import {db} from '@/lib/db'
 import {collections} from '@/lib/schema'
 import {eq} from 'drizzle-orm'
@@ -18,11 +19,14 @@ export default async function PrivatePage() {
 
   return (
     <div className="flex gap-4 p-4 flex-col md:flex-wrap md:flex-row">
-      {userCollections?.map((c) => (
-        <CollectionCard key={c.id} id={c.id} title={c.name ?? ''}>
-          {c.name}
-        </CollectionCard>
-      ))}
+      {userCollections?.map((c) => {
+        const displayName = getCollectionDisplayName(c)
+        return (
+          <CollectionCard key={c.id} id={c.id} title={displayName}>
+            {displayName}
+          </CollectionCard>
+        )
+      })}
 
       <CreateNew />
     </div>

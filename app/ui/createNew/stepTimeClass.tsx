@@ -7,6 +7,7 @@ interface Props {
   type: Type
   timeClass: TimeClass
   setTimeClass: (timeClass: TimeClass) => void
+  create: () => void
 }
 
 const StepTimeClass: FC<Props> = (props) => {
@@ -29,9 +30,7 @@ const StepTimeClass: FC<Props> = (props) => {
     <>
       <Back onClick={() => props.setStep('username')} />
       <div className="space-y-2">
-        <p className="text-sm text-base-content/70">
-          Optional: Filter games by time control. Leave unselected to import all games.
-        </p>
+        <p className="text-sm text-base-content/70">Select a time control for this collection.</p>
         <div className="space-y-2">
           {options.map((option) => (
             <button
@@ -49,8 +48,8 @@ const StepTimeClass: FC<Props> = (props) => {
         </div>
       </div>
 
-      <button onClick={() => props.setStep('name')} className="btn w-full">
-        Next
+      <button onClick={props.create} className="btn w-full" disabled={!props.timeClass}>
+        Create collection
       </button>
     </>
   )

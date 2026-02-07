@@ -1,12 +1,10 @@
 import {FC} from 'react'
 import Back from '../back'
-import {Step, TimeClass, Type} from './createNewModal'
+import {Step, Type} from './createNewModal'
 
 interface Props {
   setType: (type: Type) => void
   setStep: (step: Step) => void
-  type: Type
-  timeClass: TimeClass
   name: string
   setName: (name: string) => void
   create: () => void
@@ -16,12 +14,8 @@ const StepName: FC<Props> = (props) => (
   <>
     <Back
       onClick={() => {
-        if (props.type === 'manual') {
-          props.setType(null)
-          props.setStep('type')
-        } else {
-          props.setStep('timeClass')
-        }
+        props.setType(null)
+        props.setStep('type')
       }}
     />
     <input
@@ -31,7 +25,7 @@ const StepName: FC<Props> = (props) => (
       value={props.name}
       onChange={(e) => props.setName(e.target.value)}
     />
-    Optional: Enter a name for your collection.
+    <p className="text-sm text-base-content/70">Enter a name for your collection.</p>
     <button onClick={props.create} className="btn w-full">
       Create collection
     </button>

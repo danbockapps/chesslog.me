@@ -49,11 +49,19 @@ const CreateNewModal: FC<Props> = (props) => {
             <StepUsername {...{setStep, type, setType, username, setUsername}} />
           )}
 
-          {step === 'timeClass' && <StepTimeClass {...{setStep, type, timeClass, setTimeClass}} />}
+          {step === 'timeClass' && (
+            <StepTimeClass
+              {...{setStep, type, timeClass, setTimeClass}}
+              create={() => {
+                props.setIsOpen(false)
+                createCollection(type, username, timeClass, null)
+              }}
+            />
+          )}
 
           {step === 'name' && (
             <StepName
-              {...{setStep, type, setType, username, setUsername, timeClass, name, setName}}
+              {...{setStep, setType, name, setName}}
               create={() => {
                 props.setIsOpen(false)
                 createCollection(type, username, timeClass, name)
