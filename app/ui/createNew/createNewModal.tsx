@@ -32,6 +32,11 @@ const CreateNewModal: FC<Props> = (props) => {
     }
   }, [props.isOpen])
 
+  const create = () => {
+    props.setIsOpen(false)
+    createCollection(type, username, timeClass, type === 'manual' ? name : null)
+  }
+
   return (
     <dialog className={`modal ${props.isOpen ? 'modal-open' : ''}`}>
       <div className="modal-box">
@@ -50,24 +55,10 @@ const CreateNewModal: FC<Props> = (props) => {
           )}
 
           {step === 'timeClass' && (
-            <StepTimeClass
-              {...{setStep, type, timeClass, setTimeClass}}
-              create={() => {
-                props.setIsOpen(false)
-                createCollection(type, username, timeClass, null)
-              }}
-            />
+            <StepTimeClass {...{setStep, type, timeClass, setTimeClass, create}} />
           )}
 
-          {step === 'name' && (
-            <StepName
-              {...{setStep, setType, name, setName}}
-              create={() => {
-                props.setIsOpen(false)
-                createCollection(type, username, timeClass, name)
-              }}
-            />
-          )}
+          {step === 'name' && <StepName {...{setStep, setType, name, setName, create}} />}
         </div>
       </div>
       <form method="dialog" className="modal-backdrop backdrop-blur-sm">
