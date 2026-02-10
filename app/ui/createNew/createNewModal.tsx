@@ -21,7 +21,6 @@ const CreateNewModal: FC<Props> = (props) => {
   const [timeClass, setTimeClass] = useState<TimeClass>(null)
   const [name, setName] = useState<string>('')
 
-  // Changes when: the modal is closed
   useEffect(() => {
     if (!props.isOpen) {
       setStep('type')

@@ -1,10 +1,10 @@
 'use server'
 
 import {requireAuth, requireOwnership} from '@/lib/auth'
-import {db} from '@/lib/db'
-import {collections, games} from '@/lib/schema'
-import {eq} from 'drizzle-orm'
+import {ChesscomGame, transformChesscomGame, saveGames} from '@/lib/gameImport'
 import {revalidatePath} from 'next/cache'
+
+export type {ChesscomResult} from '@/lib/gameImport'
 
 const importChesscomGames = async (
   collectionId: string,
@@ -70,86 +70,24 @@ const importChesscomGamesForMonth = async ({
   const mm = `${jsMonth < 9 ? '0' : ''}${jsMonth + 1}`
   console.timeLog('importChesscomGames', `fetching games for ${year}-${mm}`)
   const result = await fetch(`https://api.chess.com/pub/player/${username}/games/${year}/${mm}`)
-  const data = (await result.json()) as {games: Game[]}
+  const data = (await result.json()) as {games: ChesscomGame[]}
   console.timeLog('importChesscomGames', `fetched ${data.games.length} games`)
 
   try {
     const gamesData = data.games
       .filter((g) => !lastRefreshed || new Date(g.end_time * 1000) > lastRefreshed)
       .filter((g) => !timeClass || g.time_class === timeClass)
-      .map((g) => ({
-        site: 'chess.com' as const,
-        collectionId,
-        eco: g.eco,
-        fen: g.fen,
-        gameDttm: new Date(g.end_time * 1000).toISOString(),
-        timeControl: g.time_control,
-        url: g.url,
-        whiteUsername: g.white.username,
-        blackUsername: g.black.username,
-        whiteRating: g.white.rating,
-        blackRating: g.black.rating,
-        whiteResult: g.white.result,
-        blackResult: g.black.result,
-      }))
+      .map((g) => transformChesscomGame(g, collectionId))
 
-    if (gamesData.length > 0) {
-      db.insert(games)
-        .values(gamesData)
-        .onConflictDoNothing({target: [games.collectionId, games.url]})
-        .run()
-    }
+    saveGames(gamesData, collectionId, 'chesscom')
 
     console.timeLog('importChesscomGames', 'attempted to insert')
-
-    // Update last refreshed timestamp
-    db.update(collections)
-      .set({lastRefreshed: new Date().toISOString()})
-      .where(eq(collections.id, collectionId))
-      .run()
   } catch (e) {
     console.log('Caught error inserting games for Chess.com')
     console.error(e)
   }
 
   return data.games.length
-}
-
-interface Player {
-  rating: number
-  result: ChesscomResult
-  '@id': string
-  username: string
-  uuid: string
-}
-
-export type ChesscomResult =
-  | 'repetition'
-  | 'abandoned'
-  | 'checkmated'
-  | 'stalemate'
-  | 'insufficient'
-  | 'agreed'
-  | 'timeout'
-  | 'timevsinsufficient'
-  | 'win'
-  | 'resigned'
-
-interface Game {
-  url: string
-  pgn: string
-  time_control: string
-  end_time: number
-  rated: boolean
-  tcn: string
-  uuid: string
-  initial_setup: string
-  fen: string
-  time_class: string
-  rules: string
-  white: Player
-  black: Player
-  eco: string
 }
 
 export default importChesscomGames
