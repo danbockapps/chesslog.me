@@ -2,7 +2,7 @@
 
 import Accordion from '@/app/ui/accordion'
 import {gameAccordionClassNames} from '@/app/ui/accordionClassNames'
-import {FC} from 'react'
+import {FC, useState} from 'react'
 import {ChesscomResult} from '../actions/importChesscomGames'
 import GameAccordionHeader from '../gameAccordionHeader'
 import Notes from '../notes'
@@ -21,11 +21,16 @@ interface Props {
   timeControl: string
   url: string
   fen: string
+  tagCount: number
+  hasNotes: boolean
 }
 
 const {cardClassName, headerClassName, contentClassName} = gameAccordionClassNames
 
 const ChesscomGameAccordion: FC<Props> = (props) => {
+  const [tagCount, setTagCount] = useState(props.tagCount)
+  const [hasNotes, setHasNotes] = useState(props.hasNotes)
+
   const ourResult =
     props.whiteUsername.toLowerCase() === props.username.toLowerCase()
       ? props.whiteResult
@@ -39,6 +44,8 @@ const ChesscomGameAccordion: FC<Props> = (props) => {
       opening={getReadableEco(props.eco)}
       gameDttm={props.gameDttm}
       points={getPoints(ourResult)}
+      tagCount={tagCount}
+      hasNotes={hasNotes}
     />
   )
 
@@ -53,8 +60,8 @@ const ChesscomGameAccordion: FC<Props> = (props) => {
         fen={props.fen}
       />
 
-      <Tags gameId={props.id} />
-      <Notes gameId={props.id} />
+      <Tags gameId={props.id} onTagCountChange={setTagCount} />
+      <Notes gameId={props.id} onNotesChange={setHasNotes} />
     </Accordion>
   )
 }

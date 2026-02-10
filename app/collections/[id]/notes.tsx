@@ -5,6 +5,7 @@ import {getNotes, saveNotes} from './actions/crudActions'
 
 interface Props {
   gameId: number
+  onNotesChange?: (hasNotes: boolean) => void
 }
 
 const Notes: FC<Props> = (props) => {
@@ -46,6 +47,7 @@ const Notes: FC<Props> = (props) => {
             await saveNotes(props.gameId, notes)
             setBeenSaved(true)
             setLoading(false)
+            props.onNotesChange?.(notes.trim() !== '')
           }}
         >
           {loading && <span className="loading loading-spinner"></span>}

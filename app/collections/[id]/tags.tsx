@@ -15,6 +15,7 @@ import ManageTags from './manageTags/manageTags'
 
 interface Props {
   gameId: number
+  onTagCountChange?: (count: number) => void
 }
 
 type Tag = {id: number; name: string | null; public: boolean}
@@ -80,6 +81,7 @@ const Tags: FC<Props> = (props) => {
           setValues(newValue)
           setBeenSaved(true)
           setLoading(false)
+          props.onTagCountChange?.(newValue.length)
         }}
         onCreateOption={async (inputValue) => {
           setLoading(true)
@@ -88,6 +90,7 @@ const Tags: FC<Props> = (props) => {
           await refresh()
           setBeenSaved(true)
           setLoading(false)
+          props.onTagCountChange?.((selectedOptions?.length ?? 0) + 1)
         }}
         {...{options}}
         getOptionValue={({id}) => `${id}`}

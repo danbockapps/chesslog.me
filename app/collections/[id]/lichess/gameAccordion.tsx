@@ -20,12 +20,16 @@ interface Props {
   clockIncrement: number
   lichessGameId: string
   fen: string
+  tagCount: number
+  hasNotes: boolean
 }
 
 const {cardClassName, headerClassName, contentClassName, lichessClassName} = gameAccordionClassNames
 
 const LichessGameAccordion: FC<Props> = (props) => {
   const [embed, setEmbed] = useState(true)
+  const [tagCount, setTagCount] = useState(props.tagCount)
+  const [hasNotes, setHasNotes] = useState(props.hasNotes)
   const ourColor = props.whiteUsername === props.username ? 'white' : 'black'
 
   const ourResult =
@@ -39,6 +43,8 @@ const LichessGameAccordion: FC<Props> = (props) => {
       opening={props.eco}
       gameDttm={props.gameDttm}
       points={ourResult}
+      tagCount={tagCount}
+      hasNotes={hasNotes}
     />
   )
 
@@ -73,8 +79,8 @@ const LichessGameAccordion: FC<Props> = (props) => {
         )}
       </div>
 
-      <Tags gameId={props.id} />
-      <Notes gameId={props.id} />
+      <Tags gameId={props.id} onTagCountChange={setTagCount} />
+      <Notes gameId={props.id} onNotesChange={setHasNotes} />
     </Accordion>
   )
 }

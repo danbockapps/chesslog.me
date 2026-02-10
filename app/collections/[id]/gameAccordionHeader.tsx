@@ -8,24 +8,49 @@ interface Props {
   opening: string
   gameDttm: Date
   points: 0 | 0.5 | 1
+  tagCount: number
+  hasNotes: boolean
 }
 
-const GameAccordionHeader: FC<Props> = (props) => (
-  <>
-    {/* flex-none prevents the dot from getting squeezed when the usernames are long */}
-    <div className={`flex-none h-2 w-2 rounded ${getDotColor(props.points)}`} />
+const GameAccordionHeader: FC<Props> = (props) => {
+  const badges = (
+    <>
+      {props.tagCount > 0 && (
+        <div className="badge badge-sm badge-primary gap-1">
+          {props.tagCount} {props.tagCount === 1 ? 'tag' : 'tags'}
+        </div>
+      )}
+      {props.hasNotes && <div className="badge badge-sm badge-secondary">notes</div>}
+    </>
+  )
 
-    <div className="truncate">
-      {props.whiteUsername} vs. {props.blackUsername}
-    </div>
+  return (
+    <div className="flex flex-col gap-1 w-full min-w-0">
+      {/* Row 1: result dot, players, time control (+ badges, opening, time on desktop) */}
+      <div className="flex items-center gap-4">
+        {/* flex-none prevents the dot from getting squeezed when the usernames are long */}
+        <div className={`flex-none h-2 w-2 rounded ${getDotColor(props.points)}`} />
+        <div className="truncate">
+          {props.whiteUsername} vs. {props.blackUsername}
+        </div>
+        <div className="ml-auto md:ml-0 text-base-content/70">{props.timeControl}</div>
+        <div className="hidden md:flex items-center gap-2">{badges}</div>
+        <div className="hidden md:block ml-auto truncate max-w-sm text-base-content/70">
+          {props.opening}
+        </div>
+        <div className="hidden md:block text-base-content/70">
+          {getRelativeTime(props.gameDttm)}
+        </div>
+      </div>
 
-    <div className="text-base-content/70">{props.timeControl}</div>
-    <div className="hidden md:block ml-auto truncate max-w-sm text-base-content/70">
-      {props.opening}
+      {/* Row 2 (mobile only): badges and relative time */}
+      <div className="flex md:hidden items-center gap-2 pl-6">
+        {badges}
+        <div className="ml-auto text-base-content/70">{getRelativeTime(props.gameDttm)}</div>
+      </div>
     </div>
-    <div className="ml-auto md:ml-0 text-base-content/70">{getRelativeTime(props.gameDttm)}</div>
-  </>
-)
+  )
+}
 
 const getRelativeTime = (date: Date) => {
   const diff = Date.now() - date.getTime()

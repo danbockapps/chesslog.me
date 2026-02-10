@@ -77,6 +77,28 @@ const Collection: FC<Props> = async (props) => {
         .offset((page - 1) * PAGE_SIZE)
         .all()
 
+  // Fetch tag counts for the current page's games
+  const gameIds = gamesData.map((g) => g.id)
+  const tagCounts =
+    gameIds.length > 0
+      ? db
+          .select({
+            gameId: gameTags.gameId,
+            count: sql<number>`count(*)`,
+          })
+          .from(gameTags)
+          .where(
+            sql`${gameTags.gameId} in (${sql.join(
+              gameIds.map((id) => sql`${id}`),
+              sql`,`,
+            )})`,
+          )
+          .groupBy(gameTags.gameId)
+          .all()
+      : []
+
+  const tagCountMap = new Map(tagCounts.map((t) => [t.gameId, t.count]))
+
   const gamesList =
     gamesData?.map((g) => ({
       id: g.id,
@@ -93,6 +115,8 @@ const Collection: FC<Props> = async (props) => {
       clockInitial: g.clockInitial,
       clockIncrement: g.clockIncrement,
       fen: g.fen,
+      tagCount: tagCountMap.get(g.id) ?? 0,
+      hasNotes: !!g.notes && g.notes.trim() !== '',
     })) ?? []
 
   const totalGames =
@@ -171,6 +195,8 @@ const Collection: FC<Props> = async (props) => {
                   timeControl={g.timeControl!}
                   url={g.url!}
                   fen={g.fen!}
+                  tagCount={g.tagCount}
+                  hasNotes={g.hasNotes}
                 />
               ) : (
                 <LichessGameAccordion
@@ -186,6 +212,8 @@ const Collection: FC<Props> = async (props) => {
                   clockIncrement={g.clockIncrement!}
                   lichessGameId={g.lichessGameId!}
                   fen={g.fen!}
+                  tagCount={g.tagCount}
+                  hasNotes={g.hasNotes}
                 />
               )),
           )}
