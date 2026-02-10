@@ -8,6 +8,7 @@ interface Props {
   name: string
   setName: (name: string) => void
   create: () => void
+  loading: boolean
 }
 
 const StepName: FC<Props> = (props) => (
@@ -24,10 +25,12 @@ const StepName: FC<Props> = (props) => (
       className="w-full p-2 border border-base-300 rounded bg-base-100 text-base-content"
       value={props.name}
       onChange={(e) => props.setName(e.target.value)}
+      disabled={props.loading}
     />
     <p className="text-sm text-base-content/70">Enter a name for your collection.</p>
-    <button onClick={props.create} className="btn w-full">
-      Create collection
+    <button onClick={props.create} className="btn w-full" disabled={props.loading}>
+      {props.loading && <span className="loading loading-spinner"></span>}
+      {props.loading ? 'Creating...' : 'Create collection'}
     </button>
   </>
 )

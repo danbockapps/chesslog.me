@@ -8,6 +8,7 @@ interface Props {
   timeClass: TimeClass
   setTimeClass: (timeClass: TimeClass) => void
   create: () => void
+  loading: boolean
 }
 
 const StepTimeClass: FC<Props> = (props) => {
@@ -36,6 +37,7 @@ const StepTimeClass: FC<Props> = (props) => {
             <button
               key={option.value}
               onClick={() => props.setTimeClass(option.value)}
+              disabled={props.loading}
               className={`w-full p-3 rounded border-2 transition-colors ${
               props.timeClass === option.value
                   ? 'border-primary bg-primary/10'
@@ -48,8 +50,13 @@ const StepTimeClass: FC<Props> = (props) => {
         </div>
       </div>
 
-      <button onClick={props.create} className="btn w-full" disabled={!props.timeClass}>
-        Create collection
+      <button
+        onClick={props.create}
+        className="btn w-full"
+        disabled={!props.timeClass || props.loading}
+      >
+        {props.loading && <span className="loading loading-spinner"></span>}
+        {props.loading ? 'Creating...' : 'Create collection'}
       </button>
     </>
   )

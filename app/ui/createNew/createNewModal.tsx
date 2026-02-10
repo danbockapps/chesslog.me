@@ -20,6 +20,7 @@ const CreateNewModal: FC<Props> = (props) => {
   const [username, setUsername] = useState<string>('')
   const [timeClass, setTimeClass] = useState<TimeClass>(null)
   const [name, setName] = useState<string>('')
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     if (!props.isOpen) {
@@ -28,12 +29,17 @@ const CreateNewModal: FC<Props> = (props) => {
       setUsername('')
       setTimeClass(null)
       setName('')
+      setLoading(false)
     }
   }, [props.isOpen])
 
-  const create = () => {
-    props.setIsOpen(false)
-    createCollection(type, username, timeClass, type === 'manual' ? name : null)
+  const create = async () => {
+    setLoading(true)
+    try {
+      await createCollection(type, username, timeClass, type === 'manual' ? name : null)
+    } catch {
+      setLoading(false)
+    }
   }
 
   return (
@@ -42,6 +48,7 @@ const CreateNewModal: FC<Props> = (props) => {
         <button
           className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
           onClick={() => props.setIsOpen(false)}
+          disabled={loading}
         >
           ✕
         </button>
@@ -54,14 +61,16 @@ const CreateNewModal: FC<Props> = (props) => {
           )}
 
           {step === 'timeClass' && (
-            <StepTimeClass {...{setStep, type, timeClass, setTimeClass, create}} />
+            <StepTimeClass {...{setStep, type, timeClass, setTimeClass, create, loading}} />
           )}
 
-          {step === 'name' && <StepName {...{setStep, setType, name, setName, create}} />}
+          {step === 'name' && <StepName {...{setStep, setType, name, setName, create, loading}} />}
         </div>
       </div>
       <form method="dialog" className="modal-backdrop backdrop-blur-sm">
-        <button onClick={() => props.setIsOpen(false)}>close</button>
+        <button onClick={() => props.setIsOpen(false)} disabled={loading}>
+          close
+        </button>
       </form>
     </dialog>
   )
