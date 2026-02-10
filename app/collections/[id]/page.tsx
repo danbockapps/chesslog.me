@@ -1,19 +1,19 @@
-import {requireAuth, requireOwnership} from '@/lib/auth'
-import {getCollectionDisplayName} from '@/lib/collectionUtils'
-import {db} from '@/lib/db'
-import {collections, games, gameTags} from '@/lib/schema'
-import {desc, eq, sql, ne, isNotNull, or, and} from 'drizzle-orm'
 import ArrowLeftIcon from '@/app/ui/icons/arrowLeft'
 import ChessBoardIcon from '@/app/ui/icons/chessBoard'
 import ChevronLeftIcon from '@/app/ui/icons/chevronLeft'
 import ChevronRightIcon from '@/app/ui/icons/chevronRight'
+import {requireAuth, requireOwnership} from '@/lib/auth'
+import {getCollectionDisplayName} from '@/lib/collectionUtils'
+import {db} from '@/lib/db'
+import {collections, games, gameTags} from '@/lib/schema'
+import {and, desc, eq, isNotNull, ne, or, sql} from 'drizzle-orm'
 import Link from 'next/link'
 import {FC} from 'react'
 import {ChesscomResult} from './actions/importChesscomGames'
-import AnalyticsHeroBanner from './analyticsHeroBanner'
-import AutoRefresh from './autoRefresh'
 import AnalyticsModalWrapper from './analytics/analyticsModalWrapper'
 import AnalyticsView from './analytics/analyticsView'
+import AnalyticsHeroBanner from './analyticsHeroBanner'
+import AutoRefresh from './autoRefresh'
 import ChesscomGameAccordion from './chesscom/gameAccordion'
 import LastRefreshedDisplay from './lastRefreshedDisplay'
 import LichessGameAccordion from './lichess/gameAccordion'
@@ -119,37 +119,31 @@ const Collection: FC<Props> = async (props) => {
       </Link>
 
       {/* Page header */}
-      <div className="mt-4 mb-6">
-        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-          <div className="flex items-start gap-3">
-            {site && (
-              <span
-                className={`shrink-0 inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium text-white
-                ${site === 'chess.com' ? 'bg-chesscom' : 'bg-lichess'}`}
-              >
-                {siteName}
-              </span>
-            )}
-            <h1 className="font-display text-2xl sm:text-3xl font-semibold tracking-tight">
-              {displayName}
-            </h1>
-          </div>
-
-          {site && username && (
-            <div className="flex items-center gap-3 sm:ml-auto shrink-0 rounded-lg bg-base-200/60 px-3 py-2">
-              <LastRefreshedDisplay lastRefreshed={lastRefreshed} />
-              <RefreshButton
-                collectionId={params.id}
-                {...{site, username, timeClass, lastRefreshed}}
-              />
-            </div>
-          )}
-        </div>
+      <div className="mt-4 mb-6 flex items-center gap-3">
+        {site && (
+          <span
+            className={`shrink-0 inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium text-white
+            ${site === 'chess.com' ? 'bg-chesscom' : 'bg-lichess'}`}
+          >
+            {siteName}
+          </span>
+        )}
+        <h1 className="font-display text-2xl sm:text-3xl font-semibold tracking-tight">
+          {displayName}
+        </h1>
       </div>
 
       {/* Analytics Hero Banner */}
       {page === 1 && (
         <AnalyticsHeroBanner collectionId={params.id} annotatedCount={annotatedCount} />
+      )}
+
+      {/* Refresh button */}
+      {site && username && (
+        <div className="flex items-center gap-3 sm:ml-auto shrink-0 rounded-lg bg-base-200/60 px-3 py-2">
+          <LastRefreshedDisplay lastRefreshed={lastRefreshed} />
+          <RefreshButton collectionId={params.id} {...{site, username, timeClass, lastRefreshed}} />
+        </div>
       )}
 
       {/* Auto-refresh: fetch new games in the background */}
