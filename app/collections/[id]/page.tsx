@@ -164,7 +164,7 @@ const Collection: FC<Props> = async (props) => {
 
       {/* Refresh button */}
       {site && username && (
-        <div className="flex items-center gap-3 sm:ml-auto shrink-0 rounded-lg bg-base-200/60 px-3 py-2">
+        <div className="flex items-center gap-3 sm:ml-auto shrink-0 rounded-lg px-3 py-2">
           <LastRefreshedDisplay lastRefreshed={lastRefreshed} />
           <RefreshButton collectionId={params.id} {...{site, username, timeClass, lastRefreshed}} />
         </div>
