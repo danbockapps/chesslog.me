@@ -10,3 +10,4 @@
 [ ] Contact testers
 [ ] Make collections shareable
 [ ] Redesign analytics hero
+[ ] Test pagination

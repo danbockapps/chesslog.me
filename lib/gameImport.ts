@@ -155,14 +155,14 @@ export function saveGames(
   collectionId: string,
   conflictTarget: 'chesscom' | 'lichess',
 ) {
-  if (gamesData.length === 0) return
+  if (gamesData.length > 0) {
+    const target =
+      conflictTarget === 'chesscom'
+        ? [games.collectionId, games.url]
+        : [games.collectionId, games.lichessGameId]
 
-  const target =
-    conflictTarget === 'chesscom'
-      ? [games.collectionId, games.url]
-      : [games.collectionId, games.lichessGameId]
-
-  db.insert(games).values(gamesData).onConflictDoNothing({target}).run()
+    db.insert(games).values(gamesData).onConflictDoNothing({target}).run()
+  }
 
   db.update(collections)
     .set({lastRefreshed: new Date().toISOString()})
