@@ -2,8 +2,8 @@
 
 import {requireAuth} from '@/lib/auth'
 import {db} from '@/lib/db'
-import {games, collections, tags, gameTags} from '@/lib/schema'
-import {eq, and, inArray, or} from 'drizzle-orm'
+import {collections, games, gameTags, tags} from '@/lib/schema'
+import {and, eq, inArray, or} from 'drizzle-orm'
 import {revalidatePath} from 'next/cache'
 
 export const getNotes = async (gameId: number) => {
@@ -84,7 +84,9 @@ export const insertGameTag = async (tagId: number, gameId: number) => {
 
   db.insert(gameTags).values({gameId, tagId}).run()
 
-  // No revalidatePath needed - component handles state update locally
+  // Alternative to making everything client rendered: revalidate the page so that
+  // the new tag count is reflected in the UI
+  revalidatePath(`/collections/${game.collectionId}`)
 }
 
 export const deleteGameTags = async (gameId: number, tagIds: number[]) => {
@@ -109,7 +111,7 @@ export const deleteGameTags = async (gameId: number, tagIds: number[]) => {
     .where(and(eq(gameTags.gameId, gameId), inArray(gameTags.tagId, tagIds)))
     .run()
 
-  // No revalidatePath needed - component handles state update locally
+  revalidatePath(`/collections/${game.collectionId}`)
 }
 
 export const getTags = async () => {

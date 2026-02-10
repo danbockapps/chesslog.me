@@ -14,11 +14,11 @@ export default function AnalyticsHeroBanner({collectionId, annotatedCount}: Prop
       <div className={styles.content}>
         <div className={styles.text}>
           <h2 className={styles.title}>
-            {isLocked ? 'Start Annotating Your Games' : 'Unlock Your Chess Insights'}
+            {isLocked ? 'Start Logging Your Games' : 'Unlock Your Chess Insights'}
           </h2>
           <p className={styles.description}>
             {isLocked
-              ? 'Add notes or tags to your games to unlock analytics. Annotate at least 5 games to get started.'
+              ? 'Add tags or notes to your games to unlock analytics. Log at least 5 games to get started.'
               : 'Discover patterns, track improvements, and understand your playing style with powerful visual analytics'}
           </p>
           {isLocked && (
@@ -29,7 +29,7 @@ export default function AnalyticsHeroBanner({collectionId, annotatedCount}: Prop
                   style={{width: `${(Math.min(annotatedCount, 5) / 5) * 100}%`}}
                 />
               </div>
-              <span className={styles.progressText}>{annotatedCount} of 5 games annotated</span>
+              <span className={styles.progressText}>{annotatedCount} of 5 games logged</span>
             </div>
           )}
         </div>

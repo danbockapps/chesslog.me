@@ -41,7 +41,6 @@ const Tags: FC<Props> = (props) => {
     }
   }, [user, props.gameId])
 
-  // Changes when: user loads the component or navigates to this page
   useEffect(() => {
     refresh()
   }, [refresh])
