@@ -1,8 +1,8 @@
 import {requireAuth, requireOwnership} from '@/lib/auth'
 import {getCollectionDisplayName} from '@/lib/collectionUtils'
 import {db} from '@/lib/db'
-import {collections, games} from '@/lib/schema'
-import {desc, eq} from 'drizzle-orm'
+import {collections, games, gameTags} from '@/lib/schema'
+import {desc, eq, sql, ne, isNotNull, or, and} from 'drizzle-orm'
 import Link from 'next/link'
 import {FC} from 'react'
 import {ChesscomResult} from './actions/importChesscomGames'
@@ -45,6 +45,19 @@ const Collection: FC<Props> = async (props) => {
   const {username, site, timeClass, last_refreshed} = collection ?? {}
   const displayName = collection ? getCollectionDisplayName(collection) : ''
   const lastRefreshed = last_refreshed ? new Date(last_refreshed) : null
+
+  const annotatedCount =
+    db
+      .select({count: sql<number>`count(distinct ${games.id})`})
+      .from(games)
+      .leftJoin(gameTags, eq(games.id, gameTags.gameId))
+      .where(
+        and(
+          eq(games.collectionId, params.id),
+          or(and(isNotNull(games.notes), ne(games.notes, '')), isNotNull(gameTags.gameId)),
+        ),
+      )
+      .get()?.count ?? 0
 
   // Only fetch games if analytics modal is not open
   const isAnalyticsOpen = searchParams.analytics === 'open'
@@ -103,7 +116,9 @@ const Collection: FC<Props> = async (props) => {
       </div>
 
       {/* Analytics Hero Banner */}
-      {page === 1 && <AnalyticsHeroBanner collectionId={params.id} />}
+      {page === 1 && (
+        <AnalyticsHeroBanner collectionId={params.id} annotatedCount={annotatedCount} />
+      )}
 
       {/* Games List */}
       <div>
