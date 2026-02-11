@@ -17,6 +17,8 @@ import AutoRefresh from './autoRefresh'
 import ChesscomGameAccordion from './chesscom/gameAccordion'
 import LastRefreshedDisplay from './lastRefreshedDisplay'
 import LichessGameAccordion from './lichess/gameAccordion'
+import AddGameButton from './manual/addGameButton'
+import ManualGameAccordion from './manual/gameAccordion'
 import RefreshButton from './refreshButton'
 
 export const dynamic = 'force-dynamic'
@@ -162,11 +164,18 @@ const Collection: FC<Props> = async (props) => {
         <AnalyticsHeroBanner collectionId={params.id} annotatedCount={annotatedCount} />
       )}
 
-      {/* Refresh button */}
+      {/* Refresh button (site collections) */}
       {site && username && (
         <div className="flex items-center gap-3 sm:ml-auto shrink-0 rounded-lg px-3 py-2">
           <LastRefreshedDisplay lastRefreshed={lastRefreshed} />
           <RefreshButton collectionId={params.id} {...{site, username, timeClass, lastRefreshed}} />
+        </div>
+      )}
+
+      {/* Add game button (manual collections) */}
+      {!site && (
+        <div className="flex items-center gap-3 mt-2">
+          <AddGameButton collectionId={params.id} />
         </div>
       )}
 
@@ -178,10 +187,9 @@ const Collection: FC<Props> = async (props) => {
       {/* Games List */}
       {gamesList.length > 0 ? (
         <div className="mt-6">
-          {gamesList.map(
-            (g) =>
-              g.gameDttm &&
-              (site === 'chess.com' ? (
+          {gamesList.map((g) =>
+            g.gameDttm ? (
+              site === 'chess.com' ? (
                 <ChesscomGameAccordion
                   key={g.url ?? g.lichessGameId}
                   id={g.id}
@@ -198,7 +206,7 @@ const Collection: FC<Props> = async (props) => {
                   tagCount={g.tagCount}
                   hasNotes={g.hasNotes}
                 />
-              ) : (
+              ) : site === 'lichess' ? (
                 <LichessGameAccordion
                   key={g.lichessGameId}
                   id={g.id}
@@ -215,7 +223,22 @@ const Collection: FC<Props> = async (props) => {
                   tagCount={g.tagCount}
                   hasNotes={g.hasNotes}
                 />
-              )),
+              ) : (
+                <ManualGameAccordion
+                  key={g.id}
+                  id={g.id}
+                  whitePlayer={g.whiteUsername!}
+                  blackPlayer={g.blackUsername!}
+                  gameDttm={g.gameDttm}
+                  winner={g.winner as 'white' | 'black' | 'draw' | null}
+                  timeControl={g.timeControl ?? null}
+                  opening={g.eco ?? null}
+                  url={g.url ?? null}
+                  tagCount={g.tagCount}
+                  hasNotes={g.hasNotes}
+                />
+              )
+            ) : null,
           )}
         </div>
       ) : (
@@ -224,8 +247,17 @@ const Collection: FC<Props> = async (props) => {
             <ChessBoardIcon className="w-12 h-12 text-base-content/20 mb-4" />
             <p className="text-base-content/50 text-lg mb-1">No games yet</p>
             <p className="text-base-content/40 text-sm">
-              Click <span className="font-medium text-base-content/60">Refresh</span> to import
-              games from {siteName}
+              {site ? (
+                <>
+                  Click <span className="font-medium text-base-content/60">Refresh</span> to import
+                  games from {siteName}
+                </>
+              ) : (
+                <>
+                  Click <span className="font-medium text-base-content/60">+ Add game</span> to log
+                  your first game
+                </>
+              )}
             </p>
           </div>
         )
