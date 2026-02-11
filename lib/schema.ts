@@ -11,13 +11,19 @@ export const users = sqliteTable('users', {
 })
 
 // Sessions table - for Lucia auth
-export const sessions = sqliteTable('sessions', {
-  id: text('id').primaryKey(),
-  userId: text('user_id')
-    .notNull()
-    .references(() => users.id, {onDelete: 'cascade'}),
-  expiresAt: integer('expires_at').notNull(), // Unix timestamp
-})
+export const sessions = sqliteTable(
+  'sessions',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, {onDelete: 'cascade'}),
+    expiresAt: integer('expires_at').notNull(), // Unix timestamp
+  },
+  (table) => ({
+    userIdIdx: index('idx_sessions_user_id').on(table.userId),
+  }),
+)
 
 // Profiles table - user profile data
 export const profiles = sqliteTable('profiles', {
@@ -29,22 +35,28 @@ export const profiles = sqliteTable('profiles', {
 })
 
 // Collections table - chess game collections
-export const collections = sqliteTable('collections', {
-  id: text('id').primaryKey(), // UUID as text
-  ownerId: text('owner_id')
-    .notNull()
-    .references(() => users.id, {onDelete: 'cascade'}),
-  name: text('name'),
-  site: text('site').$type<'lichess' | 'chess.com'>(), // ENUM as text with type assertion
-  username: text('username'),
-  timeClass: text('time_class').$type<
-    'ultraBullet' | 'bullet' | 'blitz' | 'rapid' | 'classical' | null
-  >(), // Time class filter
-  lastRefreshed: text('last_refreshed'), // ISO8601 timestamp
-  createdAt: text('created_at')
-    .notNull()
-    .$defaultFn(() => new Date().toISOString()),
-})
+export const collections = sqliteTable(
+  'collections',
+  {
+    id: text('id').primaryKey(), // UUID as text
+    ownerId: text('owner_id')
+      .notNull()
+      .references(() => users.id, {onDelete: 'cascade'}),
+    name: text('name'),
+    site: text('site').$type<'lichess' | 'chess.com'>(), // ENUM as text with type assertion
+    username: text('username'),
+    timeClass: text('time_class').$type<
+      'ultraBullet' | 'bullet' | 'blitz' | 'rapid' | 'classical' | null
+    >(), // Time class filter
+    lastRefreshed: text('last_refreshed'), // ISO8601 timestamp
+    createdAt: text('created_at')
+      .notNull()
+      .$defaultFn(() => new Date().toISOString()),
+  },
+  (table) => ({
+    ownerIdIdx: index('idx_collections_owner_id').on(table.ownerId),
+  }),
+)
 
 // Games table - individual chess games
 export const games = sqliteTable(
@@ -85,18 +97,24 @@ export const games = sqliteTable(
 )
 
 // Tags table - reusable tags/takeaways
-export const tags = sqliteTable('tags', {
-  id: integer('id').primaryKey({autoIncrement: true}),
-  name: text('name').notNull(),
-  description: text('description'),
-  ownerId: text('owner_id')
-    .notNull()
-    .references(() => users.id, {onDelete: 'cascade'}),
-  public: integer('public', {mode: 'boolean'}).notNull().default(false),
-  createdAt: text('created_at')
-    .notNull()
-    .$defaultFn(() => new Date().toISOString()),
-})
+export const tags = sqliteTable(
+  'tags',
+  {
+    id: integer('id').primaryKey({autoIncrement: true}),
+    name: text('name').notNull(),
+    description: text('description'),
+    ownerId: text('owner_id')
+      .notNull()
+      .references(() => users.id, {onDelete: 'cascade'}),
+    public: integer('public', {mode: 'boolean'}).notNull().default(false),
+    createdAt: text('created_at')
+      .notNull()
+      .$defaultFn(() => new Date().toISOString()),
+  },
+  (table) => ({
+    ownerIdIdx: index('idx_tags_owner_id').on(table.ownerId),
+  }),
+)
 
 // Game-Tag junction table - many-to-many relationship
 export const gameTags = sqliteTable(
