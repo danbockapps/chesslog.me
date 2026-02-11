@@ -8,7 +8,7 @@ export default async function Layout({children}: Readonly<{children: React.React
 
   return (
     <AppContextProvider initialValue={user}>
-      <div className="navbar bg-base-100 border-b border-base-200 mb-6">
+      <div className="navbar bg-base-200 border-b border-base-200">
         <div className="flex-1">
           <Link href="/" className="btn btn-ghost text-xl">
             chesslog.me
@@ -20,7 +20,7 @@ export default async function Layout({children}: Readonly<{children: React.React
         </div>
       </div>
 
-      <div className="min-h-screen">{children}</div>
+      <div className="min-h-screen bg-base-200">{children}</div>
     </AppContextProvider>
   )
 }
