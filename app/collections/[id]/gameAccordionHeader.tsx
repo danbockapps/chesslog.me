@@ -20,7 +20,7 @@ const GameAccordionHeader: FC<Props> = (props) => {
           {props.tagCount} {props.tagCount === 1 ? 'tag' : 'tags'}
         </div>
       )}
-      {props.hasNotes && <div className="badge badge-sm badge-secondary">notes</div>}
+      {props.hasNotes && <div className="badge badge-sm badge-outline">notes</div>}
     </>
   )
 
