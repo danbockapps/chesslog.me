@@ -1,4 +1,5 @@
 import {requireAuth} from '@/lib/auth'
+import Link from 'next/link'
 import {AppContextProvider} from './context'
 import MainMenu from './mainMenu'
 
@@ -7,9 +8,16 @@ export default async function Layout({children}: Readonly<{children: React.React
 
   return (
     <AppContextProvider initialValue={user}>
-      <div className="flex justify-between items-center h-16 pl-4">
-        <h1 className="text-xl font-bold">chesslog.me</h1>
-        <MainMenu />
+      <div className="navbar bg-base-100 border-b border-base-200 mb-6">
+        <div className="flex-1">
+          <Link href="/" className="btn btn-ghost text-xl">
+            chesslog.me
+          </Link>
+        </div>
+
+        <div className="flex-none">
+          <MainMenu />
+        </div>
       </div>
 
       <div className="min-h-screen">{children}</div>
