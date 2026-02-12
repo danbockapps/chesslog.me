@@ -26,26 +26,28 @@ const importChesscomGames = async (
   console.log('importChesscomGames')
   console.time('importChesscomGames')
 
-  const currentDate = new Date()
+  const archivesResult = await fetch(`https://api.chess.com/pub/player/${username}/games/archives`)
+  const archivesData = (await archivesResult.json()) as {archives: string[]}
 
-  const numCurrentMonthGames = await importChesscomGamesForMonth({
-    year: currentDate.getFullYear(),
-    jsMonth: currentDate.getMonth(),
-    username,
-    collectionId,
-    lastRefreshed,
-    timeClass,
+  // Parse year/month from archive URLs like ".../games/2023/01"
+  const archiveMonths = archivesData.archives.map((url) => {
+    const parts = url.split('/')
+    return {year: parseInt(parts[parts.length - 2]), jsMonth: parseInt(parts[parts.length - 1]) - 1}
   })
 
-  if (
-    (!lastRefreshed && numCurrentMonthGames < 25) ||
-    currentDate.getMonth() !== lastRefreshed?.getMonth() ||
-    currentDate.getFullYear() !== lastRefreshed?.getFullYear()
-  ) {
+  // Include months at or after lastRefreshed's month (game-level filter handles within-month precision)
+  const monthsToFetch = archiveMonths.filter(({year, jsMonth}) => {
+    if (!lastRefreshed) return true
+    const lastYear = lastRefreshed.getFullYear()
+    const lastMonth = lastRefreshed.getMonth()
+    return year > lastYear || (year === lastYear && jsMonth >= lastMonth)
+  })
+
+  // Cap at 2 most recent months
+  for (const {year, jsMonth} of monthsToFetch.slice(-2)) {
     await importChesscomGamesForMonth({
-      year:
-        currentDate.getMonth() === 0 ? currentDate.getFullYear() - 1 : currentDate.getFullYear(),
-      jsMonth: currentDate.getMonth() === 0 ? 11 : currentDate.getMonth() - 1,
+      year,
+      jsMonth,
       username,
       collectionId,
       lastRefreshed,
@@ -93,8 +95,6 @@ const importChesscomGamesForMonth = async ({
     console.log('Caught error inserting games for Chess.com')
     console.error(e)
   }
-
-  return data.games.length
 }
 
 export default importChesscomGames
