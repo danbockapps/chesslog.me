@@ -137,14 +137,16 @@ const Collection: FC<Props> = async (props) => {
   return (
     <div className="max-w-5xl mx-auto px-4 py-6 sm:px-6">
       {/* Back link */}
-      <Link
-        href="/collections"
-        className="inline-flex items-center gap-1.5 text-sm text-base-content/60 hover:text-base-content
-          transition-colors"
-      >
-        <ArrowLeftIcon className="w-4 h-4" />
-        Collections
-      </Link>
+      {isOwner && (
+        <Link
+          href="/collections"
+          className="inline-flex items-center gap-1.5 text-sm text-base-content/60 hover:text-base-content
+            transition-colors"
+        >
+          <ArrowLeftIcon className="w-4 h-4" />
+          Collections
+        </Link>
+      )}
 
       {/* Page header */}
       <div className="mt-4 mb-6 flex items-center gap-3">
