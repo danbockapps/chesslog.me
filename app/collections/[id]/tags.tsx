@@ -3,10 +3,10 @@ import SectionHeader, {captionClassNames} from '@/app/ui/SectionHeader'
 import {FC, useCallback, useEffect, useState} from 'react'
 import {MultiValue} from 'react-select'
 import CreatableSelect from 'react-select/creatable'
-import {useAppContext} from '../context'
 import {
   deleteGameTags,
   getGameTags,
+  getGameTagsWithDetails,
   getTagsWithDetails,
   insertGameTag,
   insertTag,
@@ -15,10 +15,14 @@ import ManageTags from './manageTags/manageTags'
 
 interface Props {
   gameId: number
+  isOwner: boolean
   onTagCountChange?: (count: number) => void
 }
 
 type Tag = {id: number; name: string | null; public: boolean}
+
+const tagBadgeClass = (tag: Tag) =>
+  `badge gap-1 px-2 py-3 ${tag.public ? 'badge-primary text-primary-content' : 'badge-neutral text-neutral-content'}`
 
 const Tags: FC<Props> = (props) => {
   const [values, setValues] = useState<MultiValue<Tag> | null>()
@@ -26,24 +30,44 @@ const Tags: FC<Props> = (props) => {
   const [beenSaved, setBeenSaved] = useState(false)
   const [options, setOptions] = useState<Tag[]>([])
   const [selectedTagIds, setSelectedTagIds] = useState<number[]>([])
+  const [readOnlyTags, setReadOnlyTags] = useState<Tag[]>([])
   const [manageOpen, setManageOpen] = useState(false)
-  const {user} = useAppContext()
 
   const refresh = useCallback(async () => {
-    if (user) {
+    if (props.isOwner) {
       const [newOptions, newSelectedTagIds] = await Promise.all([
         getTagsWithDetails(),
         getGameTags(props.gameId),
       ])
-
       setOptions(newOptions ?? [])
       setSelectedTagIds(newSelectedTagIds ?? [])
+    } else {
+      setReadOnlyTags(await getGameTagsWithDetails(props.gameId))
     }
-  }, [user, props.gameId])
+  }, [props.gameId, props.isOwner])
 
   useEffect(() => {
     refresh()
   }, [refresh])
+
+  if (!props.isOwner) {
+    return (
+      <div>
+        <SectionHeader title="Takeaways" description="Tags added by the collection owner" />
+        <div className="min-h-12 px-3 py-2 bg-base-100 border border-base-300 rounded-lg flex flex-wrap gap-1 items-center">
+          {readOnlyTags.length === 0 ? (
+            <span className="text-base-content/50 text-sm">No takeaways</span>
+          ) : (
+            readOnlyTags.map((tag) => (
+              <span key={tag.id} className={tagBadgeClass(tag)}>
+                <span className="text-sm">{tag.name}</span>
+              </span>
+            ))
+          )}
+        </div>
+      </div>
+    )
+  }
 
   const selectedOptions =
     values ??
@@ -99,8 +123,7 @@ const Tags: FC<Props> = (props) => {
           control: () =>
             'min-h-12 px-3 py-2 bg-base-100 border border-base-300 rounded-lg hover:border-base-content/30 transition-colors flex flex-wrap gap-1',
           valueContainer: () => 'flex flex-wrap gap-1 p-0',
-          multiValue: ({data}) =>
-            `badge gap-1 px-2 py-3 ${data.public ? 'badge-primary text-primary-content' : 'badge-neutral text-neutral-content'}`,
+          multiValue: ({data}) => tagBadgeClass(data),
           multiValueLabel: () => 'text-sm',
           multiValueRemove: () => 'hover:bg-base-content/20 rounded-full px-1 ml-1 cursor-pointer',
           input: () => 'text-base-content m-0 p-0',

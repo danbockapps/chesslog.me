@@ -1,10 +1,10 @@
-import {requireAuth} from '@/lib/auth'
+import {getUser} from '@/lib/auth'
 import Link from 'next/link'
 import {AppContextProvider} from './context'
 import MainMenu from './mainMenu'
 
 export default async function Layout({children}: Readonly<{children: React.ReactNode}>) {
-  const user = await requireAuth()
+  const user = await getUser()
 
   return (
     <AppContextProvider initialValue={user}>

@@ -1,7 +1,10 @@
 'use server'
 
-import {requireAuth, requireOwnership} from '@/lib/auth'
+import {requireAuth} from '@/lib/auth'
+import {db} from '@/lib/db'
 import {fetchLichessGames, saveGames, transformLichessGame} from '@/lib/gameImport'
+import {collections} from '@/lib/schema'
+import {and, eq} from 'drizzle-orm'
 import {revalidatePath} from 'next/cache'
 
 const importLichessGames = async (
@@ -10,9 +13,13 @@ const importLichessGames = async (
   username: string,
   timeClass: string | null = null,
 ) => {
-  // Verify user owns this collection
   const user = await requireAuth()
-  await requireOwnership(collectionId, user.id)
+  const owned = db
+    .select({id: collections.id})
+    .from(collections)
+    .where(and(eq(collections.id, collectionId), eq(collections.ownerId, user.id)))
+    .get()
+  if (!owned) throw new Error('Unauthorized')
 
   console.log('importLichessGames')
   console.time('importLichessGames')

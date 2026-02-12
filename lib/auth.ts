@@ -1,10 +1,8 @@
 import {Lucia} from 'lucia'
 import {BetterSqlite3Adapter} from '@lucia-auth/adapter-sqlite'
-import {db, sqlite} from './db'
+import {sqlite} from './db'
 import {cookies} from 'next/headers'
 import {redirect} from 'next/navigation'
-import {collections} from './schema'
-import {eq, and} from 'drizzle-orm'
 
 // Create Lucia adapter for better-sqlite3 (needs raw sqlite instance, not Drizzle)
 const adapter = new BetterSqlite3Adapter(sqlite, {
@@ -62,24 +60,6 @@ export async function requireAuth() {
   }
 
   return user
-}
-
-/**
- * Helper: Verify user owns a collection
- * Throws error if collection doesn't exist or user is not the owner
- */
-export async function requireOwnership(collectionId: string, userId: string) {
-  const collection = db
-    .select()
-    .from(collections)
-    .where(and(eq(collections.id, collectionId), eq(collections.ownerId, userId)))
-    .get()
-
-  if (!collection) {
-    throw new Error('Unauthorized: Collection not found or access denied')
-  }
-
-  return collection
 }
 
 /**

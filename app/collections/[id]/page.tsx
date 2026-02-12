@@ -2,7 +2,7 @@ import ArrowLeftIcon from '@/app/ui/icons/arrowLeft'
 import ChessBoardIcon from '@/app/ui/icons/chessBoard'
 import ChevronLeftIcon from '@/app/ui/icons/chevronLeft'
 import ChevronRightIcon from '@/app/ui/icons/chevronRight'
-import {requireAuth, requireOwnership} from '@/lib/auth'
+import {getUser} from '@/lib/auth'
 import {getCollectionDisplayName} from '@/lib/collectionUtils'
 import {db} from '@/lib/db'
 import {collections, games, gameTags} from '@/lib/schema'
@@ -33,8 +33,7 @@ const PAGE_SIZE = 50
 const Collection: FC<Props> = async (props) => {
   const params = await props.params
   const searchParams = await props.searchParams
-  const user = await requireAuth()
-  await requireOwnership(params.id, user.id)
+  const user = await getUser()
   const page = parseInt(searchParams.page) || 1
 
   const collection = db
@@ -44,10 +43,13 @@ const Collection: FC<Props> = async (props) => {
       site: collections.site,
       timeClass: collections.timeClass,
       last_refreshed: collections.lastRefreshed,
+      ownerId: collections.ownerId,
     })
     .from(collections)
     .where(eq(collections.id, params.id))
     .get()
+
+  const isOwner = !!user && user.id === collection?.ownerId
 
   const {username, site, timeClass, last_refreshed} = collection ?? {}
   const displayName = collection ? getCollectionDisplayName(collection) : ''
@@ -165,7 +167,7 @@ const Collection: FC<Props> = async (props) => {
       )}
 
       {/* Refresh button (site collections) */}
-      {site && username && (
+      {isOwner && site && username && (
         <div className="flex items-center gap-3 sm:ml-auto shrink-0 rounded-lg px-3 py-2">
           <LastRefreshedDisplay lastRefreshed={lastRefreshed} />
           <RefreshButton collectionId={params.id} {...{site, username, timeClass, lastRefreshed}} />
@@ -173,14 +175,14 @@ const Collection: FC<Props> = async (props) => {
       )}
 
       {/* Add game button (manual collections) */}
-      {!site && (
+      {isOwner && !site && (
         <div className="flex items-center gap-3 mt-2">
           <AddGameButton collectionId={params.id} />
         </div>
       )}
 
       {/* Auto-refresh: fetch new games in the background */}
-      {site && username && (
+      {isOwner && site && username && (
         <AutoRefresh collectionId={params.id} {...{site, username, timeClass, lastRefreshed}} />
       )}
 
@@ -205,6 +207,7 @@ const Collection: FC<Props> = async (props) => {
                   fen={g.fen!}
                   tagCount={g.tagCount}
                   hasNotes={g.hasNotes}
+                  isOwner={isOwner}
                 />
               ) : site === 'lichess' ? (
                 <LichessGameAccordion
@@ -222,6 +225,7 @@ const Collection: FC<Props> = async (props) => {
                   fen={g.fen!}
                   tagCount={g.tagCount}
                   hasNotes={g.hasNotes}
+                  isOwner={isOwner}
                 />
               ) : (
                 <ManualGameAccordion
@@ -236,6 +240,7 @@ const Collection: FC<Props> = async (props) => {
                   url={g.url ?? null}
                   tagCount={g.tagCount}
                   hasNotes={g.hasNotes}
+                  isOwner={isOwner}
                 />
               )
             ) : null,
@@ -302,7 +307,7 @@ const Collection: FC<Props> = async (props) => {
 
       {/* Analytics Modal */}
       <AnalyticsModalWrapper collectionId={params.id}>
-        {searchParams.analytics === 'open' && (
+        {searchParams.analytics === 'open' && user && (
           <AnalyticsView
             collectionId={params.id}
             userId={user.id}

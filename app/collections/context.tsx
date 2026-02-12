@@ -8,13 +8,13 @@ interface User {
 }
 
 interface AppContextType {
-  user: User
+  user: User | null
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined)
 
 interface ProviderProps {
-  initialValue: User
+  initialValue: User | null
 }
 
 export const AppContextProvider: FC<PropsWithChildren<ProviderProps>> = (props) => (

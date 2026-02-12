@@ -1,19 +1,9 @@
 import {type NextRequest, NextResponse} from 'next/server'
 
 export async function proxy(request: NextRequest) {
-  // Public routes that don't require authentication
-  const publicRoutes = ['/login', '/signup', '/']
-  const isPublicRoute = publicRoutes.some((route) => request.nextUrl.pathname === route)
-
-  // Check for Lucia session cookie
   const sessionCookie = request.cookies.get('auth_session')
 
-  // If no session cookie and trying to access protected route, redirect to login
-  if (!sessionCookie && !isPublicRoute) {
-    return NextResponse.redirect(new URL('/login', request.url))
-  }
-
-  // If session cookie exists and trying to access login/signup, redirect to collections
+  // If logged in and trying to access login/signup, redirect to collections
   if (
     sessionCookie &&
     (request.nextUrl.pathname === '/login' || request.nextUrl.pathname === '/signup')

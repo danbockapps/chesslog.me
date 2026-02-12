@@ -124,13 +124,20 @@ postcss.config.mjs         # PostCSS configuration for Tailwind v4
    - Validates session from cookie
    - Auto-refreshes if session is fresh
    - Redirects to `/login` if invalid
-4. Middleware (`middleware.ts`) handles session refresh on requests
+4. Middleware (`proxy.ts`) redirects logged-in users away from `/login` and `/signup`
+   - Does NOT enforce auth on other routes — pages handle their own auth
+   - Collection detail pages (`/collections/[id]`) are publicly accessible (read-only for non-owners)
 
 **Helper Functions (from `lib/auth.ts`):**
 
 - `requireAuth()` - Get authenticated user or redirect (for Server Components/Actions)
 - `getUser()` - Get user without redirecting, returns null if not authenticated
-- `requireOwnership(collectionId, userId)` - Verify user owns a collection
+
+**Access model:**
+
+- `/collections` (list) — requires login; enforced via `requireAuth()` in the page
+- `/collections/[id]` (detail) — publicly accessible; ownership computed via `isOwner = user?.id === collection.ownerId` and passed as a prop to gate edit UI
+- Mutations (save notes, add/remove tags, import games, etc.) still call `requireAuth()` and verify ownership via an inline join check
 
 **Environment Variables Required:**
 
@@ -160,7 +167,7 @@ The application includes a comprehensive tag system for categorizing and organiz
 
 **Tag Types:**
 
-- **Private tags**: Created by users, visible only to the creator, fully editable
+- **Private tags**: Created by users, editable only by the creator. Visible to anyone viewing a shared collection (read-only).
 - **Public tags**: System-wide tags visible to all users, not editable by regular users
 
 **Default Public Tags:**

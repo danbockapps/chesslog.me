@@ -5,6 +5,7 @@ import {getNotes, saveNotes} from './actions/crudActions'
 
 interface Props {
   gameId: number
+  isOwner: boolean
   onNotesChange?: (hasNotes: boolean) => void
 }
 
@@ -32,28 +33,31 @@ const Notes: FC<Props> = (props) => {
         className="self-stretch flex-1 p-2 mb-2 border border-base-300 rounded bg-base-100 text-base-content"
         value={notes ?? ''}
         onChange={(e) => setNotes(e.target.value)}
-        disabled={loading}
+        disabled={loading || !props.isOwner}
+        readOnly={!props.isOwner}
       />
 
-      <div className="flex justify-between">
-        <div className={`${captionClassNames} mt-5`}>
-          {loading ? 'Saving...' : beenSaved ? '✓ Notes saved' : ''}
-        </div>
+      {props.isOwner && (
+        <div className="flex justify-between">
+          <div className={`${captionClassNames} mt-5`}>
+            {loading ? 'Saving...' : beenSaved ? '✓ Notes saved' : ''}
+          </div>
 
-        <button
-          className="btn self-end w-32"
-          onClick={async () => {
-            setLoading(true)
-            await saveNotes(props.gameId, notes)
-            setBeenSaved(true)
-            setLoading(false)
-            props.onNotesChange?.(notes.trim() !== '')
-          }}
-        >
-          {loading && <span className="loading loading-spinner"></span>}
-          Save notes
-        </button>
-      </div>
+          <button
+            className="btn self-end w-32"
+            onClick={async () => {
+              setLoading(true)
+              await saveNotes(props.gameId, notes)
+              setBeenSaved(true)
+              setLoading(false)
+              props.onNotesChange?.(notes.trim() !== '')
+            }}
+          >
+            {loading && <span className="loading loading-spinner"></span>}
+            Save notes
+          </button>
+        </div>
+      )}
     </div>
   )
 }

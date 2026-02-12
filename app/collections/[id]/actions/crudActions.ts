@@ -1,29 +1,14 @@
 'use server'
 
-import {requireAuth} from '@/lib/auth'
+import {getUser, requireAuth} from '@/lib/auth'
 import {db} from '@/lib/db'
 import {collections, games, gameTags, tags} from '@/lib/schema'
 import {and, eq, inArray, or} from 'drizzle-orm'
 import {revalidatePath} from 'next/cache'
 
 export const getNotes = async (gameId: number) => {
-  const user = await requireAuth()
-
-  // Verify ownership and get notes
-  const game = db
-    .select({
-      notes: games.notes,
-    })
-    .from(games)
-    .innerJoin(collections, eq(games.collectionId, collections.id))
-    .where(and(eq(games.id, gameId), eq(collections.ownerId, user.id)))
-    .get()
-
-  if (!game) {
-    throw new Error('Unauthorized: Game not found or access denied')
-  }
-
-  return game.notes ?? ''
+  const result = db.select({notes: games.notes}).from(games).where(eq(games.id, gameId)).get()
+  return result?.notes ?? ''
 }
 
 export const saveNotes = async (gameId: number, notes: string) => {
@@ -131,9 +116,8 @@ export const getTags = async () => {
 }
 
 export const getTagsWithDetails = async () => {
-  const user = await requireAuth()
+  const user = await getUser()
 
-  // Get tags owned by user or public tags with full details
   const userTags = db
     .select({
       id: tags.id,
@@ -142,37 +126,27 @@ export const getTagsWithDetails = async () => {
       public: tags.public,
     })
     .from(tags)
-    .where(or(eq(tags.ownerId, user.id), eq(tags.public, true)))
+    .where(user ? or(eq(tags.ownerId, user.id), eq(tags.public, true)) : eq(tags.public, true))
     .all()
 
   return userTags
 }
 
 export const getGameTags = async (gameId: number) => {
-  const user = await requireAuth()
-
-  // Verify user has access to this game
-  const game = db
-    .select({
-      gameId: games.id,
-    })
-    .from(games)
-    .innerJoin(collections, eq(games.collectionId, collections.id))
-    .where(and(eq(games.id, gameId), eq(collections.ownerId, user.id)))
-    .get()
-
-  if (!game) {
-    throw new Error('Unauthorized: Game not found or access denied')
-  }
-
-  // Get tag IDs for this game
   const tagIds = db
-    .select({
-      tagId: gameTags.tagId,
-    })
+    .select({tagId: gameTags.tagId})
     .from(gameTags)
     .where(eq(gameTags.gameId, gameId))
     .all()
 
   return tagIds.map((t) => t.tagId)
+}
+
+export const getGameTagsWithDetails = async (gameId: number) => {
+  return db
+    .select({id: tags.id, name: tags.name, public: tags.public})
+    .from(gameTags)
+    .innerJoin(tags, eq(gameTags.tagId, tags.id))
+    .where(eq(gameTags.gameId, gameId))
+    .all()
 }

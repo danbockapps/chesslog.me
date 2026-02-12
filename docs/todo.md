@@ -8,7 +8,7 @@
 [x] Implement manual collection
 [ ] Upgrade chess.js/react-chessboard
 [ ] Contact testers
-[ ] Make collections shareable
+[x] Make collections shareable
 [x] Redesign analytics hero
 [ ] Test pagination
 [ ] Make sure chess.com games are importing correctly by month

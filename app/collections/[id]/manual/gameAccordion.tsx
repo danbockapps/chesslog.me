@@ -18,6 +18,7 @@ interface Props {
   url: string | null
   tagCount: number
   hasNotes: boolean
+  isOwner: boolean
 }
 
 const {cardClassName, headerClassName} = gameAccordionClassNames
@@ -306,17 +307,19 @@ const ManualGameAccordion: FC<Props> = (props) => {
                 </>
               )}
             </div>
-            <div className="flex justify-end">
-              <button className="btn btn-ghost btn-xs" onClick={startEdit}>
-                ✏️ Edit game
-              </button>
-            </div>
+            {props.isOwner && (
+              <div className="flex justify-end">
+                <button className="btn btn-ghost btn-xs" onClick={startEdit}>
+                  ✏️ Edit game
+                </button>
+              </div>
+            )}
           </div>
         )}
 
         <div className="grid gap-x-4 gap-y-12 grid-cols-[repeat(auto-fit,minmax(200px,1fr))]">
-          <Tags gameId={props.id} onTagCountChange={setTagCount} />
-          <Notes gameId={props.id} onNotesChange={setHasNotes} />
+          <Tags gameId={props.id} isOwner={props.isOwner} onTagCountChange={setTagCount} />
+          <Notes gameId={props.id} isOwner={props.isOwner} onNotesChange={setHasNotes} />
         </div>
       </div>
     </Accordion>

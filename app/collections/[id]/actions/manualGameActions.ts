@@ -1,6 +1,6 @@
 'use server'
 
-import {requireAuth, requireOwnership} from '@/lib/auth'
+import {requireAuth} from '@/lib/auth'
 import {db} from '@/lib/db'
 import {collections, games} from '@/lib/schema'
 import {and, eq} from 'drizzle-orm'
@@ -18,7 +18,12 @@ type ManualGameData = {
 
 export const createManualGame = async (collectionId: string, data: ManualGameData) => {
   const user = await requireAuth()
-  await requireOwnership(collectionId, user.id)
+  const owned = db
+    .select({id: collections.id})
+    .from(collections)
+    .where(and(eq(collections.id, collectionId), eq(collections.ownerId, user.id)))
+    .get()
+  if (!owned) throw new Error('Unauthorized')
 
   db.insert(games)
     .values({

@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import {FC, useState} from 'react'
 import {logout} from '../login/actions'
 import {useAppContext} from './context'
@@ -7,6 +8,14 @@ import {useAppContext} from './context'
 const MainMenu: FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const {user} = useAppContext()
+
+  if (!user) {
+    return (
+      <Link href="/login" className="btn btn-ghost btn-sm">
+        Log in
+      </Link>
+    )
+  }
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen)

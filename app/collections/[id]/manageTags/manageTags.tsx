@@ -30,7 +30,7 @@ const ManageTags: FC<Props> = (props) => {
     } catch (error) {
       console.error('Error fetching tags:', error)
     }
-  }, [user.id])
+  }, [user?.id])
 
   useEffect(() => {
     if (props.open) {

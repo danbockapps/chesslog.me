@@ -23,6 +23,7 @@ interface Props {
   fen: string
   tagCount: number
   hasNotes: boolean
+  isOwner: boolean
 }
 
 const {cardClassName, headerClassName, contentClassName} = gameAccordionClassNames
@@ -60,8 +61,8 @@ const ChesscomGameAccordion: FC<Props> = (props) => {
         fen={props.fen}
       />
 
-      <Tags gameId={props.id} onTagCountChange={setTagCount} />
-      <Notes gameId={props.id} onNotesChange={setHasNotes} />
+      <Tags gameId={props.id} isOwner={props.isOwner} onTagCountChange={setTagCount} />
+      <Notes gameId={props.id} isOwner={props.isOwner} onNotesChange={setHasNotes} />
     </Accordion>
   )
 }
