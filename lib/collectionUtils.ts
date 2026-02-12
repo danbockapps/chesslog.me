@@ -18,8 +18,8 @@ export function getCollectionDisplayName(collection: {
       ? (TIME_CLASS_LABELS[collection.timeClass] ?? collection.timeClass)
       : null
     return timeClassLabel
-      ? `${collection.username}'s ${siteName} ${timeClassLabel} games`
-      : `${collection.username}'s ${siteName} games`
+      ? `${siteName} ${timeClassLabel} games — ${collection.username}`
+      : `${siteName} games — ${collection.username}`
   }
 
   return collection.name || 'Untitled collection'
