@@ -11,5 +11,5 @@
 [x] Make collections shareable
 [x] Redesign analytics hero
 [ ] Test pagination
-[ ] Make sure chess.com games are importing correctly by month
-[ ] Figure out deploying
+[x] Make sure chess.com games are importing correctly by month
+[x] Figure out deploying

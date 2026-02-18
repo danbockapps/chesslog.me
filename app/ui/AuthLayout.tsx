@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import {ChessboardPattern} from './ChessboardPattern'
+import {Logo} from './Logo'
 
 interface AuthLayoutProps {
   heading: React.ReactNode
@@ -41,17 +42,8 @@ export function AuthLayout({
       {/* Left side - Branding */}
       <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-16 relative animate-fade-in-up">
         <div>
-          <Link
-            href="/"
-            className="inline-flex items-center gap-3 text-base-content/90 hover:text-base-content transition-colors group"
-          >
-            <div
-              className="w-10 h-10 rounded-lg bg-gradient-to-br from-accent to-secondary flex items-center justify-center
-                shadow-lg shadow-primary/20 group-hover:shadow-primary/40 transition-shadow"
-            >
-              <span className="text-white text-lg">&#9812;</span>
-            </div>
-            <span className="text-2xl tracking-tight font-display font-semibold">chesslog.me</span>
+          <Link href="/" className="inline-flex items-center hover:opacity-80 transition-opacity">
+            <Logo height={64} width={185} className="h-16 w-auto" />
           </Link>
         </div>
 
@@ -73,13 +65,8 @@ export function AuthLayout({
         <div className="w-full max-w-md">
           {/* Mobile logo */}
           <div className="lg:hidden mb-12 text-center">
-            <Link href="/" className="inline-flex items-center gap-3 text-base-content/90">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-accent to-secondary flex items-center justify-center">
-                <span className="text-white text-lg">&#9812;</span>
-              </div>
-              <span className="text-2xl tracking-tight font-display font-semibold">
-                chesslog.me
-              </span>
+            <Link href="/" className="inline-flex items-center hover:opacity-80 transition-opacity">
+              <Logo height={64} width={185} className="h-16 w-auto" />
             </Link>
           </div>
 
