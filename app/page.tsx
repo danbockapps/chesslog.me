@@ -2,6 +2,7 @@ import {getUser} from '@/lib/auth'
 import Link from 'next/link'
 import {redirect} from 'next/navigation'
 import {ChessboardPattern} from '@/app/ui/ChessboardPattern'
+import {Logo} from '@/app/ui/Logo'
 
 export const dynamic = 'force-dynamic'
 
@@ -99,12 +100,7 @@ export default async function Home() {
 
       {/* Navigation */}
       <nav className="relative z-10 flex items-center justify-between px-6 md:px-12 py-6 animate-fade-in">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-gradient-to-br from-accent to-secondary rounded flex items-center justify-center">
-            <ChessPiece piece="king" className="text-white text-lg" />
-          </div>
-          <span className="text-xl font-semibold tracking-tight font-display">chesslog.me</span>
-        </div>
+        <Logo height={56} width={162} className="h-14 w-auto" />
         <div className="flex items-center gap-4">
           <Link
             href="/login"
@@ -522,12 +518,7 @@ export default async function Home() {
       {/* Footer */}
       <footer className="relative z-10 px-6 md:px-12 py-8 border-t border-base-300">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-gradient-to-br from-accent to-secondary rounded flex items-center justify-center">
-              <ChessPiece piece="king" className="text-white text-xs" />
-            </div>
-            <span className="text-sm text-base-content/60 font-display">chesslog.me</span>
-          </div>
+          <Logo height={40} width={116} className="h-10 w-auto opacity-60" />
           <div className="text-sm text-base-content/50">
             Built for chess players who want to actually improve.
           </div>
