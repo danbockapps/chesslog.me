@@ -1,6 +1,9 @@
 #!/bin/bash
 set -euo pipefail
 
+# Run from project root regardless of where the script is invoked from
+cd "$(dirname "$0")/.."
+
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
