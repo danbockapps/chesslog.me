@@ -38,7 +38,7 @@ const SignUpPage: React.FC = () => {
           <span className="text-primary">tells a story.</span>
         </>
       }
-      subheading="Track your chess journey. Annotate your brilliancies. Learn from your blunders."
+      subheading="Track your chess journey. Analyze your games, identify patterns, and watch your improvement over time."
       formTitle="Create account"
       alternateAction={{
         text: 'Already have an account?',

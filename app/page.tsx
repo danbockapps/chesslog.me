@@ -1,8 +1,8 @@
+import {ChessboardPattern} from '@/app/ui/ChessboardPattern'
+import {Logo} from '@/app/ui/Logo'
 import {getUser} from '@/lib/auth'
 import Link from 'next/link'
 import {redirect} from 'next/navigation'
-import {ChessboardPattern} from '@/app/ui/ChessboardPattern'
-import {Logo} from '@/app/ui/Logo'
 
 export const dynamic = 'force-dynamic'
 
@@ -172,12 +172,12 @@ export default async function Home() {
               </h2>
               <p className="text-base-content/70 leading-relaxed mb-4">
                 We all have confirmation bias. We remember the brilliant tactic we found but forget
-                the five games where we hung a piece in the opening. We think we lose to tricky
+                the five games where we didn't know the middlegame plan. We think we lose to tricky
                 tactics when really we&apos;re blundering in time pressure.
               </p>
               <p className="text-base-content/70 leading-relaxed">
                 <strong className="text-base-content">
-                  Other apps can tell you your Sicilian win rate.
+                  Other apps can tell you your win rate in the Sicilian.
                 </strong>{' '}
                 They can&apos;t tell you <em>why</em> you keep losing those games, or which of your
                 weaknesses would be easiest for <em>you</em> to fix. Only you know what&apos;s
@@ -240,7 +240,7 @@ export default async function Home() {
             <FeatureCard
               icon={<ChessPiece piece="bishop" />}
               title="Capture the lesson"
-              description="After each game, write down the biggest takeaway. Tag common patterns: time trouble, missed tactic, opening gap. Build your personal improvement map."
+              description="After each game, write down the biggest takeaways. Tag common patterns: time trouble, missed tactic, opening gap. Build your personal improvement map."
               delay="0.3s"
             />
             <FeatureCard

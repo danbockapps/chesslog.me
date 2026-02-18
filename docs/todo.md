@@ -1,5 +1,5 @@
-[ ] Proofread homepage
-[ ] Proofread auth pages
+[x] Proofread homepage
+[x] Proofread auth pages
 [x] Redesign collections page
 [x] Redesign collection page
 [ ] Test auth flow

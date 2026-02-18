@@ -54,7 +54,7 @@ export function AuthLayout({
           <p className="text-xl text-base-content/50 leading-relaxed">{subheading}</p>
         </div>
 
-        <div className="text-base-content/30 text-sm">Import games from Chess.com & Lichess</div>
+        <div />
       </div>
 
       {/* Right side - Form */}
