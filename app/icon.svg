@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Teal rounded background -->
+  <rect width="100" height="100" rx="20" fill="#0d9488"/>
+
+  <!-- Pen group: vertical pen with nib at bottom, rotated 45° so nib points lower-left -->
+  <g transform="translate(50,50) rotate(45)">
+    <!-- Cap (rounded top) -->
+    <rect x="-7" y="-40" width="14" height="10" rx="5" fill="rgba(255,255,255,0.75)"/>
+    <!-- Main body -->
+    <rect x="-7" y="-31" width="14" height="46" rx="4" fill="white"/>
+    <!-- Clip (thin strip on side of body) -->
+    <rect x="4" y="-31" width="4" height="36" rx="2" fill="rgba(200,235,235,0.65)"/>
+    <!-- Ferrule (metal band) -->
+    <rect x="-7" y="13" width="14" height="5" rx="1" fill="rgba(180,220,218,0.9)"/>
+    <!-- Nib (pointed tip) -->
+    <polygon points="-6,18 6,18 0,34" fill="white"/>
+  </g>
+</svg>
