@@ -61,6 +61,7 @@ docker build -t "$IMAGE_NAME:latest" .
 # ---------------------------------------------------------------------------
 log "Ensuring data directory $DATA_DIR exists..."
 mkdir -p "$DATA_DIR"
+chown 1001:1001 "$DATA_DIR"
 
 # ---------------------------------------------------------------------------
 # 4. Run database migrations
