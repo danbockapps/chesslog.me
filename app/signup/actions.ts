@@ -50,6 +50,7 @@ export async function signup(email: string, password: string) {
   const sessionCookie = lucia.createSessionCookie(session.id)
   const cookieStore = await cookies()
   cookieStore.set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes)
+  cookieStore.set('user_email', email.toLowerCase(), {path: '/', httpOnly: true, sameSite: 'lax'})
 
   revalidatePath('/', 'layout')
   redirect('/collections')

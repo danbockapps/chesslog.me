@@ -1,6 +1,14 @@
 import {type NextRequest, NextResponse} from 'next/server'
 
 export async function proxy(request: NextRequest) {
+  const {method, nextUrl} = request
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? 'unknown'
+  const ua = request.headers.get('user-agent') ?? ''
+  const email = request.cookies.get('user_email')?.value ?? 'anonymous'
+  console.log(
+    `${new Date().toISOString()} ${email.slice(0, 10)} ${method} ${nextUrl.pathname} ${ip} "${ua}"`,
+  )
+
   const sessionCookie = request.cookies.get('auth_session')
 
   // If logged in and trying to access login/signup, redirect to collections
