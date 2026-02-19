@@ -23,7 +23,7 @@ const MainMenu: FC = () => {
 
   return (
     <div>
-      <button onClick={toggleMenu} className="bg-transparent text-base-content p-4">
+      <button onClick={toggleMenu} className="bg-transparent text-base-content p-4 cursor-pointer">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           className="h-6 w-6"
@@ -49,7 +49,7 @@ const MainMenu: FC = () => {
             // If you just do onClick={logout}, the click event will be passed to the logout
             // function, and you get an error because you can't pass all that to a server action.
             onClick={() => logout()}
-            className="w-full text-left px-4 py-2 text-base-content hover:bg-base-200"
+            className="w-full text-left px-4 py-2 text-base-content hover:bg-base-200 cursor-pointer"
           >
             Log out
           </button>
