@@ -100,7 +100,7 @@ export default async function Home() {
 
       {/* Navigation */}
       <nav className="relative z-10 flex items-center justify-between px-6 md:px-12 py-6 animate-fade-in">
-        <Logo height={56} width={162} className="h-14 w-auto" />
+        <Logo height={80} width={233} className="h-20 w-auto" />
         <div className="flex items-center gap-4">
           <Link
             href="/login"
@@ -518,7 +518,7 @@ export default async function Home() {
       {/* Footer */}
       <footer className="relative z-10 px-6 md:px-12 py-8 border-t border-base-300">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <Logo height={40} width={116} className="h-10 w-auto opacity-60" />
+          <Logo height={56} width={163} className="h-14 w-auto opacity-60" />
           <div className="text-sm text-base-content/50">
             Built for chess players who want to actually improve.
           </div>

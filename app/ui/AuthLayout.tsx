@@ -43,7 +43,7 @@ export function AuthLayout({
       <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-16 relative animate-fade-in-up">
         <div>
           <Link href="/" className="inline-flex items-center hover:opacity-80 transition-opacity">
-            <Logo height={64} width={185} className="h-16 w-auto" />
+            <Logo height={96} width={279} className="h-24 w-auto" />
           </Link>
         </div>
 
@@ -66,7 +66,7 @@ export function AuthLayout({
           {/* Mobile logo */}
           <div className="lg:hidden mb-12 text-center">
             <Link href="/" className="inline-flex items-center hover:opacity-80 transition-opacity">
-              <Logo height={64} width={185} className="h-16 w-auto" />
+              <Logo height={96} width={279} className="h-24 w-auto" />
             </Link>
           </div>
 
