@@ -86,6 +86,9 @@ const Tags: FC<Props> = (props) => {
         isDisabled={loading}
         isLoading={loading}
         isClearable={false}
+        menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+        menuPosition="fixed"
+        styles={{menuPortal: (base) => ({...base, zIndex: 9999})}}
         value={selectedOptions}
         onChange={async (newValue) => {
           setLoading(true)

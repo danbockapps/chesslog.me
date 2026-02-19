@@ -4,6 +4,7 @@ import Accordion from '@/app/ui/accordion'
 import {gameAccordionClassNames} from '@/app/ui/accordionClassNames'
 import {FC, useState} from 'react'
 import {deleteManualGame, updateManualGame} from '../actions/manualGameActions'
+import GameAccordionHeader from '../gameAccordionHeader'
 import Notes from '../notes'
 import Tags from '../tags'
 
@@ -22,6 +23,7 @@ interface Props {
 }
 
 const {cardClassName, headerClassName} = gameAccordionClassNames
+const contentClassName = `${gameAccordionClassNames.contentClassName} min-h-96`
 
 type Winner = 'white' | 'black' | 'draw' | null
 
@@ -31,7 +33,6 @@ const ManualGameAccordion: FC<Props> = (props) => {
   const [isEditing, setIsEditing] = useState(false)
   const [saving, setSaving] = useState(false)
 
-  // Current saved state (updated on save)
   const [current, setCurrent] = useState({
     whitePlayer: props.whitePlayer,
     blackPlayer: props.blackPlayer,
@@ -42,7 +43,6 @@ const ManualGameAccordion: FC<Props> = (props) => {
     url: props.url,
   })
 
-  // Draft state while editing
   const [draft, setDraft] = useState({
     whitePlayer: props.whitePlayer,
     blackPlayer: props.blackPlayer,
@@ -108,41 +108,82 @@ const ManualGameAccordion: FC<Props> = (props) => {
           ? 0.5
           : null
 
-  const badges = (
-    <>
-      {tagCount > 0 && (
-        <div className="badge badge-sm badge-primary gap-1">
-          {tagCount} {tagCount === 1 ? 'tag' : 'tags'}
-        </div>
-      )}
-      {hasNotes && <div className="badge badge-sm badge-secondary">notes</div>}
-    </>
-  )
-
   const header = (
-    <div className="flex flex-col gap-1 w-full min-w-0">
-      <div className="flex items-center gap-4">
-        <div className={`flex-none h-2 w-2 rounded ${getDotColor(points)}`} />
-        <div className="truncate">
-          {current.whitePlayer} vs. {current.blackPlayer}
-        </div>
-        {current.timeControl && <div className="text-base-content/70">{current.timeControl}</div>}
-        <div className="hidden md:flex items-center gap-2 ml-auto">{badges}</div>
-        <div className="hidden md:block text-base-content/70">
-          {getRelativeTime(current.gameDttm)}
-        </div>
-      </div>
-      <div className="flex md:hidden items-center gap-2 pl-6">
-        {badges}
-        <div className="ml-auto text-base-content/70">{getRelativeTime(current.gameDttm)}</div>
-      </div>
-    </div>
+    <GameAccordionHeader
+      whiteUsername={current.whitePlayer}
+      blackUsername={current.blackPlayer}
+      timeControl={current.timeControl ?? ''}
+      opening={current.opening ?? ''}
+      gameDttm={current.gameDttm}
+      points={points}
+      tagCount={tagCount}
+      hasNotes={hasNotes}
+    />
   )
 
   return (
-    <Accordion {...{header, cardClassName, headerClassName}}>
-      <div className="p-4 flex flex-col gap-8">
-        {isEditing ? (
+    <>
+      <Accordion {...{header, cardClassName, headerClassName, contentClassName}}>
+        {/* Column 1: game details */}
+        <div className="flex flex-col gap-3">
+          <div className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-1.5 text-sm">
+            <span className="text-base-content/60">White</span>
+            <span>{current.whitePlayer}</span>
+            <span className="text-base-content/60">Black</span>
+            <span>{current.blackPlayer}</span>
+            <span className="text-base-content/60">Date</span>
+            <span>{current.gameDttm.toLocaleDateString()}</span>
+            <span className="text-base-content/60">Result</span>
+            <span>{getResultLabel(current.winner)}</span>
+            {current.opening && (
+              <>
+                <span className="text-base-content/60">Opening</span>
+                <span>{current.opening}</span>
+              </>
+            )}
+            {current.timeControl && (
+              <>
+                <span className="text-base-content/60">Time control</span>
+                <span>{current.timeControl}</span>
+              </>
+            )}
+            {current.url && (
+              <>
+                <span className="text-base-content/60">URL</span>
+                <a
+                  href={current.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="link link-primary truncate"
+                >
+                  {current.url}
+                </a>
+              </>
+            )}
+          </div>
+          {props.isOwner && (
+            <div className="flex justify-end">
+              <button className="btn btn-ghost btn-xs" onClick={startEdit}>
+                ✏️ Edit game
+              </button>
+            </div>
+          )}
+        </div>
+
+        <Tags gameId={props.id} isOwner={props.isOwner} onTagCountChange={setTagCount} />
+        <Notes gameId={props.id} isOwner={props.isOwner} onNotesChange={setHasNotes} />
+      </Accordion>
+
+      <dialog className={`modal ${isEditing ? 'modal-open' : ''}`}>
+        <div className="modal-box">
+          <button
+            className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+            onClick={() => setIsEditing(false)}
+            disabled={saving}
+          >
+            ✕
+          </button>
+          <h2 className="text-xl font-bold mb-4">Edit game</h2>
           <div className="flex flex-col gap-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="form-control">
@@ -270,73 +311,15 @@ const ManualGameAccordion: FC<Props> = (props) => {
               </div>
             </div>
           </div>
-        ) : (
-          <div className="flex flex-col gap-3">
-            <div className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-1.5 text-sm">
-              <span className="text-base-content/60">White</span>
-              <span>{current.whitePlayer}</span>
-              <span className="text-base-content/60">Black</span>
-              <span>{current.blackPlayer}</span>
-              <span className="text-base-content/60">Date</span>
-              <span>{current.gameDttm.toLocaleDateString()}</span>
-              <span className="text-base-content/60">Result</span>
-              <span>{getResultLabel(current.winner)}</span>
-              {current.opening && (
-                <>
-                  <span className="text-base-content/60">Opening</span>
-                  <span>{current.opening}</span>
-                </>
-              )}
-              {current.timeControl && (
-                <>
-                  <span className="text-base-content/60">Time control</span>
-                  <span>{current.timeControl}</span>
-                </>
-              )}
-              {current.url && (
-                <>
-                  <span className="text-base-content/60">URL</span>
-                  <a
-                    href={current.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="link link-primary truncate"
-                  >
-                    {current.url}
-                  </a>
-                </>
-              )}
-            </div>
-            {props.isOwner && (
-              <div className="flex justify-end">
-                <button className="btn btn-ghost btn-xs" onClick={startEdit}>
-                  ✏️ Edit game
-                </button>
-              </div>
-            )}
-          </div>
-        )}
-
-        <div className="grid gap-x-4 gap-y-12 grid-cols-[repeat(auto-fit,minmax(200px,1fr))]">
-          <Tags gameId={props.id} isOwner={props.isOwner} onTagCountChange={setTagCount} />
-          <Notes gameId={props.id} isOwner={props.isOwner} onNotesChange={setHasNotes} />
         </div>
-      </div>
-    </Accordion>
+        <form method="dialog" className="modal-backdrop backdrop-blur-sm">
+          <button onClick={() => setIsEditing(false)} disabled={saving}>
+            close
+          </button>
+        </form>
+      </dialog>
+    </>
   )
-}
-
-const getDotColor = (points: 0 | 0.5 | 1 | null) => {
-  switch (points) {
-    case 1:
-      return 'bg-success'
-    case 0.5:
-      return 'bg-base-content/70'
-    case 0:
-      return 'bg-error'
-    default:
-      return 'bg-base-content/20'
-  }
 }
 
 const getResultLabel = (winner: Winner) => {
@@ -350,19 +333,6 @@ const getResultLabel = (winner: Winner) => {
     default:
       return '—'
   }
-}
-
-const getRelativeTime = (date: Date) => {
-  const diff = Date.now() - date.getTime()
-  const seconds = Math.floor(diff / 1000)
-  const minutes = Math.floor(seconds / 60)
-  const hours = Math.floor(minutes / 60)
-  const days = Math.floor(hours / 24)
-
-  if (days > 0) return `${days}d ago`
-  if (hours > 0) return `${hours}h ago`
-  if (minutes > 0) return `${minutes}m ago`
-  return `${seconds}s ago`
 }
 
 export default ManualGameAccordion

@@ -7,7 +7,7 @@ interface Props {
   timeControl: string
   opening: string
   gameDttm: Date
-  points: 0 | 0.5 | 1
+  points: 0 | 0.5 | 1 | null
   tagCount: number
   hasNotes: boolean
 }
@@ -65,7 +65,7 @@ const getRelativeTime = (date: Date) => {
   return `${seconds}s ago`
 }
 
-const getDotColor = (points: 0 | 0.5 | 1) => {
+const getDotColor = (points: 0 | 0.5 | 1 | null) => {
   switch (points) {
     case 1:
       return 'bg-success'
@@ -73,6 +73,8 @@ const getDotColor = (points: 0 | 0.5 | 1) => {
       return 'bg-base-content/70'
     case 0:
       return 'bg-error'
+    default:
+      return 'bg-base-content/20'
   }
 }
 
