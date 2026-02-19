@@ -55,8 +55,8 @@ export default async function PrivatePage() {
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-base-content mb-2">My Collections</h1>
         <p className="text-base-content/60 max-w-lg text-sm">
-          Collections group your games for review and annotation. Import games from Chess.com or
-          Lichess, or create a manual collection. Add tags and notes to track patterns in your play.
+          Import games from Chess.com or Lichess, or create a manual collection. Add tags and notes
+          to track patterns in your play.
         </p>
       </div>
 
