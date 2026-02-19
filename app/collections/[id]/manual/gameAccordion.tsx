@@ -100,14 +100,14 @@ const ManualGameAccordion: FC<Props> = (props) => {
 
   const canSave = draft.whitePlayer.trim() && draft.blackPlayer.trim() && draft.gameDttm
 
-  const points =
+  const resultText =
     current.winner === 'white'
-      ? 1
+      ? '1-0'
       : current.winner === 'black'
-        ? 0
+        ? '0-1'
         : current.winner === 'draw'
-          ? 0.5
-          : null
+          ? '½-½'
+          : '—'
 
   const header = (
     <GameAccordionHeader
@@ -116,7 +116,8 @@ const ManualGameAccordion: FC<Props> = (props) => {
       timeControl={current.timeControl ?? ''}
       opening={current.opening ?? ''}
       gameDttm={current.gameDttm}
-      points={points}
+      resultText={resultText}
+      dateOnly
       tagCount={tagCount}
       hasNotes={hasNotes}
     />

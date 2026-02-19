@@ -7,7 +7,9 @@ interface Props {
   timeControl: string
   opening: string
   gameDttm: Date
-  points: 0 | 0.5 | 1 | null
+  points?: 0 | 0.5 | 1 | null
+  resultText?: string
+  dateOnly?: boolean
   tagCount: number
   hasNotes: boolean
 }
@@ -28,8 +30,14 @@ const GameAccordionHeader: FC<Props> = (props) => {
     <div className="flex flex-col gap-1 w-full min-w-0">
       {/* Row 1: result dot, players, time control (+ badges, opening, time on desktop) */}
       <div className="flex items-center gap-4">
-        {/* flex-none prevents the dot from getting squeezed when the usernames are long */}
-        <div className={`flex-none h-2 w-2 rounded ${getDotColor(props.points)}`} />
+        {/* flex-none prevents the result indicator from getting squeezed when the usernames are long */}
+        {props.resultText !== undefined ? (
+          <div className="flex-none text-xs font-medium text-base-content/70 whitespace-nowrap">
+            {props.resultText}
+          </div>
+        ) : (
+          <div className={`flex-none h-2 w-2 rounded ${getDotColor(props.points ?? null)}`} />
+        )}
         <div className="truncate">
           {props.whiteUsername} vs. {props.blackUsername}
         </div>
@@ -39,17 +47,25 @@ const GameAccordionHeader: FC<Props> = (props) => {
           {props.opening}
         </div>
         <div className="hidden md:block text-base-content/70">
-          {getRelativeTime(props.gameDttm)}
+          {props.dateOnly ? getFormattedDate(props.gameDttm) : getRelativeTime(props.gameDttm)}
         </div>
       </div>
 
       {/* Row 2 (mobile only): badges and relative time */}
       <div className="flex md:hidden items-center gap-2 pl-6">
         {badges}
-        <div className="ml-auto text-base-content/70">{getRelativeTime(props.gameDttm)}</div>
+        <div className="ml-auto text-base-content/70">
+          {props.dateOnly ? getFormattedDate(props.gameDttm) : getRelativeTime(props.gameDttm)}
+        </div>
       </div>
     </div>
   )
+}
+
+const getFormattedDate = (date: Date) => {
+  const today = new Date()
+  if (date.toLocaleDateString() === today.toLocaleDateString()) return 'Today'
+  return date.toLocaleDateString(undefined, {month: 'short', day: 'numeric', year: 'numeric'})
 }
 
 const getRelativeTime = (date: Date) => {
