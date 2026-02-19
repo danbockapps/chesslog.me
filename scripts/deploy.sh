@@ -89,6 +89,10 @@ docker tag "$IMAGE_NAME:latest" "$IMAGE_NAME:current"
 # 6. Stop and remove existing container (if any)
 # ---------------------------------------------------------------------------
 if docker ps -a --format '{{.Names}}' | grep -q "^${APP_NAME}$"; then
+  log "Saving logs before container removal..."
+  LOG_FILE="$DATA_DIR/logs/$(date '+%Y-%m-%dT%H:%M:%S').log"
+  mkdir -p "$DATA_DIR/logs"
+  docker logs "$APP_NAME" &>> "$LOG_FILE" || warn "Could not save logs"
   log "Stopping existing container..."
   docker stop "$APP_NAME" || warn "Container already stopped"
   docker rm "$APP_NAME"
