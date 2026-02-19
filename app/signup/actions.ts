@@ -41,6 +41,7 @@ export async function signup(email: string, password: string) {
     if (error.message && error.message.includes('UNIQUE constraint failed')) {
       throw new Error('An account with this email already exists')
     }
+    console.error('Failed to create account:', error)
     throw new Error('Failed to create account')
   }
 
