@@ -55,7 +55,7 @@ const CollectionCard: FC<Props> = ({
           ) : null}
 
           {/* Title */}
-          <div className="flex-1 text-center">
+          <div className="flex-1 text-center flex flex-col justify-center items-center">
             {username ? (
               <>
                 <div className="font-semibold text-base-content text-lg leading-tight">
