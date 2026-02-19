@@ -25,7 +25,7 @@ export const dynamic = 'force-dynamic'
 
 interface Props {
   params: Promise<{id: string}>
-  searchParams: Promise<{page: string; analytics: string}>
+  searchParams: Promise<{page: string; analytics: string; expandGameId: string}>
 }
 
 const PAGE_SIZE = 50
@@ -35,6 +35,7 @@ const Collection: FC<Props> = async (props) => {
   const searchParams = await props.searchParams
   const user = await getUser()
   const page = parseInt(searchParams.page) || 1
+  const expandGameId = parseInt(searchParams.expandGameId) || null
 
   const collection = db
     .select({
@@ -243,6 +244,7 @@ const Collection: FC<Props> = async (props) => {
                   tagCount={g.tagCount}
                   hasNotes={g.hasNotes}
                   isOwner={isOwner}
+                  initialOpen={g.id === expandGameId}
                 />
               )
             ) : null,

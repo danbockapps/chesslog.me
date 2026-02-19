@@ -20,6 +20,7 @@ interface Props {
   tagCount: number
   hasNotes: boolean
   isOwner: boolean
+  initialOpen?: boolean
 }
 
 const {cardClassName, headerClassName} = gameAccordionClassNames
@@ -123,7 +124,10 @@ const ManualGameAccordion: FC<Props> = (props) => {
 
   return (
     <>
-      <Accordion {...{header, cardClassName, headerClassName, contentClassName}}>
+      <Accordion
+        {...{header, cardClassName, headerClassName, contentClassName}}
+        initialOpen={props.initialOpen}
+      >
         {/* Column 1: game details */}
         <div className="flex flex-col gap-3">
           <div className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-1.5 text-sm">

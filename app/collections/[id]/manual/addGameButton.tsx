@@ -1,5 +1,6 @@
 'use client'
 
+import {useRouter} from 'next/navigation'
 import {FC, useState} from 'react'
 import {createManualGame} from '../actions/manualGameActions'
 
@@ -8,6 +9,7 @@ interface Props {
 }
 
 const AddGameButton: FC<Props> = ({collectionId}) => {
+  const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
   const [whitePlayer, setWhitePlayer] = useState('')
   const [blackPlayer, setBlackPlayer] = useState('')
@@ -36,7 +38,7 @@ const AddGameButton: FC<Props> = ({collectionId}) => {
   const handleSubmit = async () => {
     if (!whitePlayer.trim() || !blackPlayer.trim() || !gameDttm) return
     setSaving(true)
-    await createManualGame(collectionId, {
+    const newGameId = await createManualGame(collectionId, {
       whitePlayer: whitePlayer.trim(),
       blackPlayer: blackPlayer.trim(),
       gameDttm: new Date(gameDttm + 'T12:00:00').toISOString(),
@@ -48,6 +50,7 @@ const AddGameButton: FC<Props> = ({collectionId}) => {
     resetForm()
     setSaving(false)
     setIsOpen(false)
+    router.push(`?expandGameId=${newGameId}`)
   }
 
   const canSubmit = whitePlayer.trim() && blackPlayer.trim() && gameDttm

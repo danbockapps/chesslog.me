@@ -10,10 +10,11 @@ interface Props {
   headerClassName?: string
   contentClassName?: string
   onExpand?: () => void
+  initialOpen?: boolean
 }
 
 const Accordion: FC<PropsWithChildren<Props>> = (props) => {
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(props.initialOpen ?? false)
   const contentClassName = props.contentClassName ?? ''
 
   return (

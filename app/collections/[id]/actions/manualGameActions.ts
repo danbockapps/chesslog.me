@@ -25,7 +25,8 @@ export const createManualGame = async (collectionId: string, data: ManualGameDat
     .get()
   if (!owned) throw new Error('Unauthorized')
 
-  db.insert(games)
+  const result = db
+    .insert(games)
     .values({
       collectionId,
       whiteUsername: data.whitePlayer,
@@ -39,6 +40,7 @@ export const createManualGame = async (collectionId: string, data: ManualGameDat
     .run()
 
   revalidatePath(`/collections/${collectionId}`)
+  return Number(result.lastInsertRowid)
 }
 
 export const updateManualGame = async (gameId: number, data: ManualGameData) => {
