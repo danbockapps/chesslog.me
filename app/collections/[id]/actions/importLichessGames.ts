@@ -2,7 +2,7 @@
 
 import {requireAuth} from '@/lib/auth'
 import {db} from '@/lib/db'
-import {fetchLichessGames, saveGames, transformLichessGame} from '@/lib/gameImport'
+import {fetchLichessGames, LichessGame, saveGames, transformLichessGame} from '@/lib/gameImport'
 import {collections} from '@/lib/schema'
 import {and, eq} from 'drizzle-orm'
 import {revalidatePath} from 'next/cache'
@@ -24,7 +24,7 @@ const importLichessGames = async (
   console.log('importLichessGames')
   console.time('importLichessGames')
 
-  const params: Record<string, string> = {
+  const baseParams: Record<string, string> = {
     max: '20',
     since: `${lastRefreshed?.getTime() ?? ''}`,
     moves: 'false',
@@ -32,13 +32,21 @@ const importLichessGames = async (
     lastFen: 'true',
   }
 
-  // Add perfType filter if timeClass is specified
-  if (timeClass) {
-    params.perfType = timeClass
-  }
-
   try {
-    const data = await fetchLichessGames(username, params)
+    let data: LichessGame[]
+    if (timeClass) {
+      // Lichess bug: perfType filter sometimes omits the very latest games.
+      // Fetch both filtered and unfiltered in parallel, then merge. The DB
+      // unique constraint handles deduplication on insert.
+      const [filtered, all] = await Promise.all([
+        fetchLichessGames(username, {...baseParams, perfType: timeClass}),
+        fetchLichessGames(username, baseParams),
+      ])
+      const allFiltered = all.filter((g) => g.perf === timeClass)
+      data = [...filtered, ...allFiltered]
+    } else {
+      data = await fetchLichessGames(username, baseParams)
+    }
 
     console.timeLog('importLichessGames', `fetched ${data.length} games`)
 

@@ -130,9 +130,10 @@ export async function fetchLichessGames(
   params: Record<string, string>,
 ): Promise<LichessGame[]> {
   const url = `https://lichess.org/api/games/user/${username}?${new URLSearchParams(params)}`
+  const logId = `fetchLichessGames-${username}-${params.perfType ?? 'all'}`
 
-  console.log('fetchLichessGames', url)
-  console.time('fetchLichessGames')
+  console.log(logId, url)
+  console.time(logId)
 
   const qr = await fetch(url, {
     headers: {accept: 'application/x-ndjson', Authorization: 'Bearer ' + process.env.LICHESS_TOKEN},
@@ -144,7 +145,8 @@ export async function fetchLichessGames(
 
   const text = await qr.text()
 
-  console.timeEnd('fetchLichessGames')
+  console.log(logId, `fetched ${text.length} chars`)
+  console.timeEnd(logId)
 
   return text
     .split(/\r?\n/)
