@@ -138,6 +138,10 @@ export async function fetchLichessGames(
     headers: {accept: 'application/x-ndjson', Authorization: 'Bearer ' + process.env.LICHESS_TOKEN},
   })
 
+  if (!qr.ok) {
+    throw new Error(`Lichess API returned ${qr.status}`)
+  }
+
   const text = await qr.text()
 
   console.timeEnd('fetchLichessGames')

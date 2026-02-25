@@ -12,7 +12,7 @@ const importLichessGames = async (
   lastRefreshed: Date | null,
   username: string,
   timeClass: string | null = null,
-) => {
+): Promise<{error: string} | undefined> => {
   const user = await requireAuth()
   const owned = db
     .select({id: collections.id})
@@ -37,25 +37,23 @@ const importLichessGames = async (
     params.perfType = timeClass
   }
 
-  const data = await fetchLichessGames(username, params)
+  try {
+    const data = await fetchLichessGames(username, params)
 
-  console.timeLog('importLichessGames', `fetched ${data.length} games`)
+    console.timeLog('importLichessGames', `fetched ${data.length} games`)
 
-  if (data.length > 0) {
-    try {
+    if (data.length > 0) {
       const gamesData = data.map((g) => transformLichessGame(g, collectionId))
-
       saveGames(gamesData, collectionId, 'lichess')
-
       console.timeLog('importLichessGames', 'inserted')
-    } catch (e) {
-      console.log('Caught error inserting games for Lichess')
-      console.error(e)
     }
-  }
 
-  console.timeEnd('importLichessGames')
-  revalidatePath(`/collections/${collectionId}`)
+    console.timeEnd('importLichessGames')
+    revalidatePath(`/collections/${collectionId}`)
+  } catch (e) {
+    console.error('importLichessGames error:', e)
+    return {error: 'Failed to connect to Lichess. Please try again.'}
+  }
 }
 
 export default importLichessGames

@@ -14,7 +14,7 @@ const importChesscomGames = async (
   lastRefreshed: Date | null,
   username: string,
   timeClass: string | null = null,
-) => {
+): Promise<{error: string} | undefined> => {
   const user = await requireAuth()
   const owned = db
     .select({id: collections.id})
@@ -26,37 +26,50 @@ const importChesscomGames = async (
   console.log('importChesscomGames')
   console.time('importChesscomGames')
 
-  const archivesResult = await fetch(`https://api.chess.com/pub/player/${username}/games/archives`)
-  const archivesData = (await archivesResult.json()) as {archives: string[]}
+  try {
+    const archivesResult = await fetch(
+      `https://api.chess.com/pub/player/${username}/games/archives`,
+    )
+    if (!archivesResult.ok) {
+      return {error: `Could not load Chess.com archives (${archivesResult.status})`}
+    }
+    const archivesData = (await archivesResult.json()) as {archives: string[]}
 
-  // Parse year/month from archive URLs like ".../games/2023/01"
-  const archiveMonths = archivesData.archives.map((url) => {
-    const parts = url.split('/')
-    return {year: parseInt(parts[parts.length - 2]), jsMonth: parseInt(parts[parts.length - 1]) - 1}
-  })
-
-  // Include months at or after lastRefreshed's month (game-level filter handles within-month precision)
-  const monthsToFetch = archiveMonths.filter(({year, jsMonth}) => {
-    if (!lastRefreshed) return true
-    const lastYear = lastRefreshed.getFullYear()
-    const lastMonth = lastRefreshed.getMonth()
-    return year > lastYear || (year === lastYear && jsMonth >= lastMonth)
-  })
-
-  // Cap at 2 most recent months
-  for (const {year, jsMonth} of monthsToFetch.slice(-2)) {
-    await importChesscomGamesForMonth({
-      year,
-      jsMonth,
-      username,
-      collectionId,
-      lastRefreshed,
-      timeClass,
+    // Parse year/month from archive URLs like ".../games/2023/01"
+    const archiveMonths = archivesData.archives.map((url) => {
+      const parts = url.split('/')
+      return {
+        year: parseInt(parts[parts.length - 2]),
+        jsMonth: parseInt(parts[parts.length - 1]) - 1,
+      }
     })
-  }
 
-  console.timeEnd('importChesscomGames')
-  revalidatePath(`/collections/${collectionId}`)
+    // Include months at or after lastRefreshed's month (game-level filter handles within-month precision)
+    const monthsToFetch = archiveMonths.filter(({year, jsMonth}) => {
+      if (!lastRefreshed) return true
+      const lastYear = lastRefreshed.getFullYear()
+      const lastMonth = lastRefreshed.getMonth()
+      return year > lastYear || (year === lastYear && jsMonth >= lastMonth)
+    })
+
+    // Cap at 2 most recent months
+    for (const {year, jsMonth} of monthsToFetch.slice(-2)) {
+      await importChesscomGamesForMonth({
+        year,
+        jsMonth,
+        username,
+        collectionId,
+        lastRefreshed,
+        timeClass,
+      })
+    }
+
+    console.timeEnd('importChesscomGames')
+    revalidatePath(`/collections/${collectionId}`)
+  } catch (e) {
+    console.error('importChesscomGames error:', e)
+    return {error: 'Failed to connect to Chess.com. Please try again.'}
+  }
 }
 
 interface ImportChesscomGamesForMonthProps {
@@ -79,22 +92,20 @@ const importChesscomGamesForMonth = async ({
   const mm = `${jsMonth < 9 ? '0' : ''}${jsMonth + 1}`
   console.timeLog('importChesscomGames', `fetching games for ${year}-${mm}`)
   const result = await fetch(`https://api.chess.com/pub/player/${username}/games/${year}/${mm}`)
+  if (!result.ok) {
+    throw new Error(`Chess.com API returned ${result.status} for ${year}-${mm}`)
+  }
   const data = (await result.json()) as {games: ChesscomGame[]}
   console.timeLog('importChesscomGames', `fetched ${data.games.length} games`)
 
-  try {
-    const gamesData = data.games
-      .filter((g) => !lastRefreshed || new Date(g.end_time * 1000) > lastRefreshed)
-      .filter((g) => !timeClass || g.time_class === timeClass)
-      .map((g) => transformChesscomGame(g, collectionId))
+  const gamesData = data.games
+    .filter((g) => !lastRefreshed || new Date(g.end_time * 1000) > lastRefreshed)
+    .filter((g) => !timeClass || g.time_class === timeClass)
+    .map((g) => transformChesscomGame(g, collectionId))
 
-    saveGames(gamesData, collectionId, 'chesscom')
+  saveGames(gamesData, collectionId, 'chesscom')
 
-    console.timeLog('importChesscomGames', 'attempted to insert')
-  } catch (e) {
-    console.log('Caught error inserting games for Chess.com')
-    console.error(e)
-  }
+  console.timeLog('importChesscomGames', 'attempted to insert')
 }
 
 export default importChesscomGames
