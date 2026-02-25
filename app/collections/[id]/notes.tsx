@@ -16,6 +16,7 @@ const Notes: FC<Props> = (props) => {
 
   // Changes when: user expands a different game accordion
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true)
     getNotes(props.gameId).then((data) => {
       setNotes(data)

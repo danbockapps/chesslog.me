@@ -47,6 +47,7 @@ const Tags: FC<Props> = (props) => {
   }, [props.gameId, props.isOwner])
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     refresh()
   }, [refresh])
 

@@ -28,9 +28,11 @@ const StepType: FC<Props> = (props) => (
       }}
       className="w-full flex items-center justify-center bg-chesscom p-2 mt-4 mb-0 rounded"
     >
-      <img
+      <Image
         src="https://images.chesscomfiles.com/uploads/v1/images_users/tiny_mce/PedroPinhata/phpNgJfyb.png"
         alt="Chess.com"
+        width={128}
+        height={40}
         className="h-10 w-32 mr-2"
       />
     </button>

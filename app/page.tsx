@@ -172,8 +172,8 @@ export default async function Home() {
               </h2>
               <p className="text-base-content/70 leading-relaxed mb-4">
                 We all have confirmation bias. We remember the brilliant tactic we found but forget
-                the five games where we didn't know the middlegame plan. We think we lose to tricky
-                tactics when really we&apos;re blundering in time pressure.
+                the five games where we didn&apos;t know the middlegame plan. We think we lose to
+                tricky tactics when really we&apos;re blundering in time pressure.
               </p>
               <p className="text-base-content/70 leading-relaxed">
                 <strong className="text-base-content">
@@ -441,7 +441,7 @@ export default async function Home() {
                 For coaches
               </div>
               <h2 className="text-3xl md:text-4xl font-bold mb-6 font-display">
-                Correct your students' misconceptions
+                Correct your students&apos; misconceptions
               </h2>
               <p className="text-base-content/70 leading-relaxed mb-4">
                 Students often draw the wrong conclusions from their games (and engine analysis can

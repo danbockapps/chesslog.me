@@ -23,6 +23,7 @@ const Board: FC<ChesscomProps | LichessProps> = (props) => {
   const chess = useRef<Chess>(new Chess())
   const [moves, setMoves] = useState<ChessJsMoveParam[]>()
   const [currentMove, setCurrentMove] = useState<number>()
+  const [currentFen, setCurrentFen] = useState<string>()
   const [disabled, setDisabled] = useState(false)
 
   const getGame = () => {
@@ -59,7 +60,7 @@ const Board: FC<ChesscomProps | LichessProps> = (props) => {
       <Chessboard
         arePiecesDraggable={false}
         boardOrientation={props.orientation}
-        position={moves ? chess.current.fen() : props.fen}
+        position={currentFen ?? props.fen}
         {...{customDarkSquareStyle, customLightSquareStyle}}
       />
 
@@ -69,8 +70,9 @@ const Board: FC<ChesscomProps | LichessProps> = (props) => {
           disabled={backwardButtonsDisabled}
           onClick={async () => {
             if (!moves) await loadGame()
-            setCurrentMove(0)
             chess.current.reset()
+            setCurrentFen(chess.current.fen())
+            setCurrentMove(0)
           }}
         >
           | &lt;
@@ -82,6 +84,7 @@ const Board: FC<ChesscomProps | LichessProps> = (props) => {
           onClick={async () => {
             if (moves && currentMove !== undefined && currentMove > 0) {
               chess.current.undo()
+              setCurrentFen(chess.current.fen())
               setCurrentMove(currentMove - 1)
             } else {
               const correctMoves = await loadGame()
@@ -93,6 +96,7 @@ const Board: FC<ChesscomProps | LichessProps> = (props) => {
                 }
               })
 
+              setCurrentFen(chess.current.fen())
               setCurrentMove(newCurrentMove)
             }
           }}
@@ -106,6 +110,7 @@ const Board: FC<ChesscomProps | LichessProps> = (props) => {
           onClick={() => {
             if (moves && currentMove !== undefined && currentMove < moves.length) {
               chess.current.move(moves[currentMove])
+              setCurrentFen(chess.current.fen())
               setCurrentMove(currentMove + 1)
             }
           }}
@@ -122,6 +127,7 @@ const Board: FC<ChesscomProps | LichessProps> = (props) => {
                 if (i >= currentMove) chess.current.move(move)
               })
 
+              setCurrentFen(chess.current.fen())
               setCurrentMove(moves.length)
             }
           }}

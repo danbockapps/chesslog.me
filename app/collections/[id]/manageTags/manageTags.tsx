@@ -1,6 +1,5 @@
 import SectionHeader from '@/app/ui/SectionHeader'
 import {FC, useCallback, useEffect, useState} from 'react'
-import {useAppContext} from '../../context'
 import {getTagsWithDetails} from '../actions/crudActions'
 import {saveTagDescription} from './actions'
 import DescriptionDialog from './descriptionDialog'
@@ -21,7 +20,6 @@ type Tag = {
 const ManageTags: FC<Props> = (props) => {
   const [tags, setTags] = useState<Tag[]>([])
   const [descToEdit, setDescToEdit] = useState<number | null>(null)
-  const {user} = useAppContext()
 
   const refresh = useCallback(async () => {
     try {
@@ -30,10 +28,11 @@ const ManageTags: FC<Props> = (props) => {
     } catch (error) {
       console.error('Error fetching tags:', error)
     }
-  }, [user?.id])
+  }, [])
 
   useEffect(() => {
     if (props.open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       refresh()
     }
   }, [props.open, refresh])

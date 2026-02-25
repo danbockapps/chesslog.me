@@ -1,4 +1,4 @@
-import {FC, useEffect, useState} from 'react'
+import {FC, useState} from 'react'
 import {createCollection} from './actions'
 import StepName from './stepName'
 import StepTimeClass from './stepTimeClass'
@@ -22,16 +22,15 @@ const CreateNewModal: FC<Props> = (props) => {
   const [name, setName] = useState<string>('')
   const [loading, setLoading] = useState(false)
 
-  useEffect(() => {
-    if (!props.isOpen) {
-      setStep('type')
-      setType(null)
-      setUsername('')
-      setTimeClass(null)
-      setName('')
-      setLoading(false)
-    }
-  }, [props.isOpen])
+  const handleClose = () => {
+    setStep('type')
+    setType(null)
+    setUsername('')
+    setTimeClass(null)
+    setName('')
+    setLoading(false)
+    props.setIsOpen(false)
+  }
 
   const create = async () => {
     setLoading(true)
@@ -47,7 +46,7 @@ const CreateNewModal: FC<Props> = (props) => {
       <div className="modal-box">
         <button
           className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-          onClick={() => props.setIsOpen(false)}
+          onClick={handleClose}
           disabled={loading}
         >
           ✕
@@ -68,7 +67,7 @@ const CreateNewModal: FC<Props> = (props) => {
         </div>
       </div>
       <form method="dialog" className="modal-backdrop backdrop-blur-sm">
-        <button onClick={() => props.setIsOpen(false)} disabled={loading}>
+        <button onClick={handleClose} disabled={loading}>
           close
         </button>
       </form>
