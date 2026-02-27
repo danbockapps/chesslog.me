@@ -1,7 +1,7 @@
 import SectionHeader from '@/app/ui/SectionHeader'
 import {FC, useCallback, useEffect, useState} from 'react'
 import {getTagsWithDetails} from '../actions/crudActions'
-import {saveTagDescription} from './actions'
+import {createTag, saveTagDescription} from './actions'
 import DescriptionDialog from './descriptionDialog'
 import TagCard from './tagCard'
 
@@ -20,6 +20,10 @@ type Tag = {
 const ManageTags: FC<Props> = (props) => {
   const [tags, setTags] = useState<Tag[]>([])
   const [descToEdit, setDescToEdit] = useState<number | null>(null)
+  const [addingTag, setAddingTag] = useState(false)
+  const [newTagName, setNewTagName] = useState('')
+  const [newTagDescription, setNewTagDescription] = useState('')
+  const [saving, setSaving] = useState(false)
 
   const refresh = useCallback(async () => {
     try {
@@ -36,6 +40,26 @@ const ManageTags: FC<Props> = (props) => {
       refresh()
     }
   }, [props.open, refresh])
+
+  const handleAddTag = async () => {
+    if (!newTagName.trim()) return
+    setSaving(true)
+    try {
+      await createTag(newTagName.trim(), newTagDescription.trim())
+      await refresh()
+      setNewTagName('')
+      setNewTagDescription('')
+      setAddingTag(false)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleCancelAdd = () => {
+    setAddingTag(false)
+    setNewTagName('')
+    setNewTagDescription('')
+  }
 
   const privateTags = tags.filter((t) => !t.public)
   const publicTags = tags.filter((t) => t.public)
@@ -62,11 +86,55 @@ const ManageTags: FC<Props> = (props) => {
             <div className="flex items-center gap-2 mb-4">
               <span className="text-base-content/70">🔒</span>
               <h3 className="text-lg font-semibold">Your Private Tags</h3>
+              {!addingTag && (
+                <button
+                  className="btn btn-xs btn-outline btn-primary ml-auto"
+                  onClick={() => setAddingTag(true)}
+                >
+                  + Add Tag
+                </button>
+              )}
             </div>
+
+            {addingTag && (
+              <div className="bg-base-200 border border-base-300 rounded-2xl p-4 mb-4 flex flex-col gap-3">
+                <input
+                  type="text"
+                  className="input input-bordered input-sm w-full"
+                  placeholder="Tag name"
+                  value={newTagName}
+                  onChange={(e) => setNewTagName(e.target.value)}
+                  autoFocus
+                />
+                <textarea
+                  className="textarea textarea-bordered textarea-sm w-full resize-none"
+                  placeholder="Description (optional)"
+                  rows={2}
+                  value={newTagDescription}
+                  onChange={(e) => setNewTagDescription(e.target.value)}
+                />
+                <div className="flex gap-2 justify-end">
+                  <button
+                    className="btn btn-sm btn-ghost"
+                    onClick={handleCancelAdd}
+                    disabled={saving}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className="btn btn-sm btn-primary"
+                    onClick={handleAddTag}
+                    disabled={!newTagName.trim() || saving}
+                  >
+                    {saving ? 'Saving…' : 'Save'}
+                  </button>
+                </div>
+              </div>
+            )}
 
             {privateTags.length === 0 ? (
               <p className="text-sm text-base-content/70 italic py-4 text-center">
-                No private tags yet. Create tags when annotating games.
+                No private tags yet.
               </p>
             ) : (
               <div className="flex flex-col gap-4">

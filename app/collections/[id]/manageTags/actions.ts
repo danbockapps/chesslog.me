@@ -5,6 +5,14 @@ import {db} from '@/lib/db'
 import {tags} from '@/lib/schema'
 import {eq, and} from 'drizzle-orm'
 
+export const createTag = async (name: string, description: string) => {
+  const user = await requireAuth()
+
+  db.insert(tags)
+    .values({name, description: description || null, ownerId: user.id})
+    .run()
+}
+
 export const saveTagDescription = async (tagId: number, description: string) => {
   const user = await requireAuth()
 

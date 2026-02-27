@@ -39,7 +39,12 @@ const Tags: FC<Props> = (props) => {
         getTagsWithDetails(),
         getGameTags(props.gameId),
       ])
-      setOptions(newOptions ?? [])
+      setOptions(
+        (newOptions ?? []).sort(
+          (a, b) =>
+            Number(a.public) - Number(b.public) || (a.name ?? '').localeCompare(b.name ?? ''),
+        ),
+      )
       setSelectedTagIds(newSelectedTagIds ?? [])
     } else {
       setReadOnlyTags(await getGameTagsWithDetails(props.gameId))
@@ -77,7 +82,7 @@ const Tags: FC<Props> = (props) => {
   return (
     <div>
       <SectionHeader
-        title="Takeaways"
+        title="Tags"
         description="Select tags or create your own"
         link={{text: 'Manage tags', onClick: () => setManageOpen(true)}}
       />
