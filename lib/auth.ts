@@ -1,4 +1,4 @@
-import {Lucia} from 'lucia'
+import {Lucia, TimeSpan} from 'lucia'
 import {BetterSqlite3Adapter} from '@lucia-auth/adapter-sqlite'
 import {sqlite} from './db'
 import {cookies} from 'next/headers'
@@ -12,6 +12,9 @@ const adapter = new BetterSqlite3Adapter(sqlite, {
 
 // Initialize Lucia
 export const lucia = new Lucia(adapter, {
+  // Sessions effectively never expire. This app is low-security; there's no
+  // reason to log a user out after a period of time. ~1000 years.
+  sessionExpiresIn: new TimeSpan(52000, 'w'),
   sessionCookie: {
     expires: false,
     attributes: {
@@ -50,13 +53,20 @@ export async function requireAuth() {
   const {user, session} = await lucia.validateSession(sessionId)
 
   if (!user) {
-    redirect('/login')
+    // Cookie is present but the session is invalid (e.g. the row no longer
+    // exists). Route through /logout to clear the stale cookie; otherwise the
+    // middleware (which only checks for cookie presence) bounces /login back
+    // to here and we get an infinite redirect loop.
+    redirect('/logout')
   }
 
-  // Refresh session if needed
+  // Refresh session if needed. cookies().set() throws during a Server Component
+  // render, so guard it — the refresh is best-effort.
   if (session && session.fresh) {
-    const sessionCookie = lucia.createSessionCookie(session.id)
-    cookieStore.set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes)
+    try {
+      const sessionCookie = lucia.createSessionCookie(session.id)
+      cookieStore.set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes)
+    } catch {}
   }
 
   return user
@@ -81,10 +91,13 @@ export async function getUser() {
     return null
   }
 
-  // Refresh session if needed
+  // Refresh session if needed. cookies().set() throws during a Server Component
+  // render, so guard it — the refresh is best-effort.
   if (session && session.fresh) {
-    const sessionCookie = lucia.createSessionCookie(session.id)
-    cookieStore.set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes)
+    try {
+      const sessionCookie = lucia.createSessionCookie(session.id)
+      cookieStore.set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes)
+    } catch {}
   }
 
   return user
