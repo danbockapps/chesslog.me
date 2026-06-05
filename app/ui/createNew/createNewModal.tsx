@@ -1,6 +1,7 @@
 import {FC, useState} from 'react'
 import {createCollection} from './actions'
 import StepName from './stepName'
+import StepStudyUrl from './stepStudyUrl'
 import StepTimeClass from './stepTimeClass'
 import StepType from './stepType'
 import StepUsername from './stepUsername'
@@ -10,8 +11,8 @@ interface Props {
   setIsOpen: (open: boolean) => void
 }
 
-export type Step = 'type' | 'username' | 'timeClass' | 'name'
-export type Type = 'manual' | 'chess.com' | 'lichess' | null
+export type Step = 'type' | 'username' | 'timeClass' | 'name' | 'studyUrl'
+export type Type = 'manual' | 'chess.com' | 'lichess' | 'lichess-study' | null
 export type TimeClass = 'ultraBullet' | 'bullet' | 'blitz' | 'rapid' | 'classical' | null
 
 const CreateNewModal: FC<Props> = (props) => {
@@ -20,6 +21,7 @@ const CreateNewModal: FC<Props> = (props) => {
   const [username, setUsername] = useState<string>('')
   const [timeClass, setTimeClass] = useState<TimeClass>(null)
   const [name, setName] = useState<string>('')
+  const [studyUrl, setStudyUrl] = useState<string>('')
   const [loading, setLoading] = useState(false)
 
   const handleClose = () => {
@@ -28,6 +30,7 @@ const CreateNewModal: FC<Props> = (props) => {
     setUsername('')
     setTimeClass(null)
     setName('')
+    setStudyUrl('')
     setLoading(false)
     props.setIsOpen(false)
   }
@@ -35,7 +38,13 @@ const CreateNewModal: FC<Props> = (props) => {
   const create = async () => {
     setLoading(true)
     try {
-      await createCollection(type, username, timeClass, type === 'manual' ? name : null)
+      await createCollection(
+        type,
+        username,
+        timeClass,
+        type === 'manual' || type === 'lichess-study' ? name : null,
+        type === 'lichess-study' ? studyUrl : null,
+      )
     } catch {
       setLoading(false)
     }
@@ -64,6 +73,12 @@ const CreateNewModal: FC<Props> = (props) => {
           )}
 
           {step === 'name' && <StepName {...{setStep, setType, name, setName, create, loading}} />}
+
+          {step === 'studyUrl' && (
+            <StepStudyUrl
+              {...{setStep, setType, studyUrl, setStudyUrl, name, setName, create, loading}}
+            />
+          )}
         </div>
       </div>
       <form method="dialog" className="modal-backdrop backdrop-blur-sm">

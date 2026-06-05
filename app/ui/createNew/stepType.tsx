@@ -48,6 +48,17 @@ const StepType: FC<Props> = (props) => (
       <span className="text-white">Lichess</span>
     </button>
     Your games will be imported from Lichess.
+    <button
+      onClick={() => {
+        props.setType('lichess-study')
+        props.setStep('studyUrl')
+      }}
+      className="w-full flex items-center justify-center gap-2 bg-lichess p-2 mt-4 rounded"
+    >
+      <Image src={lichessLogo} width={24} height={24} alt="Lichess" className="h-10 w-10 mr-2" />
+      <span className="text-white">Lichess Study</span>
+    </button>
+    Games are imported from a Lichess study PGN.
   </>
 )
 

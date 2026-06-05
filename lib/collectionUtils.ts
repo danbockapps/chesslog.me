@@ -12,6 +12,10 @@ export function getCollectionDisplayName(collection: {
   username?: string | null
   timeClass?: string | null
 }): string {
+  if (collection.site === 'lichess-study') {
+    return collection.name || 'Lichess Study'
+  }
+
   if (collection.site && collection.username) {
     const siteName = collection.site === 'chess.com' ? 'Chess.com' : 'Lichess'
     const timeClassLabel = collection.timeClass

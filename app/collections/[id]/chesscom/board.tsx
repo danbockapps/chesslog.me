@@ -1,3 +1,4 @@
+import {preparePgnForChessJs} from '@/lib/pgnSanitize'
 import {Chess} from 'chess.js'
 import {FC, useRef, useState} from 'react'
 import {Chessboard} from 'react-chessboard'
@@ -19,19 +20,30 @@ type LichessProps = BaseProps & {
   lichessGameId: string
 }
 
-const Board: FC<ChesscomProps | LichessProps> = (props) => {
+type PgnProps = BaseProps & {
+  type: 'pgn'
+  pgn: string
+}
+
+const Board: FC<ChesscomProps | LichessProps | PgnProps> = (props) => {
   const chess = useRef<Chess>(new Chess())
   const [moves, setMoves] = useState<ChessJsMoveParam[]>()
   const [currentMove, setCurrentMove] = useState<number>()
   const [currentFen, setCurrentFen] = useState<string>()
   const [disabled, setDisabled] = useState(false)
 
-  const getGame = () => {
+  const getGame = (): Promise<ChessJsMoveParam[]> => {
     switch (props.type) {
       case 'chess.com':
         return getSingleChesscomGame(props.url)
       case 'lichess':
         return getSingleLichessGame(props.lichessGameId)
+      case 'pgn': {
+        // Moves are stored locally in the PGN — no server fetch needed.
+        const parser = new Chess()
+        parser.loadPgn(preparePgnForChessJs(props.pgn))
+        return Promise.resolve(parser.history())
+      }
       default:
         throw new Error('Invalid game type')
     }

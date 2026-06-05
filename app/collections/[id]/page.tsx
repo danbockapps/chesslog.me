@@ -15,6 +15,8 @@ import AnalyticsView from './analytics/analyticsView'
 import AnalyticsHeroBanner from './analyticsHeroBanner'
 import AutoRefresh from './autoRefresh'
 import ChesscomGameAccordion from './chesscom/gameAccordion'
+import ImportPgnModal from './importPgn/importPgnModal'
+import PgnGameAccordion from './importPgn/pgnGameAccordion'
 import LastRefreshedDisplay from './lastRefreshedDisplay'
 import LichessGameAccordion from './lichess/gameAccordion'
 import AddGameButton from './manual/addGameButton'
@@ -43,6 +45,7 @@ const Collection: FC<Props> = async (props) => {
       username: collections.username,
       site: collections.site,
       timeClass: collections.timeClass,
+      studyId: collections.studyId,
       last_refreshed: collections.lastRefreshed,
       ownerId: collections.ownerId,
     })
@@ -52,9 +55,13 @@ const Collection: FC<Props> = async (props) => {
 
   const isOwner = !!user && user.id === collection?.ownerId
 
-  const {username, site, timeClass, last_refreshed} = collection ?? {}
+  const {username, site, timeClass, studyId, last_refreshed} = collection ?? {}
   const displayName = collection ? getCollectionDisplayName(collection) : ''
   const lastRefreshed = last_refreshed ? new Date(last_refreshed) : null
+
+  const isPlatform = site === 'chess.com' || site === 'lichess'
+  const isStudy = site === 'lichess-study'
+  const isManual = !site
 
   const annotatedCount =
     db
@@ -109,7 +116,9 @@ const Collection: FC<Props> = async (props) => {
       id: g.id,
       url: g.url,
       lichessGameId: g.lichessGameId,
+      pgn: g.pgn,
       gameDttm: g.gameDttm && new Date(g.gameDttm),
+      createdAt: new Date(g.createdAt),
       whiteUsername: g.whiteUsername,
       blackUsername: g.blackUsername,
       whiteResult: g.whiteResult as ChesscomResult,
@@ -169,32 +178,57 @@ const Collection: FC<Props> = async (props) => {
         <AnalyticsHeroBanner collectionId={params.id} annotatedCount={annotatedCount} />
       )}
 
-      {/* Refresh button (site collections) */}
-      {isOwner && site && username && (
+      {/* Refresh button (platform collections) */}
+      {isOwner && isPlatform && username && (
         <div className="flex items-center gap-3 sm:ml-auto shrink-0 rounded-lg px-3 py-2">
           <LastRefreshedDisplay lastRefreshed={lastRefreshed} />
-          <RefreshButton collectionId={params.id} {...{site, username, timeClass, lastRefreshed}} />
+          <RefreshButton
+            collectionId={params.id}
+            {...{site: site as 'chess.com' | 'lichess', username, timeClass, lastRefreshed}}
+          />
         </div>
       )}
 
-      {/* Add game button (manual collections) */}
-      {isOwner && !site && (
+      {/* Action buttons (manual collections) */}
+      {isOwner && isManual && (
         <div className="flex items-center gap-3 mt-2">
           <AddGameButton collectionId={params.id} />
+          <ImportPgnModal
+            collectionId={params.id}
+            mode="file"
+            triggerLabel="Import PGN"
+            triggerClassName="btn btn-sm btn-outline"
+          />
         </div>
       )}
 
-      {/* Auto-refresh: fetch new games in the background */}
-      {isOwner && site && username && (
-        <AutoRefresh collectionId={params.id} {...{site, username, timeClass, lastRefreshed}} />
+      {/* Refresh from study (Lichess study collections) */}
+      {isOwner && isStudy && (
+        <div className="flex items-center gap-3 mt-2">
+          <LastRefreshedDisplay lastRefreshed={lastRefreshed} />
+          <ImportPgnModal
+            collectionId={params.id}
+            mode="study"
+            triggerLabel="Refresh from study"
+            triggerClassName="btn btn-sm btn-primary"
+          />
+        </div>
+      )}
+
+      {/* Auto-refresh: fetch new games in the background (platform collections only) */}
+      {isOwner && isPlatform && username && (
+        <AutoRefresh
+          collectionId={params.id}
+          {...{site: site as 'chess.com' | 'lichess', username, timeClass, lastRefreshed}}
+        />
       )}
 
       {/* Games List */}
       {gamesList.length > 0 ? (
         <div className="mt-6">
-          {gamesList.map((g) =>
-            g.gameDttm ? (
-              site === 'chess.com' ? (
+          {gamesList.map((g) => {
+            if (site === 'chess.com') {
+              return g.gameDttm ? (
                 <ChesscomGameAccordion
                   key={g.url ?? g.lichessGameId}
                   id={g.id}
@@ -212,7 +246,11 @@ const Collection: FC<Props> = async (props) => {
                   hasNotes={g.hasNotes}
                   isOwner={isOwner}
                 />
-              ) : site === 'lichess' ? (
+              ) : null
+            }
+
+            if (site === 'lichess') {
+              return g.gameDttm ? (
                 <LichessGameAccordion
                   key={g.lichessGameId}
                   id={g.id}
@@ -230,25 +268,50 @@ const Collection: FC<Props> = async (props) => {
                   hasNotes={g.hasNotes}
                   isOwner={isOwner}
                 />
-              ) : (
-                <ManualGameAccordion
+              ) : null
+            }
+
+            // Manual / Lichess-study collections: PGN-imported games render an interactive board,
+            // manually-added games (no stored PGN) render the metadata-only accordion.
+            if (g.pgn) {
+              return (
+                <PgnGameAccordion
                   key={g.id}
                   id={g.id}
-                  whitePlayer={g.whiteUsername!}
-                  blackPlayer={g.blackUsername!}
-                  gameDttm={g.gameDttm}
+                  whiteUsername={g.whiteUsername!}
+                  blackUsername={g.blackUsername!}
                   winner={g.winner as 'white' | 'black' | 'draw' | null}
+                  gameDttm={g.gameDttm || g.createdAt}
+                  eco={g.eco ?? null}
                   timeControl={g.timeControl ?? null}
-                  opening={g.eco ?? null}
-                  url={g.url ?? null}
+                  fen={g.fen!}
+                  pgn={g.pgn}
                   tagCount={g.tagCount}
                   hasNotes={g.hasNotes}
                   isOwner={isOwner}
                   initialOpen={g.id === expandGameId}
                 />
               )
-            ) : null,
-          )}
+            }
+
+            return g.gameDttm ? (
+              <ManualGameAccordion
+                key={g.id}
+                id={g.id}
+                whitePlayer={g.whiteUsername!}
+                blackPlayer={g.blackUsername!}
+                gameDttm={g.gameDttm}
+                winner={g.winner as 'white' | 'black' | 'draw' | null}
+                timeControl={g.timeControl ?? null}
+                opening={g.eco ?? null}
+                url={g.url ?? null}
+                tagCount={g.tagCount}
+                hasNotes={g.hasNotes}
+                isOwner={isOwner}
+                initialOpen={g.id === expandGameId}
+              />
+            ) : null
+          })}
         </div>
       ) : (
         !isAnalyticsOpen && (
@@ -256,15 +319,21 @@ const Collection: FC<Props> = async (props) => {
             <ChessBoardIcon className="w-12 h-12 text-base-content/20 mb-4" />
             <p className="text-base-content/50 text-lg mb-1">No games yet</p>
             <p className="text-base-content/40 text-sm">
-              {site ? (
+              {isPlatform ? (
                 <>
                   Click <span className="font-medium text-base-content/60">Refresh</span> to import
                   games from {siteName}
                 </>
+              ) : isStudy ? (
+                <>
+                  Click <span className="font-medium text-base-content/60">Refresh from study</span>{' '}
+                  to import games from the Lichess study
+                </>
               ) : (
                 <>
-                  Click <span className="font-medium text-base-content/60">+ Add game</span> to log
-                  your first game
+                  Click <span className="font-medium text-base-content/60">+ Add game</span> or{' '}
+                  <span className="font-medium text-base-content/60">Import PGN</span> to add your
+                  first game
                 </>
               )}
             </p>

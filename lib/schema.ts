@@ -43,8 +43,9 @@ export const collections = sqliteTable(
       .notNull()
       .references(() => users.id, {onDelete: 'cascade'}),
     name: text('name'),
-    site: text('site').$type<'lichess' | 'chess.com'>(), // ENUM as text with type assertion
+    site: text('site').$type<'lichess' | 'chess.com' | 'lichess-study'>(), // ENUM as text with type assertion
     username: text('username'),
+    studyId: text('study_id'), // Lichess study id (for 'lichess-study' collections)
     timeClass: text('time_class').$type<
       'ultraBullet' | 'bullet' | 'blitz' | 'rapid' | 'classical' | null
     >(), // Time class filter
@@ -73,6 +74,8 @@ export const games = sqliteTable(
     eco: text('eco'),
     fen: text('fen'),
     timeControl: text('time_control'),
+    pgn: text('pgn'), // Full game PGN (source of truth for moves on imported games)
+    importHash: text('import_hash'), // Dedup key for PGN imports (moves + key headers)
     clockInitial: integer('clock_initial'),
     clockIncrement: integer('clock_increment'),
     whiteUsername: text('white_username'),

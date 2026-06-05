@@ -50,7 +50,7 @@ const CollectionCard: FC<Props> = ({
               className="self-start inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-md mb-3 bg-base-300
                 text-base-content/70"
             >
-              {isChessCom ? 'Chess.com' : 'Lichess'}
+              {isChessCom ? 'Chess.com' : site === 'lichess-study' ? 'Lichess Study' : 'Lichess'}
             </div>
           ) : null}
 

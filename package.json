@@ -16,7 +16,7 @@
     "@visx/wordcloud": "^3.12.0",
     "bcrypt": "^6.0.0",
     "better-sqlite3": "^12.6.2",
-    "chess.js": "^1.0.0-beta.8",
+    "chess.js": "^1.4.0",
     "drizzle-orm": "^0.45.1",
     "lucia": "^3.2.2",
     "next": "16.1.4",

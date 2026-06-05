@@ -19,13 +19,21 @@ export async function createCollection(
   username: string,
   timeClass: TimeClass,
   name: string | null,
+  studyUrl: string | null = null,
 ) {
   const user = await requireAuth()
 
   const isPlatform = type === 'lichess' || type === 'chess.com'
+  const isStudy = type === 'lichess-study'
 
   if (isPlatform && !timeClass) {
     throw new Error('Time class is required for platform collections')
+  }
+
+  let studyId: string | null = null
+  if (isStudy) {
+    studyId = extractStudyId(studyUrl)
+    if (!studyId) throw new Error('Could not find a Lichess study id in that URL')
   }
 
   const collectionId = crypto.randomUUID()
@@ -35,12 +43,16 @@ export async function createCollection(
     .values({
       id: collectionId,
       ownerId: user.id,
-      name: isPlatform ? null : name?.trim() || 'Untitled collection',
+      name: isPlatform ? null : name?.trim() || (isStudy ? 'Lichess Study' : 'Untitled collection'),
       username: trimmedUsername || null,
-      site: isPlatform ? type : null,
+      site: isPlatform || isStudy ? type : null,
       timeClass: timeClass,
+      studyId,
     })
     .run()
+
+  // Study collections refresh manually (the import requires a game-selection step), so don't
+  // auto-import here.
 
   // Auto-import 5 most recent games for platform collections
   if (isPlatform && trimmedUsername) {
@@ -83,4 +95,17 @@ export async function createCollection(
 
   revalidatePath('/collections')
   redirect(`/collections/${collectionId}`)
+}
+
+/** Extract the 8-character study id from a Lichess study URL or a raw id. */
+function extractStudyId(input: string | null): string | null {
+  if (!input) return null
+  const trimmed = input.trim()
+
+  const urlMatch = trimmed.match(/lichess\.org\/study\/([A-Za-z0-9]{8})/)
+  if (urlMatch) return urlMatch[1]
+
+  if (/^[A-Za-z0-9]{8}$/.test(trimmed)) return trimmed
+
+  return null
 }
