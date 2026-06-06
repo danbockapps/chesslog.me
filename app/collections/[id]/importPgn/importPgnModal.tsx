@@ -104,29 +104,36 @@ const ImportPgnModal: FC<Props> = ({collectionId, mode, triggerLabel, triggerCla
   const newGames = preview?.filter((i) => !i.isDuplicate) ?? []
   const duplicates = preview?.filter((i) => i.isDuplicate) ?? []
 
-  const renderGame = (item: PgnImportPreviewItem) => (
-    <label
-      key={item.index}
-      className="flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-base-200 cursor-pointer"
-    >
-      <input
-        type="checkbox"
-        className="checkbox checkbox-sm"
-        checked={selected.has(item.index)}
-        onChange={() => toggle(item.index)}
-      />
-      <div className="min-w-0 flex-1">
-        <div className="truncate text-sm">
-          {item.white} vs. {item.black}
-          <span className="text-base-content/60"> · {item.result}</span>
+  const renderGame = (item: PgnImportPreviewItem) => {
+    // Duplicates can't be imported (the server skips them), so they get no checkbox.
+    const Wrapper = item.isDuplicate ? 'div' : 'label'
+    return (
+      <Wrapper
+        key={item.index}
+        className={`flex items-center gap-3 py-2 px-3 rounded-lg ${
+          item.isDuplicate ? 'opacity-60' : 'hover:bg-base-200 cursor-pointer' }`}
+      >
+        {!item.isDuplicate && (
+          <input
+            type="checkbox"
+            className="checkbox checkbox-sm"
+            checked={selected.has(item.index)}
+            onChange={() => toggle(item.index)}
+          />
+        )}
+        <div className="min-w-0 flex-1">
+          <div className="truncate text-sm">
+            {item.white} vs. {item.black}
+            <span className="text-base-content/60"> · {item.result}</span>
+          </div>
+          <div className="text-xs text-base-content/50 truncate">
+            {item.event && <>{item.event} · </>}
+            {item.date ?? 'No date'} · {item.moveCount} moves
+          </div>
         </div>
-        <div className="text-xs text-base-content/50 truncate">
-          {item.event && <>{item.event} · </>}
-          {item.date ?? 'No date'} · {item.moveCount} moves
-        </div>
-      </div>
-    </label>
-  )
+      </Wrapper>
+    )
+  }
 
   return (
     <>
