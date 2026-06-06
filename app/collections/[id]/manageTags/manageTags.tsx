@@ -36,7 +36,6 @@ const ManageTags: FC<Props> = (props) => {
 
   useEffect(() => {
     if (props.open) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       refresh()
     }
   }, [props.open, refresh])
