@@ -3,7 +3,7 @@
 import {useRouter} from 'next/navigation'
 import {FC, useState} from 'react'
 import {getStudyPgn, importPgnGames, previewPgnImport} from '../actions/pgnImportActions'
-import type {PgnImportPreviewItem} from '../actions/pgnImportActions'
+import type {PgnImportPreviewItem} from '@/lib/pgnImport'
 
 interface Props {
   collectionId: string

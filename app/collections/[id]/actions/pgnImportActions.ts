@@ -3,26 +3,16 @@
 import {requireAuth} from '@/lib/auth'
 import {db} from '@/lib/db'
 import {
-  derivePlayers,
+  buildPgnImportPreview,
   extractStudyName,
   parsePgnGame,
   splitPgnGames,
   transformPgnGame,
+  type PgnImportPreviewItem,
 } from '@/lib/pgnImport'
 import {collections, games} from '@/lib/schema'
 import {and, eq, isNotNull} from 'drizzle-orm'
 import {revalidatePath} from 'next/cache'
-
-export interface PgnImportPreviewItem {
-  index: number
-  white: string
-  black: string
-  date: string | null
-  result: string
-  event: string
-  moveCount: number
-  isDuplicate: boolean
-}
 
 async function requireOwnedCollection(collectionId: string) {
   const user = await requireAuth()
@@ -50,33 +40,7 @@ export async function previewPgnImport(
   pgnText: string,
 ): Promise<PgnImportPreviewItem[]> {
   await requireOwnedCollection(collectionId)
-
-  const existing = existingHashes(collectionId)
-  const seenInFile = new Set<string>()
-
-  return splitPgnGames(pgnText)
-    .map((gameText, index) => {
-      const parsed = parsePgnGame(gameText)
-      if (!parsed) return null
-
-      // A game already in the collection, or repeated earlier in this same file, is a duplicate.
-      const isDuplicate = existing.has(parsed.importHash) || seenInFile.has(parsed.importHash)
-      seenInFile.add(parsed.importHash)
-
-      const {white, black} = derivePlayers(parsed.headers)
-
-      return {
-        index,
-        white,
-        black,
-        date: parsed.headers.Date ?? parsed.headers.UTCDate ?? null,
-        result: parsed.headers.Result ?? '*',
-        event: parsed.headers.Event ?? '',
-        moveCount: parsed.sanMoves.length,
-        isDuplicate,
-      } satisfies PgnImportPreviewItem
-    })
-    .filter((item): item is PgnImportPreviewItem => item !== null)
+  return buildPgnImportPreview(pgnText, existingHashes(collectionId))
 }
 
 /** Insert the selected games (by split index), skipping any whose content is already present. */

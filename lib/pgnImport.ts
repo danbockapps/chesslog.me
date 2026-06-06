@@ -11,6 +11,17 @@ export interface ParsedPgnGame {
   importHash: string
 }
 
+export interface PgnImportPreviewItem {
+  index: number
+  white: string
+  black: string
+  date: string | null
+  result: string
+  event: string
+  moveCount: number
+  isDuplicate: boolean
+}
+
 /**
  * Split a multi-game PGN file into individual game strings.
  *
@@ -79,6 +90,42 @@ export function parsePgnGame(gameText: string): ParsedPgnGame | null {
   } catch {
     return null
   }
+}
+
+/**
+ * Classify every game in a PGN file as new or already-present, given the set of import hashes
+ * already in the target collection. A game is a duplicate if its content hash is already in the
+ * collection, or if the same content appeared earlier in this same file. Unparseable games are
+ * dropped. The returned `index` is the position within the split file (so it survives the drop).
+ */
+export function buildPgnImportPreview(
+  pgnText: string,
+  existingHashes: Set<string>,
+): PgnImportPreviewItem[] {
+  const seenInFile = new Set<string>()
+
+  return splitPgnGames(pgnText)
+    .map((gameText, index): PgnImportPreviewItem | null => {
+      const parsed = parsePgnGame(gameText)
+      if (!parsed) return null
+
+      const isDuplicate = existingHashes.has(parsed.importHash) || seenInFile.has(parsed.importHash)
+      seenInFile.add(parsed.importHash)
+
+      const {white, black} = derivePlayers(parsed.headers)
+
+      return {
+        index,
+        white,
+        black,
+        date: parsed.headers.Date ?? parsed.headers.UTCDate ?? null,
+        result: parsed.headers.Result ?? '*',
+        event: parsed.headers.Event ?? '',
+        moveCount: parsed.sanMoves.length,
+        isDuplicate,
+      }
+    })
+    .filter((item): item is PgnImportPreviewItem => item !== null)
 }
 
 /**
