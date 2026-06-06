@@ -103,6 +103,12 @@ export function computeImportHash(
   return createHash('sha256').update(key).digest('hex')
 }
 
+/** Extract the [StudyName "..."] header from a (possibly multi-game) Lichess study PGN, or null. */
+export function extractStudyName(pgn: string): string | null {
+  const match = pgn.match(/\[StudyName\s+"([^"]*)"\]/)
+  return match && match[1] ? match[1] : null
+}
+
 /** Convert a parsed PGN game into a row for the `games` table. */
 export function transformPgnGame(
   parsed: ParsedPgnGame,

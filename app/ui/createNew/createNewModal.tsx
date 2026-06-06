@@ -42,7 +42,7 @@ const CreateNewModal: FC<Props> = (props) => {
         type,
         username,
         timeClass,
-        type === 'manual' || type === 'lichess-study' ? name : null,
+        type === 'manual' ? name : null,
         type === 'lichess-study' ? studyUrl : null,
       )
     } catch {
@@ -75,9 +75,7 @@ const CreateNewModal: FC<Props> = (props) => {
           {step === 'name' && <StepName {...{setStep, setType, name, setName, create, loading}} />}
 
           {step === 'studyUrl' && (
-            <StepStudyUrl
-              {...{setStep, setType, studyUrl, setStudyUrl, name, setName, create, loading}}
-            />
+            <StepStudyUrl {...{setStep, setType, studyUrl, setStudyUrl, create, loading}} />
           )}
         </div>
       </div>

@@ -9,6 +9,7 @@ import {
   transformChesscomGame,
   transformLichessGame,
 } from '@/lib/gameImport'
+import {extractStudyName} from '@/lib/pgnImport'
 import {collections} from '@/lib/schema'
 import {revalidatePath} from 'next/cache'
 import {redirect} from 'next/navigation'
@@ -31,19 +32,28 @@ export async function createCollection(
   }
 
   let studyId: string | null = null
+  let studyName: string | null = null
   if (isStudy) {
     studyId = extractStudyId(studyUrl)
     if (!studyId) throw new Error('Could not find a Lichess study id in that URL')
+    // The collection is named after the study itself rather than a user-entered name.
+    studyName = await fetchStudyName(studyId)
   }
 
   const collectionId = crypto.randomUUID()
   const trimmedUsername = username.trim()
 
+  const collectionName = isPlatform
+    ? null
+    : isStudy
+      ? studyName || 'Lichess Study'
+      : name?.trim() || 'Untitled collection'
+
   db.insert(collections)
     .values({
       id: collectionId,
       ownerId: user.id,
-      name: isPlatform ? null : name?.trim() || (isStudy ? 'Lichess Study' : 'Untitled collection'),
+      name: collectionName,
       username: trimmedUsername || null,
       site: isPlatform || isStudy ? type : null,
       timeClass: timeClass,
@@ -95,6 +105,39 @@ export async function createCollection(
 
   revalidatePath('/collections')
   redirect(`/collections/${collectionId}`)
+}
+
+/**
+ * Fetch just enough of a study's PGN to read its [StudyName] header. Reads the stream and stops
+ * early (the header is in the first game), so large studies aren't downloaded in full. Returns null
+ * on any failure so collection creation still succeeds.
+ */
+async function fetchStudyName(studyId: string): Promise<string | null> {
+  try {
+    const res = await fetch(`https://lichess.org/api/study/${studyId}.pgn`, {
+      headers: {Authorization: 'Bearer ' + process.env.LICHESS_TOKEN},
+    })
+    if (!res.ok || !res.body) return null
+
+    const reader = res.body.getReader()
+    const decoder = new TextDecoder()
+    let buffer = ''
+    try {
+      while (buffer.length < 65536) {
+        const {done, value} = await reader.read()
+        if (done) break
+        buffer += decoder.decode(value, {stream: true})
+        const name = extractStudyName(buffer)
+        if (name) return name
+      }
+    } finally {
+      await reader.cancel().catch(() => {})
+    }
+    return extractStudyName(buffer)
+  } catch (e) {
+    console.error('Failed to fetch study name:', e)
+    return null
+  }
 }
 
 /** Extract the 8-character study id from a Lichess study URL or a raw id. */

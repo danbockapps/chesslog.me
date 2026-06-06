@@ -7,8 +7,6 @@ interface Props {
   setType: (type: Type) => void
   studyUrl: string
   setStudyUrl: (url: string) => void
-  name: string
-  setName: (name: string) => void
   create: () => void
   loading: boolean
 }
@@ -30,16 +28,9 @@ const StepStudyUrl: FC<Props> = (props) => (
       disabled={props.loading}
     />
     <p className="text-sm text-base-content/70">
-      Paste a study URL, e.g. https://lichess.org/study/abcd1234
+      Paste a study URL, e.g. https://lichess.org/study/abcd1234. The collection takes its name from
+      the study.
     </p>
-    <input
-      type="text"
-      placeholder="Collection name (optional)"
-      className="w-full p-2 border border-base-300 rounded bg-base-100 text-base-content"
-      value={props.name}
-      onChange={(e) => props.setName(e.target.value)}
-      disabled={props.loading}
-    />
     <button
       onClick={props.create}
       className="btn w-full"

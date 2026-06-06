@@ -2,7 +2,13 @@
 
 import {requireAuth} from '@/lib/auth'
 import {db} from '@/lib/db'
-import {derivePlayers, parsePgnGame, splitPgnGames, transformPgnGame} from '@/lib/pgnImport'
+import {
+  derivePlayers,
+  extractStudyName,
+  parsePgnGame,
+  splitPgnGames,
+  transformPgnGame,
+} from '@/lib/pgnImport'
 import {collections, games} from '@/lib/schema'
 import {and, eq, isNotNull} from 'drizzle-orm'
 import {revalidatePath} from 'next/cache'
@@ -98,10 +104,15 @@ export async function importPgnGames(
     db.insert(games).values(toInsert).run()
   }
 
-  // Study collections surface a "last refreshed" time; stamp it on every refresh-from-study.
+  // Study collections surface a "last refreshed" time; stamp it on every refresh-from-study and
+  // keep the collection named after the study in case it was renamed on Lichess.
   if (owned.studyId) {
+    const studyName = extractStudyName(pgnText)
     db.update(collections)
-      .set({lastRefreshed: new Date().toISOString()})
+      .set({
+        lastRefreshed: new Date().toISOString(),
+        ...(studyName ? {name: studyName} : {}),
+      })
       .where(eq(collections.id, collectionId))
       .run()
   }
