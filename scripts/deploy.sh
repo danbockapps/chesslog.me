@@ -10,7 +10,7 @@ cd "$(dirname "$0")/.."
 APP_NAME="chesslog.me"
 IMAGE_NAME="chesslog.me"
 DATA_DIR="/var/lib/chesslog.me"
-HOST_PORT=3001
+HOST_PORT=3002
 ENV_FILE="/etc/chesslog.me/env"
 
 # ---------------------------------------------------------------------------
