@@ -9,10 +9,10 @@ import {
   transformChesscomGame,
   transformLichessGame,
 } from '@/lib/gameImport'
+import {fetchLichessStudyPgn} from '@/lib/lichessStudy'
 import {extractStudyName} from '@/lib/pgnImport'
 import {collections} from '@/lib/schema'
 import {revalidatePath} from 'next/cache'
-import {redirect} from 'next/navigation'
 import {TimeClass, Type} from './createNewModal'
 
 export async function createCollection(
@@ -21,7 +21,7 @@ export async function createCollection(
   timeClass: TimeClass,
   name: string | null,
   studyUrl: string | null = null,
-) {
+): Promise<{error: string} | {collectionId: string}> {
   const user = await requireAuth()
 
   const isPlatform = type === 'lichess' || type === 'chess.com'
@@ -35,9 +35,13 @@ export async function createCollection(
   let studyName: string | null = null
   if (isStudy) {
     studyId = extractStudyId(studyUrl)
-    if (!studyId) throw new Error('Could not find a Lichess study id in that URL')
-    // The collection is named after the study itself rather than a user-entered name.
-    studyName = await fetchStudyName(studyId)
+    if (!studyId) return {error: 'Could not find a Lichess study id in that URL.'}
+    // Verify the study is reachable before creating a collection for it, and use its name. A
+    // private (or nonexistent) study can't be imported, so surface that instead of creating an
+    // empty, broken collection.
+    const result = await fetchStudyName(studyId)
+    if ('error' in result) return {error: result.error}
+    studyName = result.name
   }
 
   const collectionId = crypto.randomUUID()
@@ -104,40 +108,53 @@ export async function createCollection(
   }
 
   revalidatePath('/collections')
-  redirect(`/collections/${collectionId}`)
+  // The caller navigates client-side. Redirecting here works by throwing internally, which the
+  // caller's catch would surface as a spurious error as the page unmounts.
+  return {collectionId}
 }
 
 /**
- * Fetch just enough of a study's PGN to read its [StudyName] header. Reads the stream and stops
- * early (the header is in the first game), so large studies aren't downloaded in full. Returns null
- * on any failure so collection creation still succeeds.
+ * Fetch just enough of a study's PGN to read its [StudyName] header, while also confirming the
+ * study is accessible. Reads the stream and stops early (the header is in the first game), so large
+ * studies aren't downloaded in full.
+ *
+ * Returns `{error}` when the study can't be reached (private, deleted, or never existed) so the
+ * caller can refuse to create a broken collection. Returns `{name}` otherwise — `name` may be null
+ * if the study is reachable but its name couldn't be parsed, which is fine to fall back from.
  */
-async function fetchStudyName(studyId: string): Promise<string | null> {
+async function fetchStudyName(studyId: string): Promise<{name: string | null} | {error: string}> {
+  let res: Response
   try {
-    const res = await fetch(`https://lichess.org/api/study/${studyId}.pgn`, {
-      headers: {Authorization: 'Bearer ' + process.env.LICHESS_TOKEN},
-    })
-    if (!res.ok || !res.body) return null
-
-    const reader = res.body.getReader()
-    const decoder = new TextDecoder()
-    let buffer = ''
-    try {
-      while (buffer.length < 65536) {
-        const {done, value} = await reader.read()
-        if (done) break
-        buffer += decoder.decode(value, {stream: true})
-        const name = extractStudyName(buffer)
-        if (name) return name
-      }
-    } finally {
-      await reader.cancel().catch(() => {})
-    }
-    return extractStudyName(buffer)
+    res = await fetchLichessStudyPgn(studyId)
   } catch (e) {
     console.error('Failed to fetch study name:', e)
-    return null
+    return {error: "Couldn't reach Lichess to load that study. Please try again."}
   }
+
+  if (res.status === 401 || res.status === 403 || res.status === 404) {
+    return {
+      error:
+        "That Lichess study is private or doesn't exist. Set the study's visibility to public and try again.",
+    }
+  }
+  if (!res.ok) return {error: `Lichess returned an error (${res.status}) loading that study.`}
+  if (!res.body) return {name: null}
+
+  const reader = res.body.getReader()
+  const decoder = new TextDecoder()
+  let buffer = ''
+  try {
+    while (buffer.length < 65536) {
+      const {done, value} = await reader.read()
+      if (done) break
+      buffer += decoder.decode(value, {stream: true})
+      const name = extractStudyName(buffer)
+      if (name) return {name}
+    }
+  } finally {
+    await reader.cancel().catch(() => {})
+  }
+  return {name: extractStudyName(buffer)}
 }
 
 /** Extract the 8-character study id from a Lichess study URL or a raw id. */

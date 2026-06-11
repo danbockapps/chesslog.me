@@ -10,6 +10,7 @@ import {
   transformPgnGame,
   type PgnImportPreviewItem,
 } from '@/lib/pgnImport'
+import {fetchLichessStudyPgn} from '@/lib/lichessStudy'
 import {collections, games} from '@/lib/schema'
 import {and, eq, isNotNull} from 'drizzle-orm'
 import {revalidatePath} from 'next/cache'
@@ -93,13 +94,15 @@ export async function getStudyPgn(collectionId: string): Promise<string> {
   const owned = await requireOwnedCollection(collectionId)
   if (!owned.studyId) throw new Error('Collection has no associated Lichess study')
 
-  const url = `https://lichess.org/api/study/${owned.studyId}.pgn`
-  const res = await fetch(url, {
-    headers: {Authorization: 'Bearer ' + process.env.LICHESS_TOKEN},
-  })
+  const res = await fetchLichessStudyPgn(owned.studyId)
 
+  if (res.status === 401 || res.status === 403 || res.status === 404) {
+    throw new Error(
+      'That Lichess study is private or no longer exists. Set its visibility to public and try again.',
+    )
+  }
   if (!res.ok) {
-    throw new Error(`Lichess study API returned ${res.status}`)
+    throw new Error(`Lichess returned an error (${res.status}) loading that study.`)
   }
 
   return res.text()
