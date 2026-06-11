@@ -62,7 +62,10 @@ const CreateNewModal: FC<Props> = (props) => {
         return
       }
       // Keep the spinner up through navigation; the modal unmounts when the new page loads.
-      router.push(`/collections/${result.collectionId}`)
+      // Study collections don't auto-import, so signal the destination page to pop the import
+      // modal immediately rather than making the user hunt for "Refresh from study".
+      const dest = `/collections/${result.collectionId}`
+      router.push(type === 'lichess-study' ? `${dest}?import=study` : dest)
     } catch {
       setError('Something went wrong creating the collection. Please try again.')
       setLoading(false)

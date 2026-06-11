@@ -1,7 +1,7 @@
 'use client'
 
-import {useRouter} from 'next/navigation'
-import {FC, useState} from 'react'
+import {useRouter, useSearchParams} from 'next/navigation'
+import {FC, useCallback, useEffect, useRef, useState} from 'react'
 import {getStudyPgn, importPgnGames, previewPgnImport} from '../actions/pgnImportActions'
 import type {PgnImportPreviewItem} from '@/lib/pgnImport'
 
@@ -15,6 +15,7 @@ interface Props {
 
 const ImportPgnModal: FC<Props> = ({collectionId, mode, triggerLabel, triggerClassName}) => {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [isOpen, setIsOpen] = useState(false)
   const [pgnText, setPgnText] = useState('')
   const [preview, setPreview] = useState<PgnImportPreviewItem[] | null>(null)
@@ -39,28 +40,32 @@ const ImportPgnModal: FC<Props> = ({collectionId, mode, triggerLabel, triggerCla
     setIsOpen(false)
   }
 
-  const runPreview = async (text: string) => {
-    setLoading(true)
-    setError(null)
-    try {
-      const items = await previewPgnImport(collectionId, text)
-      if (items.length === 0) {
-        setError('No valid games found in this PGN.')
+  // Stable identities so the auto-open effect below can depend on them without re-firing each render.
+  const runPreview = useCallback(
+    async (text: string) => {
+      setLoading(true)
+      setError(null)
+      try {
+        const items = await previewPgnImport(collectionId, text)
+        if (items.length === 0) {
+          setError('No valid games found in this PGN.')
+          setLoading(false)
+          return
+        }
+        setPgnText(text)
+        setPreview(items)
+        // New games checked by default; duplicates unchecked.
+        setSelected(new Set(items.filter((i) => !i.isDuplicate).map((i) => i.index)))
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'Failed to read PGN')
+      } finally {
         setLoading(false)
-        return
       }
-      setPgnText(text)
-      setPreview(items)
-      // New games checked by default; duplicates unchecked.
-      setSelected(new Set(items.filter((i) => !i.isDuplicate).map((i) => i.index)))
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to read PGN')
-    } finally {
-      setLoading(false)
-    }
-  }
+    },
+    [collectionId],
+  )
 
-  const open = async () => {
+  const open = useCallback(async () => {
     setIsOpen(true)
     if (mode === 'study') {
       setLoading(true)
@@ -72,7 +77,19 @@ const ImportPgnModal: FC<Props> = ({collectionId, mode, triggerLabel, triggerCla
         setLoading(false)
       }
     }
-  }
+  }, [mode, collectionId, runPreview])
+
+  // When arriving straight from creating a study collection (?import=study), pop the import modal
+  // automatically. Strip the param first so a later manual page refresh doesn't re-trigger it, and
+  // guard with a ref so this only fires once.
+  const autoOpened = useRef(false)
+  useEffect(() => {
+    if (autoOpened.current) return
+    if (mode !== 'study' || searchParams.get('import') !== 'study') return
+    autoOpened.current = true
+    router.replace(`/collections/${collectionId}`, {scroll: false})
+    open()
+  }, [mode, searchParams, router, collectionId, open])
 
   const handleFile = async (file: File | undefined) => {
     if (!file) return
@@ -111,7 +128,8 @@ const ImportPgnModal: FC<Props> = ({collectionId, mode, triggerLabel, triggerCla
       <Wrapper
         key={item.index}
         className={`flex items-center gap-3 py-2 px-3 rounded-lg ${
-          item.isDuplicate ? 'opacity-60' : 'hover:bg-base-200 cursor-pointer' }`}
+          item.isDuplicate ? 'opacity-60' : 'hover:bg-base-200 cursor-pointer'
+        }`}
       >
         {!item.isDuplicate && (
           <input
@@ -207,7 +225,8 @@ const ImportPgnModal: FC<Props> = ({collectionId, mode, triggerLabel, triggerCla
               {duplicates.length > 0 && (
                 <div className="border-t border-base-300 pt-2">
                   <button
-                    className="flex items-center gap-2 text-sm text-base-content/70 hover:text-base-content"
+                    className="flex items-center gap-2 text-sm text-base-content/70
+                      hover:text-base-content"
                     onClick={() => setShowDuplicates((v) => !v)}
                   >
                     <span>{showDuplicates ? '▾' : '▸'}</span>
