@@ -15,8 +15,8 @@ const StepType: FC<Props> = (props) => (
         props.setType('manual')
         props.setStep('name')
       }}
-      className="w-full flex items-center justify-center h-14 bg-base-200 hover:bg-base-300 text-base-content p-4
-        rounded-lg border-0 cursor-pointer transition-colors mb-0"
+      className="w-full flex items-center justify-center h-14 bg-base-200 hover:bg-base-300
+        text-base-content p-4 rounded-lg border-0 cursor-pointer transition-colors mb-0"
     >
       <span className="flex-grow">Manual Collection</span>
     </button>
@@ -42,7 +42,7 @@ const StepType: FC<Props> = (props) => (
         props.setType('lichess')
         props.setStep('username')
       }}
-      className="w-full flex items-center justify-center gap-2 bg-lichess p-2 mt-4 rounded"
+      className="w-full flex items-center justify-center gap-2 bg-lichess p-2 mt-4 mb-0 rounded"
     >
       <Image src={lichessLogo} width={24} height={24} alt="Lichess" className="h-10 w-10 mr-2" />
       <span className="text-white">Lichess</span>
