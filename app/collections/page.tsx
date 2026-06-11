@@ -11,11 +11,10 @@ export const dynamic = 'force-dynamic'
 export default async function PrivatePage() {
   const user = await requireAuth()
 
-  const userCollections = db
-    .select()
-    .from(collections)
-    .where(eq(collections.ownerId, user.id))
-    .all()
+  const allCollections = db.select().from(collections).where(eq(collections.ownerId, user.id)).all()
+
+  const userCollections = allCollections.filter((c) => !c.deletedAt)
+  const deletedCollections = allCollections.filter((c) => c.deletedAt)
 
   // Total game count per collection
   const totalCounts = db
@@ -79,6 +78,37 @@ export default async function PrivatePage() {
 
         <CreateNew />
       </div>
+
+      {deletedCollections.length > 0 && (
+        <details className="mt-10 group">
+          <summary
+            className="flex items-center gap-2 cursor-pointer text-sm font-medium
+              text-base-content/60 hover:text-base-content/80 select-none w-fit"
+          >
+            <span className="transition-transform group-open:rotate-90">▶</span>
+            Deleted collections ({deletedCollections.length})
+          </summary>
+
+          <div className="grid grid-cols-2 gap-3 md:flex md:flex-wrap md:gap-4 mt-4">
+            {deletedCollections.map((c) => {
+              const displayName = getCollectionDisplayName(c)
+              return (
+                <CollectionCard
+                  key={c.id}
+                  id={c.id}
+                  title={displayName}
+                  site={c.site}
+                  username={c.username}
+                  timeClass={c.timeClass}
+                  totalGameCount={totalCountMap.get(c.id) ?? 0}
+                  loggedGameCount={loggedCountMap.get(c.id) ?? 0}
+                  deleted
+                />
+              )
+            })}
+          </div>
+        </details>
+      )}
     </div>
   )
 }

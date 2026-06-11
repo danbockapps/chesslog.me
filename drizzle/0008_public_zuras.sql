@@ -1,0 +1,1 @@
+ALTER TABLE `collections` ADD `deleted_at` text;

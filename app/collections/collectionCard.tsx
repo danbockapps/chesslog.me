@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import {FC} from 'react'
+import CollectionCardMenu from './collectionCardMenu'
 
 interface Props {
   id: string
@@ -10,6 +11,7 @@ interface Props {
   totalGameCount: number
   loggedGameCount: number
   className?: string
+  deleted?: boolean
 }
 
 const TIME_CLASS_LABELS: Record<string, string> = {
@@ -29,60 +31,78 @@ const CollectionCard: FC<Props> = ({
   totalGameCount,
   loggedGameCount,
   className,
+  deleted,
 }) => {
   const isChessCom = site === 'chess.com'
   const timeClassLabel = timeClass ? (TIME_CLASS_LABELS[timeClass] ?? timeClass) : null
 
-  return (
-    <Link href={`/collections/${id}`}>
-      <div
-        className={`group w-full md:w-80 h-48 flex flex-col rounded-xl bg-base-100 shadow-sm border border-base-200
-          hover:border-primary/40 hover:shadow-md transition-all duration-200 cursor-pointer overflow-hidden
-          ${className ?? ''}`}
-      >
-        {/* Top accent bar */}
-        <div className="h-1 shrink-0 bg-primary" />
+  const cardBody = (
+    <div
+      className={`w-full md:w-80 h-48 flex flex-col rounded-xl bg-base-100 shadow-sm border
+        border-base-200 overflow-hidden ${
+          deleted
+            ? 'opacity-60'
+            : 'cursor-pointer hover:border-primary/40 hover:shadow-md transition-all duration-200'
+        } ${className ?? ''}`}
+    >
+      {/* Top accent bar */}
+      <div className="h-1 shrink-0 bg-primary" />
 
-        <div className="p-4 flex flex-col flex-1">
-          {/* Platform badge */}
-          {site ? (
-            <div
-              className="self-start inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-md mb-3 bg-base-300
-                text-base-content/70"
-            >
-              {isChessCom ? 'Chess.com' : site === 'lichess-study' ? 'Lichess Study' : 'Lichess'}
-            </div>
-          ) : null}
-
-          {/* Title */}
-          <div className="flex-1 text-center flex flex-col justify-center items-center">
-            {username ? (
-              <>
-                <div className="font-semibold text-base-content text-lg leading-tight">
-                  {username}
-                </div>
-                <div className="text-sm text-base-content/50 mt-0.5">
-                  {timeClassLabel ? `${timeClassLabel} games` : 'All games'}
-                </div>
-              </>
-            ) : (
-              <div className="font-semibold text-base-content">{title}</div>
-            )}
+      <div className="p-4 flex flex-col flex-1">
+        {/* Platform badge */}
+        {site ? (
+          <div
+            className="self-start inline-flex items-center text-xs font-medium px-2 py-0.5
+              rounded-md mb-3 bg-base-300 text-base-content/70"
+          >
+            {isChessCom ? 'Chess.com' : site === 'lichess-study' ? 'Lichess Study' : 'Lichess'}
           </div>
+        ) : null}
 
-          {/* Stats */}
-          <div className="flex justify-between pt-3 md:px-4 border-t border-base-200">
-            <div className="text-center">
-              <div className="text-xl font-bold text-base-content">{totalGameCount}</div>
-              <div className="text-xs text-base-content/50">games</div>
-            </div>
-            <div className="text-center">
-              <div className="text-xl font-bold text-primary">{loggedGameCount}</div>
-              <div className="text-xs text-base-content/50">logged</div>
-            </div>
+        {/* Title */}
+        <div className="flex-1 text-center flex flex-col justify-center items-center">
+          {username ? (
+            <>
+              <div className="font-semibold text-base-content text-lg leading-tight">
+                {username}
+              </div>
+              <div className="text-sm text-base-content/50 mt-0.5">
+                {timeClassLabel ? `${timeClassLabel} games` : 'All games'}
+              </div>
+            </>
+          ) : (
+            <div className="font-semibold text-base-content">{title}</div>
+          )}
+        </div>
+
+        {/* Stats */}
+        <div className="flex justify-between pt-3 md:px-4 border-t border-base-200">
+          <div className="text-center">
+            <div className="text-xl font-bold text-base-content">{totalGameCount}</div>
+            <div className="text-xs text-base-content/50">games</div>
+          </div>
+          <div className="text-center">
+            <div className="text-xl font-bold text-primary">{loggedGameCount}</div>
+            <div className="text-xs text-base-content/50">logged</div>
           </div>
         </div>
       </div>
+    </div>
+  )
+
+  // Deleted collections are not navigable — only the restore action is available.
+  if (deleted) {
+    return (
+      <div className="relative block">
+        <CollectionCardMenu id={id} />
+        {cardBody}
+      </div>
+    )
+  }
+
+  return (
+    <Link href={`/collections/${id}`} className="group relative block">
+      {cardBody}
     </Link>
   )
 }

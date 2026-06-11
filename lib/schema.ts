@@ -50,6 +50,7 @@ export const collections = sqliteTable(
       'ultraBullet' | 'bullet' | 'blitz' | 'rapid' | 'classical' | null
     >(), // Time class filter
     lastRefreshed: text('last_refreshed'), // ISO8601 timestamp
+    deletedAt: text('deleted_at'), // ISO8601 timestamp; null = active, set = soft-deleted/archived
     createdAt: text('created_at')
       .notNull()
       .$defaultFn(() => new Date().toISOString()),

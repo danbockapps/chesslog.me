@@ -34,6 +34,48 @@ export const saveNotes = async (gameId: number, notes: string) => {
   revalidatePath(`/collections/${game.collectionId}`)
 }
 
+export const deleteCollection = async (collectionId: string) => {
+  const user = await requireAuth()
+
+  // Verify ownership
+  const collection = db
+    .select({id: collections.id})
+    .from(collections)
+    .where(and(eq(collections.id, collectionId), eq(collections.ownerId, user.id)))
+    .get()
+
+  if (!collection) {
+    throw new Error('Unauthorized: Collection not found or access denied')
+  }
+
+  // Soft delete: mark as deleted instead of removing
+  db.update(collections)
+    .set({deletedAt: new Date().toISOString()})
+    .where(eq(collections.id, collectionId))
+    .run()
+
+  revalidatePath('/collections')
+}
+
+export const restoreCollection = async (collectionId: string) => {
+  const user = await requireAuth()
+
+  // Verify ownership
+  const collection = db
+    .select({id: collections.id})
+    .from(collections)
+    .where(and(eq(collections.id, collectionId), eq(collections.ownerId, user.id)))
+    .get()
+
+  if (!collection) {
+    throw new Error('Unauthorized: Collection not found or access denied')
+  }
+
+  db.update(collections).set({deletedAt: null}).where(eq(collections.id, collectionId)).run()
+
+  revalidatePath('/collections')
+}
+
 export const insertTag = async (name: string) => {
   const user = await requireAuth()
 

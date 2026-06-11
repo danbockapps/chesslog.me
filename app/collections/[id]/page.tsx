@@ -15,6 +15,8 @@ import AnalyticsView from './analytics/analyticsView'
 import AnalyticsHeroBanner from './analyticsHeroBanner'
 import AutoRefresh from './autoRefresh'
 import ChesscomGameAccordion from './chesscom/gameAccordion'
+import CollectionMenu from './collectionMenu'
+import RestoreCollectionButton from './restoreCollectionButton'
 import ImportPgnModal from './importPgn/importPgnModal'
 import PgnGameAccordion from './importPgn/pgnGameAccordion'
 import LastRefreshedDisplay from './lastRefreshedDisplay'
@@ -48,6 +50,7 @@ const Collection: FC<Props> = async (props) => {
       studyId: collections.studyId,
       last_refreshed: collections.lastRefreshed,
       ownerId: collections.ownerId,
+      deletedAt: collections.deletedAt,
     })
     .from(collections)
     .where(eq(collections.id, params.id))
@@ -58,6 +61,40 @@ const Collection: FC<Props> = async (props) => {
   const {username, site, timeClass, studyId, last_refreshed} = collection ?? {}
   const displayName = collection ? getCollectionDisplayName(collection) : ''
   const lastRefreshed = last_refreshed ? new Date(last_refreshed) : null
+
+  // Deleted collections are hidden — show a note (and a restore option for the owner)
+  // instead of the collection contents.
+  if (collection?.deletedAt) {
+    return (
+      <div className="max-w-5xl mx-auto px-4 py-6 sm:px-6">
+        {isOwner && (
+          <Link
+            href="/collections"
+            className="inline-flex items-center gap-1.5 text-sm text-base-content/60
+              hover:text-base-content transition-colors"
+          >
+            <ArrowLeftIcon className="w-4 h-4" />
+            Collections
+          </Link>
+        )}
+
+        <div className="mt-12 flex flex-col items-center text-center py-16">
+          <ChessBoardIcon className="w-12 h-12 text-base-content/20 mb-4" />
+          <p className="text-base-content/50 text-lg mb-1">This collection has been deleted</p>
+          {isOwner ? (
+            <>
+              <p className="text-base-content/40 text-sm mb-6">
+                Restore it to view its games again.
+              </p>
+              <RestoreCollectionButton collectionId={params.id} />
+            </>
+          ) : (
+            <p className="text-base-content/40 text-sm">It is no longer available.</p>
+          )}
+        </div>
+      </div>
+    )
+  }
 
   const isPlatform = site === 'chess.com' || site === 'lichess'
   const isStudy = site === 'lichess-study'
@@ -150,8 +187,8 @@ const Collection: FC<Props> = async (props) => {
       {isOwner && (
         <Link
           href="/collections"
-          className="inline-flex items-center gap-1.5 text-sm text-base-content/60 hover:text-base-content
-            transition-colors"
+          className="inline-flex items-center gap-1.5 text-sm text-base-content/60
+            hover:text-base-content transition-colors"
         >
           <ArrowLeftIcon className="w-4 h-4" />
           Collections
@@ -162,8 +199,8 @@ const Collection: FC<Props> = async (props) => {
       <div className="mt-4 mb-6 flex items-center gap-3">
         {site && (
           <span
-            className={`shrink-0 inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium text-white
-            ${site === 'chess.com' ? 'bg-chesscom' : 'bg-lichess'}`}
+            className={`shrink-0 inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium
+            text-white ${site === 'chess.com' ? 'bg-chesscom' : 'bg-lichess'}`}
           >
             {siteName}
           </span>
@@ -171,6 +208,11 @@ const Collection: FC<Props> = async (props) => {
         <h1 className="font-display text-2xl sm:text-3xl font-semibold tracking-tight">
           {displayName}
         </h1>
+        {isOwner && (
+          <div className="ml-auto shrink-0">
+            <CollectionMenu collectionId={params.id} />
+          </div>
+        )}
       </div>
 
       {/* Analytics Hero Banner */}
