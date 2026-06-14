@@ -104,12 +104,12 @@ const ManageTags: FC<Props> = (props) => {
 
   return (
     <dialog className={`modal ${props.open ? 'modal-open' : ''}`}>
-      <div className="modal-box w-full max-w-3xl h-auto max-h-[90vh] p-0">
+      <div className="modal-box w-full max-w-3xl h-[90vh] p-0 flex flex-col">
         <div className="p-6 pb-4 relative">
           <SectionHeader title="Manage Tags" description="View and edit your tag descriptions" />
           <button
             onClick={props.close}
-            className="btn btn-ghost btn-sm btn-circle absolute top-2 right-2"
+            className="btn btn-ghost btn-circle absolute top-2 right-2 text-xl"
             aria-label="close"
           >
             ×
@@ -118,7 +118,7 @@ const ManageTags: FC<Props> = (props) => {
 
         <div className="divider m-0"></div>
 
-        <div className="px-6 py-4 overflow-auto max-h-[calc(90vh-120px)]">
+        <div className="px-6 py-4 overflow-auto flex-1">
           {/* Private Tags Section */}
           <div className="mb-8">
             <div className="flex items-center gap-2 mb-4">

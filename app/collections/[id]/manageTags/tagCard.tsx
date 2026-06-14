@@ -1,4 +1,3 @@
-import AppLink from '@/app/ui/link'
 import TagBadge from '@/app/ui/tagBadge'
 import {FC, useState} from 'react'
 
@@ -84,11 +83,7 @@ const TagCard: FC<Props> = ({
   }
 
   return (
-    <div
-      className={`p-4 bg-base-200 rounded-2xl border border-base-300 transition-all ${
-        !isPublic ? 'hover:border-primary hover:bg-base-300' : ''
-      }`}
-    >
+    <div className="p-4 bg-base-200 rounded-2xl border border-base-300">
       <div className="flex items-center gap-2 mb-2">
         <TagBadge name={name || ''} isPublic={isPublic} maxWidth="none" />
 
@@ -125,7 +120,21 @@ const TagCard: FC<Props> = ({
                       startRename()
                     }}
                   >
-                    Rename
+                    Edit name
+                  </button>
+                </li>
+              )}
+              {onEditDescription && (
+                <li>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      // Close the dropdown before showing the description dialog
+                      ;(document.activeElement as HTMLElement | null)?.blur()
+                      onEditDescription(id)
+                    }}
+                  >
+                    Edit description
                   </button>
                 </li>
               )}
@@ -197,19 +206,9 @@ const TagCard: FC<Props> = ({
         </div>
       ) : (
         <div className="pl-1">
-          {isPublic ? (
-            <p className="text-sm text-base-content/70 leading-relaxed">
-              {description || 'No description available'}
-            </p>
-          ) : (
-            <AppLink
-              onClick={() => onEditDescription?.(id)}
-              className="text-sm flex items-center gap-1 hover:gap-2 transition-all"
-            >
-              <span>✏️</span>
-              {description || 'Add description'}
-            </AppLink>
-          )}
+          <p className="text-sm text-base-content/70 leading-relaxed">
+            {description || 'No description available'}
+          </p>
         </div>
       )}
     </div>
