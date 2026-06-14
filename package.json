@@ -44,6 +44,7 @@
     "postcss": "^8",
     "prettier": "^3.8.4",
     "prettier-plugin-classnames": "^0.10.2",
+    "prettier-plugin-organize-imports": "^4.3.0",
     "tailwindcss": "^4.3.0",
     "typescript": "^5",
     "vitest": "^4.1.8"
@@ -54,6 +55,7 @@
     "printWidth": 100,
     "bracketSpacing": false,
     "plugins": [
+      "prettier-plugin-organize-imports",
       "prettier-plugin-classnames"
     ]
   },
