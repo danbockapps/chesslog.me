@@ -11,6 +11,7 @@ interface Props {
   onEditDescription?: (tagId: number) => void
   onDelete?: (tagId: number) => Promise<void> | void
   onRestore?: (tagId: number) => Promise<void> | void
+  onRename?: (tagId: number, name: string) => Promise<void> | void
 }
 
 const TagCard: FC<Props> = ({
@@ -22,8 +23,11 @@ const TagCard: FC<Props> = ({
   onEditDescription,
   onDelete,
   onRestore,
+  onRename,
 }) => {
   const [confirming, setConfirming] = useState(false)
+  const [renaming, setRenaming] = useState(false)
+  const [newName, setNewName] = useState(name ?? '')
   const [busy, setBusy] = useState(false)
 
   const handleDelete = async () => {
@@ -40,6 +44,22 @@ const TagCard: FC<Props> = ({
     setBusy(true)
     try {
       await onRestore?.(id)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const startRename = () => {
+    setNewName(name ?? '')
+    setRenaming(true)
+  }
+
+  const handleRename = async () => {
+    if (!newName.trim()) return
+    setBusy(true)
+    try {
+      await onRename?.(id, newName.trim())
+      setRenaming(false)
     } finally {
       setBusy(false)
     }
@@ -72,7 +92,7 @@ const TagCard: FC<Props> = ({
       <div className="flex items-center gap-2 mb-2">
         <TagBadge name={name || ''} isPublic={isPublic} maxWidth="none" />
 
-        {!isPublic && onDelete && !confirming && (
+        {!isPublic && onDelete && !confirming && !renaming && (
           <div className="dropdown dropdown-end ml-auto">
             <button
               tabIndex={0}
@@ -95,6 +115,20 @@ const TagCard: FC<Props> = ({
               className="dropdown-content menu z-10 mt-1 w-40 rounded-box bg-base-100 p-2 shadow-md
                 border border-base-200"
             >
+              {onRename && (
+                <li>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      // Close the dropdown before showing the inline rename input
+                      ;(document.activeElement as HTMLElement | null)?.blur()
+                      startRename()
+                    }}
+                  >
+                    Rename
+                  </button>
+                </li>
+              )}
               <li>
                 <button
                   type="button"
@@ -113,7 +147,37 @@ const TagCard: FC<Props> = ({
         )}
       </div>
 
-      {confirming ? (
+      {renaming ? (
+        <div className="pl-1 flex flex-col gap-3">
+          <input
+            type="text"
+            className="input input-bordered input-sm w-full"
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleRename()
+              if (e.key === 'Escape') setRenaming(false)
+            }}
+            autoFocus
+          />
+          <div className="flex gap-2 justify-end">
+            <button
+              className="btn btn-xs btn-ghost"
+              onClick={() => setRenaming(false)}
+              disabled={busy}
+            >
+              Cancel
+            </button>
+            <button
+              className="btn btn-xs btn-primary"
+              onClick={handleRename}
+              disabled={!newName.trim() || busy}
+            >
+              {busy ? 'Saving…' : 'Save'}
+            </button>
+          </div>
+        </div>
+      ) : confirming ? (
         <div className="pl-1 flex flex-col gap-3">
           <p className="text-sm text-base-content/70">
             Delete this tag? Deleted tags can be restored later.

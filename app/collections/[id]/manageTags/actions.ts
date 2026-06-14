@@ -30,6 +30,28 @@ export const saveTagDescription = async (tagId: number, description: string) => 
   db.update(tags).set({description}).where(eq(tags.id, tagId)).run()
 }
 
+export const renameTag = async (tagId: number, name: string) => {
+  const user = await requireAuth()
+
+  const trimmed = name.trim()
+  if (!trimmed) {
+    throw new Error('Tag name cannot be empty')
+  }
+
+  // Verify user owns this tag
+  const tag = db
+    .select({id: tags.id})
+    .from(tags)
+    .where(and(eq(tags.id, tagId), eq(tags.ownerId, user.id)))
+    .get()
+
+  if (!tag) {
+    throw new Error('Unauthorized: Tag not found or access denied')
+  }
+
+  db.update(tags).set({name: trimmed}).where(eq(tags.id, tagId)).run()
+}
+
 // Returns the current user's soft-deleted private tags
 export const getDeletedTags = async () => {
   const user = await requireAuth()

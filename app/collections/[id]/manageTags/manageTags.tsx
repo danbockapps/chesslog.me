@@ -1,7 +1,14 @@
 import SectionHeader from '@/app/ui/SectionHeader'
 import {FC, useCallback, useEffect, useState} from 'react'
 import {getTagsWithDetails} from '../actions/crudActions'
-import {createTag, deleteTag, getDeletedTags, restoreTag, saveTagDescription} from './actions'
+import {
+  createTag,
+  deleteTag,
+  getDeletedTags,
+  renameTag,
+  restoreTag,
+  saveTagDescription,
+} from './actions'
 import DescriptionDialog from './descriptionDialog'
 import TagCard from './tagCard'
 
@@ -70,6 +77,11 @@ const ManageTags: FC<Props> = (props) => {
 
   const handleRestoreTag = async (tagId: number) => {
     await restoreTag(tagId)
+    await refresh()
+  }
+
+  const handleRenameTag = async (tagId: number, name: string) => {
+    await renameTag(tagId, name)
     await refresh()
   }
 
@@ -162,6 +174,7 @@ const ManageTags: FC<Props> = (props) => {
                     isPublic={false}
                     onEditDescription={setDescToEdit}
                     onDelete={handleDeleteTag}
+                    onRename={handleRenameTag}
                   />
                 ))}
               </div>
