@@ -32,6 +32,7 @@ export const profiles = sqliteTable('profiles', {
     .references(() => users.id, {onDelete: 'cascade'}),
   firstName: text('first_name'),
   lastName: text('last_name'),
+  showPublicTags: integer('show_public_tags', {mode: 'boolean'}).notNull().default(true),
 })
 
 // Collections table - chess game collections

@@ -5,7 +5,6 @@ import {MultiValue} from 'react-select'
 import CreatableSelect from 'react-select/creatable'
 import {
   deleteGameTags,
-  getGameTags,
   getGameTagsWithDetails,
   getTagsWithDetails,
   insertGameTag,
@@ -29,15 +28,15 @@ const Tags: FC<Props> = (props) => {
   const [loading, setLoading] = useState(false)
   const [beenSaved, setBeenSaved] = useState(false)
   const [options, setOptions] = useState<Tag[]>([])
-  const [selectedTagIds, setSelectedTagIds] = useState<number[]>([])
+  const [selectedTags, setSelectedTags] = useState<Tag[]>([])
   const [readOnlyTags, setReadOnlyTags] = useState<Tag[]>([])
   const [manageOpen, setManageOpen] = useState(false)
 
   const refresh = useCallback(async () => {
     if (props.isOwner) {
-      const [newOptions, newSelectedTagIds] = await Promise.all([
+      const [newOptions, attached] = await Promise.all([
         getTagsWithDetails(),
-        getGameTags(props.gameId),
+        getGameTagsWithDetails(props.gameId),
       ])
       setOptions(
         (newOptions ?? []).sort(
@@ -45,7 +44,7 @@ const Tags: FC<Props> = (props) => {
             Number(a.public) - Number(b.public) || (a.name ?? '').localeCompare(b.name ?? ''),
         ),
       )
-      setSelectedTagIds(newSelectedTagIds ?? [])
+      setSelectedTags(attached ?? [])
     } else {
       setReadOnlyTags(await getGameTagsWithDetails(props.gameId))
     }
@@ -60,7 +59,10 @@ const Tags: FC<Props> = (props) => {
     return (
       <div>
         <SectionHeader title="Takeaways" description="Tags added by the collection owner" />
-        <div className="min-h-12 px-3 py-2 bg-base-100 border border-base-300 rounded-lg flex flex-wrap gap-1 items-center">
+        <div
+          className="min-h-12 px-3 py-2 bg-base-100 border border-base-300 rounded-lg flex flex-wrap
+            gap-1 items-center"
+        >
           {readOnlyTags.length === 0 ? (
             <span className="text-base-content/50 text-sm">No takeaways</span>
           ) : (
@@ -75,9 +77,10 @@ const Tags: FC<Props> = (props) => {
     )
   }
 
-  const selectedOptions =
-    values ??
-    (selectedTagIds.map((tagId) => options.find((tag) => tag.id === tagId)) as MultiValue<Tag>)
+  // The attached tags are themselves the selected values, so they render even
+  // when absent from `options` — e.g. a public tag already on the game while the
+  // user has public tags disabled.
+  const selectedOptions = values ?? (selectedTags as MultiValue<Tag>)
 
   return (
     <div>
@@ -157,7 +160,14 @@ const Tags: FC<Props> = (props) => {
         {loading ? 'Saving...' : beenSaved ? '✓ Takeaways saved' : ''}
       </div>
 
-      <ManageTags open={manageOpen} close={() => setManageOpen(false)} />
+      <ManageTags
+        open={manageOpen}
+        close={() => {
+          setManageOpen(false)
+          // Pick up any tag changes or public-tag preference change made in the modal
+          refresh()
+        }}
+      />
     </div>
   )
 }

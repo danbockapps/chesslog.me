@@ -1,0 +1,1 @@
+ALTER TABLE `profiles` ADD `show_public_tags` integer DEFAULT true NOT NULL;

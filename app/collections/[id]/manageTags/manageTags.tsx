@@ -5,9 +5,11 @@ import {
   createTag,
   deleteTag,
   getDeletedTags,
+  getShowPublicTags,
   renameTag,
   restoreTag,
   saveTagDescription,
+  setShowPublicTags,
 } from './actions'
 import DescriptionDialog from './descriptionDialog'
 import TagCard from './tagCard'
@@ -32,17 +34,29 @@ const ManageTags: FC<Props> = (props) => {
   const [newTagName, setNewTagName] = useState('')
   const [newTagDescription, setNewTagDescription] = useState('')
   const [saving, setSaving] = useState(false)
+  const [showPublic, setShowPublic] = useState(true)
 
   const refresh = useCallback(async () => {
     try {
       const byName = (a: Tag, b: Tag) => (a.name ?? '').localeCompare(b.name ?? '')
-      const [data, deleted] = await Promise.all([getTagsWithDetails(), getDeletedTags()])
+      const [data, deleted, showPublicPref] = await Promise.all([
+        getTagsWithDetails(),
+        getDeletedTags(),
+        getShowPublicTags(),
+      ])
       setTags(data.sort(byName))
       setDeletedTags(deleted.sort(byName))
+      setShowPublic(showPublicPref)
     } catch (error) {
       console.error('Error fetching tags:', error)
     }
   }, [])
+
+  const handleToggleShowPublic = async (value: boolean) => {
+    setShowPublic(value)
+    await setShowPublicTags(value)
+    await refresh()
+  }
 
   useEffect(() => {
     if (props.open) {
@@ -217,32 +231,50 @@ const ManageTags: FC<Props> = (props) => {
 
           <div className="divider my-6"></div>
 
-          {/* Public Tags Section */}
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <span className="text-base-content/70">🌐</span>
-              <h3 className="text-lg font-semibold">Public Tags</h3>
-              <span className="text-xs text-base-content/70 ml-1">(Available to all users)</span>
-            </div>
+          {/* Enable Public Tags toggle */}
+          <label className="flex items-center gap-3 cursor-pointer mb-6">
+            <input
+              type="checkbox"
+              className="toggle toggle-primary"
+              checked={showPublic}
+              onChange={(e) => handleToggleShowPublic(e.target.checked)}
+            />
+            <span className="flex flex-col">
+              <span className="font-medium">Enable public tags</span>
+              <span className="text-xs text-base-content/70">
+                Show shared tags as options when annotating games
+              </span>
+            </span>
+          </label>
 
-            {publicTags.length === 0 ? (
-              <p className="text-sm text-base-content/70 italic py-4 text-center">
-                No public tags available.
-              </p>
-            ) : (
-              <div className="flex flex-col gap-4">
-                {publicTags.map((t) => (
-                  <TagCard
-                    key={t.id}
-                    id={t.id}
-                    name={t.name}
-                    description={t.description}
-                    isPublic={true}
-                  />
-                ))}
+          {/* Public Tags Section */}
+          {showPublic && (
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <span className="text-base-content/70">🌐</span>
+                <h3 className="text-lg font-semibold">Public Tags</h3>
+                <span className="text-xs text-base-content/70 ml-1">(Available to all users)</span>
               </div>
-            )}
-          </div>
+
+              {publicTags.length === 0 ? (
+                <p className="text-sm text-base-content/70 italic py-4 text-center">
+                  No public tags available.
+                </p>
+              ) : (
+                <div className="flex flex-col gap-4">
+                  {publicTags.map((t) => (
+                    <TagCard
+                      key={t.id}
+                      id={t.id}
+                      name={t.name}
+                      description={t.description}
+                      isPublic={true}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {descToEdit && (

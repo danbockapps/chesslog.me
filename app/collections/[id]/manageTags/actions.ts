@@ -2,8 +2,27 @@
 
 import {requireAuth} from '@/lib/auth'
 import {db} from '@/lib/db'
-import {tags} from '@/lib/schema'
+import {profiles, tags} from '@/lib/schema'
 import {eq, and, isNull, isNotNull} from 'drizzle-orm'
+
+// Returns the user's "show public tags" preference (defaults to true)
+export const getShowPublicTags = async () => {
+  const user = await requireAuth()
+
+  const profile = db
+    .select({showPublicTags: profiles.showPublicTags})
+    .from(profiles)
+    .where(eq(profiles.id, user.id))
+    .get()
+
+  return profile?.showPublicTags ?? true
+}
+
+export const setShowPublicTags = async (value: boolean) => {
+  const user = await requireAuth()
+
+  db.update(profiles).set({showPublicTags: value}).where(eq(profiles.id, user.id)).run()
+}
 
 export const createTag = async (name: string, description: string) => {
   const user = await requireAuth()

@@ -2,7 +2,7 @@
 
 import {getUser, requireAuth} from '@/lib/auth'
 import {db} from '@/lib/db'
-import {collections, games, gameTags, tags} from '@/lib/schema'
+import {collections, games, gameTags, profiles, tags} from '@/lib/schema'
 import {and, eq, inArray, isNull, or} from 'drizzle-orm'
 import {revalidatePath} from 'next/cache'
 
@@ -160,6 +160,26 @@ export const getTags = async () => {
 export const getTagsWithDetails = async () => {
   const user = await getUser()
 
+  // This powers the tag *options* for the owner (the CreatableSelect and the
+  // Manage Tags modal), so in practice `user` is always the logged-in owner.
+  // Respect their "show public tags" preference (defaults to true): when off,
+  // only their own private tags are offered. (The non-owner read-only takeaways
+  // come from getGameTagsWithDetails, not this function.)
+  let visibility
+  if (!user) {
+    visibility = eq(tags.public, true)
+  } else {
+    const profile = db
+      .select({showPublicTags: profiles.showPublicTags})
+      .from(profiles)
+      .where(eq(profiles.id, user.id))
+      .get()
+    const showPublicTags = profile?.showPublicTags ?? true
+    visibility = showPublicTags
+      ? or(eq(tags.ownerId, user.id), eq(tags.public, true))
+      : eq(tags.ownerId, user.id)
+  }
+
   const userTags = db
     .select({
       id: tags.id,
@@ -168,26 +188,10 @@ export const getTagsWithDetails = async () => {
       public: tags.public,
     })
     .from(tags)
-    .where(
-      and(
-        user ? or(eq(tags.ownerId, user.id), eq(tags.public, true)) : eq(tags.public, true),
-        isNull(tags.deletedAt),
-      ),
-    )
+    .where(and(visibility, isNull(tags.deletedAt)))
     .all()
 
   return userTags
-}
-
-export const getGameTags = async (gameId: number) => {
-  const tagIds = db
-    .select({tagId: gameTags.tagId})
-    .from(gameTags)
-    .innerJoin(tags, eq(gameTags.tagId, tags.id))
-    .where(and(eq(gameTags.gameId, gameId), isNull(tags.deletedAt)))
-    .all()
-
-  return tagIds.map((t) => t.tagId)
 }
 
 export const getGameTagsWithDetails = async (gameId: number) => {
