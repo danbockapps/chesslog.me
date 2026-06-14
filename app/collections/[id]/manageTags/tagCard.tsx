@@ -206,9 +206,7 @@ const TagCard: FC<Props> = ({
         </div>
       ) : (
         <div className="pl-1">
-          <p className="text-sm text-base-content/70 leading-relaxed">
-            {description || 'No description available'}
-          </p>
+          <p className="text-sm text-base-content/70 leading-relaxed">{description || ''}</p>
         </div>
       )}
     </div>
