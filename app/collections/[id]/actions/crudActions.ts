@@ -3,7 +3,7 @@
 import {getUser, requireAuth} from '@/lib/auth'
 import {db} from '@/lib/db'
 import {collections, games, gameTags, tags} from '@/lib/schema'
-import {and, eq, inArray, or} from 'drizzle-orm'
+import {and, eq, inArray, isNull, or} from 'drizzle-orm'
 import {revalidatePath} from 'next/cache'
 
 export const getNotes = async (gameId: number) => {
@@ -151,7 +151,7 @@ export const getTags = async () => {
       name: tags.name,
     })
     .from(tags)
-    .where(or(eq(tags.ownerId, user.id), eq(tags.public, true)))
+    .where(and(or(eq(tags.ownerId, user.id), eq(tags.public, true)), isNull(tags.deletedAt)))
     .all()
 
   return userTags
@@ -168,7 +168,12 @@ export const getTagsWithDetails = async () => {
       public: tags.public,
     })
     .from(tags)
-    .where(user ? or(eq(tags.ownerId, user.id), eq(tags.public, true)) : eq(tags.public, true))
+    .where(
+      and(
+        user ? or(eq(tags.ownerId, user.id), eq(tags.public, true)) : eq(tags.public, true),
+        isNull(tags.deletedAt),
+      ),
+    )
     .all()
 
   return userTags
@@ -178,7 +183,8 @@ export const getGameTags = async (gameId: number) => {
   const tagIds = db
     .select({tagId: gameTags.tagId})
     .from(gameTags)
-    .where(eq(gameTags.gameId, gameId))
+    .innerJoin(tags, eq(gameTags.tagId, tags.id))
+    .where(and(eq(gameTags.gameId, gameId), isNull(tags.deletedAt)))
     .all()
 
   return tagIds.map((t) => t.tagId)
@@ -189,6 +195,6 @@ export const getGameTagsWithDetails = async (gameId: number) => {
     .select({id: tags.id, name: tags.name, public: tags.public})
     .from(gameTags)
     .innerJoin(tags, eq(gameTags.tagId, tags.id))
-    .where(eq(gameTags.gameId, gameId))
+    .where(and(eq(gameTags.gameId, gameId), isNull(tags.deletedAt)))
     .all()
 }

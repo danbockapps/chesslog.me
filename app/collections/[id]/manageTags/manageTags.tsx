@@ -1,7 +1,7 @@
 import SectionHeader from '@/app/ui/SectionHeader'
 import {FC, useCallback, useEffect, useState} from 'react'
 import {getTagsWithDetails} from '../actions/crudActions'
-import {createTag, saveTagDescription} from './actions'
+import {createTag, deleteTag, getDeletedTags, restoreTag, saveTagDescription} from './actions'
 import DescriptionDialog from './descriptionDialog'
 import TagCard from './tagCard'
 
@@ -19,6 +19,7 @@ type Tag = {
 
 const ManageTags: FC<Props> = (props) => {
   const [tags, setTags] = useState<Tag[]>([])
+  const [deletedTags, setDeletedTags] = useState<Tag[]>([])
   const [descToEdit, setDescToEdit] = useState<number | null>(null)
   const [addingTag, setAddingTag] = useState(false)
   const [newTagName, setNewTagName] = useState('')
@@ -27,8 +28,10 @@ const ManageTags: FC<Props> = (props) => {
 
   const refresh = useCallback(async () => {
     try {
-      const data = await getTagsWithDetails()
-      setTags(data.sort((a, b) => (a.name ?? '').localeCompare(b.name ?? '')))
+      const byName = (a: Tag, b: Tag) => (a.name ?? '').localeCompare(b.name ?? '')
+      const [data, deleted] = await Promise.all([getTagsWithDetails(), getDeletedTags()])
+      setTags(data.sort(byName))
+      setDeletedTags(deleted.sort(byName))
     } catch (error) {
       console.error('Error fetching tags:', error)
     }
@@ -58,6 +61,16 @@ const ManageTags: FC<Props> = (props) => {
     setAddingTag(false)
     setNewTagName('')
     setNewTagDescription('')
+  }
+
+  const handleDeleteTag = async (tagId: number) => {
+    await deleteTag(tagId)
+    await refresh()
+  }
+
+  const handleRestoreTag = async (tagId: number) => {
+    await restoreTag(tagId)
+    await refresh()
   }
 
   const privateTags = tags.filter((t) => !t.public)
@@ -96,7 +109,10 @@ const ManageTags: FC<Props> = (props) => {
             </div>
 
             {addingTag && (
-              <div className="bg-base-200 border border-base-300 rounded-2xl p-4 mb-4 flex flex-col gap-3">
+              <div
+                className="bg-base-200 border border-base-300 rounded-2xl p-4 mb-4 flex flex-col
+                  gap-3"
+              >
                 <input
                   type="text"
                   className="input input-bordered input-sm w-full"
@@ -145,11 +161,46 @@ const ManageTags: FC<Props> = (props) => {
                     description={t.description}
                     isPublic={false}
                     onEditDescription={setDescToEdit}
+                    onDelete={handleDeleteTag}
                   />
                 ))}
               </div>
             )}
           </div>
+
+          {/* Deleted Tags Section (collapsed by default) */}
+          {deletedTags.length > 0 && (
+            <>
+              <div className="divider my-6"></div>
+              <div
+                className="collapse collapse-arrow bg-base-200 border border-base-300 rounded-2xl"
+              >
+                <input type="checkbox" />
+                <div className="collapse-title flex items-center gap-2 font-semibold">
+                  <span className="text-base-content/70">🗑️</span>
+                  Deleted Tags
+                  <span className="text-xs font-normal text-base-content/70">
+                    ({deletedTags.length})
+                  </span>
+                </div>
+                <div className="collapse-content">
+                  <div className="flex flex-col gap-4 pt-2">
+                    {deletedTags.map((t) => (
+                      <TagCard
+                        key={t.id}
+                        id={t.id}
+                        name={t.name}
+                        description={t.description}
+                        isPublic={false}
+                        isDeleted
+                        onRestore={handleRestoreTag}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
 
           <div className="divider my-6"></div>
 

@@ -1,6 +1,6 @@
 import {db} from '@/lib/db'
 import {games, gameTags, tags} from '@/lib/schema'
-import {and, desc, eq, inArray, or} from 'drizzle-orm'
+import {and, desc, eq, inArray, isNull, or} from 'drizzle-orm'
 
 interface Game {
   id: number
@@ -111,6 +111,7 @@ export default async function ReadOnlySummary({
           allGames.map((g) => g.id),
         ),
         or(eq(tags.ownerId, userId), eq(tags.public, true)),
+        isNull(tags.deletedAt),
       ),
     )
     .all()

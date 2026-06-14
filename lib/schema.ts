@@ -111,6 +111,7 @@ export const tags = sqliteTable(
       .notNull()
       .references(() => users.id, {onDelete: 'cascade'}),
     public: integer('public', {mode: 'boolean'}).notNull().default(false),
+    deletedAt: text('deleted_at'), // ISO8601 timestamp; null = active, set = soft-deleted
     createdAt: text('created_at')
       .notNull()
       .$defaultFn(() => new Date().toISOString()),

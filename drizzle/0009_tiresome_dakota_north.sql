@@ -1,0 +1,1 @@
+ALTER TABLE `tags` ADD `deleted_at` text;

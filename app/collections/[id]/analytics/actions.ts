@@ -2,7 +2,7 @@
 
 import {db} from '@/lib/db'
 import {games, gameTags, tags} from '@/lib/schema'
-import {and, desc, eq, or, sql} from 'drizzle-orm'
+import {and, desc, eq, isNull, or, sql} from 'drizzle-orm'
 
 export interface TagStat {
   name: string
@@ -36,6 +36,7 @@ export async function getTagDistribution(collectionId: string, userId: string): 
       and(
         eq(games.collectionId, collectionId),
         or(eq(tags.ownerId, userId), eq(tags.public, true)),
+        isNull(tags.deletedAt),
       ),
     )
     .groupBy(tags.id)
