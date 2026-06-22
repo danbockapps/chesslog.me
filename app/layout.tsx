@@ -16,6 +16,10 @@ const cormorant = Cormorant_Garamond({
 export const metadata: Metadata = {
   title: 'chesslog.me',
   description: 'Log your chess games',
+  // Use a gray icon in dev so the tab is easy to tell apart from production
+  icons: {
+    icon: process.env.NODE_ENV === 'development' ? '/icon-dev.svg' : '/icon.svg',
+  },
 }
 
 export default function RootLayout({
