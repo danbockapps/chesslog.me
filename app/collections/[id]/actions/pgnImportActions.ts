@@ -98,7 +98,7 @@ export async function getStudyPgn(collectionId: string): Promise<string> {
 
   if (res.status === 401 || res.status === 403 || res.status === 404) {
     throw new Error(
-      'That Lichess study is private or no longer exists. Set its visibility to public and try again.',
+      'That Lichess study is private or no longer exists. Studies must be unlisted or public to be imported.',
     )
   }
   if (!res.ok) {

@@ -134,7 +134,7 @@ async function fetchStudyName(studyId: string): Promise<{name: string | null} | 
   if (res.status === 401 || res.status === 403 || res.status === 404) {
     return {
       error:
-        "That Lichess study is private or doesn't exist. Set the study's visibility to public and try again.",
+        "That Lichess study is private or doesn't exist. Studies must be unlisted or public to be imported.",
     }
   }
   if (!res.ok) return {error: `Lichess returned an error (${res.status}) loading that study.`}

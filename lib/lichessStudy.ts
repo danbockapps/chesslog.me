@@ -17,7 +17,9 @@ export async function fetchLichessStudyPgn(studyId: string): Promise<Response> {
   const token = process.env.LICHESS_TOKEN
   if (!token) return res
 
-  // The first response is unauthorized; release its body before retrying with auth.
-  await res.body?.cancel().catch(() => {})
+  // The first response is unauthorized; drain its body before retrying with auth. We read the body
+  // to completion rather than calling res.body.cancel(): under Next.js's instrumented fetch, the
+  // stream's cancel() never resolves, which would hang collection creation indefinitely.
+  await res.text().catch(() => {})
   return fetch(url, {headers: {Authorization: `Bearer ${token}`}})
 }
