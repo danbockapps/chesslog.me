@@ -68,7 +68,7 @@ export async function createCollection(
   // Study collections refresh manually (the import requires a game-selection step), so don't
   // auto-import here.
 
-  // Auto-import 5 most recent games for platform collections
+  // Auto-import 20 most recent games for platform collections
   if (isPlatform && trimmedUsername) {
     try {
       if (type === 'chess.com') {
@@ -82,13 +82,13 @@ export async function createCollection(
         const gamesData = data.games
           .filter((g) => !timeClass || g.time_class === timeClass)
           .sort((a, b) => b.end_time - a.end_time)
-          .slice(0, 5)
+          .slice(0, 20)
           .map((g) => transformChesscomGame(g, collectionId))
 
         saveGames(gamesData, collectionId, 'chesscom')
       } else if (type === 'lichess') {
         const params: Record<string, string> = {
-          max: '5',
+          max: '20',
           moves: 'false',
           opening: 'true',
           lastFen: 'true',

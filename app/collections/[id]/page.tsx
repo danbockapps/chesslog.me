@@ -21,6 +21,7 @@ import ImportPgnModal from './importPgn/importPgnModal'
 import PgnGameAccordion from './importPgn/pgnGameAccordion'
 import LastRefreshedDisplay from './lastRefreshedDisplay'
 import LichessGameAccordion from './lichess/gameAccordion'
+import LoadOlderGamesButton from './loadOlderGamesButton'
 import AddGameButton from './manual/addGameButton'
 import ManualGameAccordion from './manual/gameAccordion'
 import RefreshButton from './refreshButton'
@@ -381,6 +382,12 @@ const Collection: FC<Props> = async (props) => {
             </p>
           </div>
         )
+      )}
+
+      {/* Load older games (platform collections): once at the end of the list, fetch games
+          earlier than the earliest one currently stored. */}
+      {isOwner && isPlatform && gamesList.length > 0 && !hasNextPage && (
+        <LoadOlderGamesButton collectionId={params.id} />
       )}
 
       {/* Pagination */}
