@@ -46,7 +46,8 @@ const Notes: FC<Props> = (props) => {
           </div>
 
           <button
-            className="btn self-end w-32 whitespace-nowrap"
+            className="btn self-end w-32 whitespace-nowrap relative"
+            disabled={loading}
             onClick={async () => {
               setLoading(true)
               await saveNotes(props.gameId, notes)
@@ -55,8 +56,10 @@ const Notes: FC<Props> = (props) => {
               props.onNotesChange?.(notes.trim() !== '')
             }}
           >
-            {loading && <span className="loading loading-spinner"></span>}
-            Save notes
+            {loading && (
+              <span className="loading loading-spinner absolute left-1/2 -translate-x-1/2"></span>
+            )}
+            <span className={loading ? 'opacity-30' : ''}>Save notes</span>
           </button>
         </div>
       )}
