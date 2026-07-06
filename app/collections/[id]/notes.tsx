@@ -31,7 +31,8 @@ const Notes: FC<Props> = (props) => {
         description="Any thoughts you want to remember about this game"
       />
       <textarea
-        className="self-stretch flex-1 p-2 mb-2 border border-base-300 rounded bg-base-100 text-base-content"
+        className="self-stretch flex-1 p-2 mb-2 border border-base-300 rounded bg-base-100
+          text-base-content"
         value={notes ?? ''}
         onChange={(e) => setNotes(e.target.value)}
         disabled={loading || !props.isOwner}
@@ -45,7 +46,7 @@ const Notes: FC<Props> = (props) => {
           </div>
 
           <button
-            className="btn self-end w-32"
+            className="btn self-end w-32 whitespace-nowrap"
             onClick={async () => {
               setLoading(true)
               await saveNotes(props.gameId, notes)
