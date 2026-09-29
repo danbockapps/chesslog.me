@@ -209,11 +209,19 @@ const Collection: FC<Props> = async (props) => {
         <h1 className="font-display text-2xl sm:text-3xl font-semibold tracking-tight">
           {displayName}
         </h1>
-        {isOwner && (
-          <div className="ml-auto shrink-0">
-            <CollectionMenu collectionId={params.id} />
-          </div>
-        )}
+        <div className="ml-auto shrink-0 flex items-center gap-2">
+          {annotatedCount > 0 && (
+            <Link
+              href={`/collections/${params.id}/export`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-sm btn-outline"
+            >
+              Export
+            </Link>
+          )}
+          {isOwner && <CollectionMenu collectionId={params.id} />}
+        </div>
       </div>
 
       {/* Analytics Hero Banner */}
