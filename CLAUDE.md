@@ -2,478 +2,52 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+Last trimmed: 2026-09-29. Details omitted here (schema, directory layout, API shapes) live in the code: see `lib/schema.ts`, `drizzle/*.sql`, and `app/`.
+
 ## Project Overview
 
-chesslog.me is a Next.js 16 application for tracking and analyzing chess games from Chess.com and Lichess. Users can import games, add notes, create tags, and review game positions using an interactive chess board.
+chesslog.me is a Next.js 16 app (App Router, React 19, TypeScript strict) for tracking and analyzing chess games from Chess.com and Lichess: import games, add notes, tag them, and review positions on an interactive board. Stack: Tailwind v4 + daisyUI, SQLite (better-sqlite3) + Drizzle ORM, Lucia Auth (cookie sessions), chess.js + react-chessboard. Deployed as a standalone Docker container.
 
-## Development Commands
+## Development
 
-**Package Manager:** This project uses Yarn 1.22.22 (configured in `packageManager` field)
+**Package manager:** Yarn 1.22.22. The dev and start servers run on **port 3002** (matches the server).
 
 ```bash
-# Development
-yarn dev                    # Start dev server on http://localhost:3000
-yarn build                  # Build production bundle
-yarn start                  # Start production server
-yarn lint                   # Run ESLint
-
-# Database (Drizzle ORM)
-yarn drizzle-kit generate   # Generate migration from schema changes
-yarn drizzle-kit migrate    # Run migrations
-yarn drizzle-kit studio     # Open Drizzle Studio (database GUI)
-
-# Docker
-docker build -t chesslog.me .
-docker run -p 3000:3000 chesslog.me
+yarn dev                    # http://localhost:3002
+yarn build / yarn start / yarn lint
+yarn drizzle-kit generate   # after editing lib/schema.ts
+yarn drizzle-kit migrate
 ```
 
-## Architecture Overview
+**Env vars:** `DATABASE_PATH` (default `./data/database.db`), `LICHESS_TOKEN` (Lichess API bearer token).
 
-### Tech Stack
+## Architecture
 
-- **Framework:** Next.js 16.1.4 with App Router
-- **React:** 19.2.3
-- **Language:** TypeScript (strict mode)
-- **Styling:** Tailwind CSS + daisyUI
-- **Database:** SQLite via better-sqlite3 + Drizzle ORM
-- **Authentication:** Lucia Auth (session-based, cookie sessions)
-- **Chess Logic:** chess.js + react-chessboard
-- **Deployment:** Docker container with standalone output
+- Server-first: Server Components read data via Drizzle (`db` from `@/lib/db`); mutations are Server Actions in `*/actions.ts` files. `'use client'` only for interactive UI. Call `revalidatePath()` after mutations.
+- Path alias: `@/*` maps to the project root.
+- Next.js 16: middleware is `proxy.ts` (export named `proxy`). `cookies()` is async.
+- Auth helpers in `lib/auth.ts`: `requireAuth()` (redirects to `/login`) and `getUser()` (null if signed out). `proxy.ts` only redirects logged-in users away from `/login` and `/signup`; pages enforce their own auth.
 
-### Server-First Architecture
+### Access model
 
-This application heavily uses Next.js Server Components and Server Actions instead of traditional API routes:
+- `/collections` requires login (`requireAuth()` in the page).
+- `/collections/[id]` is public and read-only for non-owners. Compute `isOwner = user?.id === collection.ownerId` and pass it as a prop to gate edit UI.
+- Mutations call `requireAuth()` and verify ownership with an inline join check.
 
-- **Server Actions** located in `*/actions.ts` files handle all data mutations
-- **Server Components** fetch data directly using Drizzle ORM (`db` from `lib/db.ts`)
-- **Authentication** uses Lucia helpers (`requireAuth()`, `getUser()` from `lib/auth.ts`)
-- **Client Components** (`'use client'`) are only used for interactive UI (modals, forms, chess board)
-- Minimal client-side state management (React hooks only, no Redux/Zustand)
+### Data conventions
 
-### Directory Structure
+- Timestamps are ISO8601 text; booleans are 0/1 integers; IDs are UUID text, except `games.id` and `tags.id` (auto-increment integers).
+- Games are deduplicated by `url` (Chess.com) or `lichess_game_id` (Lichess) and upserted on import.
+- Chess.com moves are TCN-encoded (separate callback API, lazy-loaded by the board); Lichess uses standard algebraic notation.
+- Always import `db` from `@/lib/db`; never create another instance.
+- Use `.all()` for many rows, `.get()` for one, `.run()` for mutations.
 
-```
-lib/
-├── schema.ts              # Drizzle ORM schema definitions
-├── db.ts                  # SQLite database initialization
-└── auth.ts                # Lucia auth + helper functions
+### Tags
 
-drizzle/
-└── *.sql                  # Database migration files
+Private tags are editable only by their owner but visible in shared collections. Public tags (`public = 1`) are owned by the system user `system-00000000-0000-0000-0000-000000000000` and read-only for users. To add default public tags, write a migration inserting rows with that `owner_id`, `public = 1`, and a `description`.
 
-app/
-├── login/                 # Login page + server actions
-├── signup/                # Signup page + server actions
-├── collections/           # Collections list page
-│   ├── [id]/              # Collection detail (dynamic route)
-│   │   ├── actions/       # Server actions for game import/CRUD
-│   │   ├── chesscom/      # Chess.com game components
-│   │   └── lichess/       # Lichess game components
-│   └── context.tsx        # User context for child components
-├── ui/                    # Reusable UI components
-│   ├── createNew/         # Collection creation modal flow
-│   └── *.tsx              # Accordion, Card, Modal, Spinner, Link, etc.
-├── globals.css            # Global styles + Tailwind v4 + daisyUI configuration
-└── utils/                 # Utility functions
+## Style
 
-postcss.config.mjs         # PostCSS configuration for Tailwind v4
-```
-
-### Database Schema
-
-**Key Tables:**
-
-- `users` - User accounts (email + hashed password)
-- `sessions` - Active user sessions (managed by Lucia)
-- `profiles` - User profiles (1:1 with users)
-- `collections` - Game collections owned by users
-  - `site`: 'lichess' | 'chess.com' (stored as text)
-  - `username`: Chess platform username
-  - `last_refreshed`: ISO8601 timestamp
-- `games` - Individual chess games
-  - Belongs to a collection (cascade delete)
-  - Contains player info, ratings, ECO, FEN, time control
-  - `url` (Chess.com) or `lichess_game_id` (unique constraints)
-  - `notes`: User-written analysis
-- `tags` - Reusable tags/takeaways
-  - `public`: Boolean (if true, visible to all users)
-  - `owner_id`: Creator of the tag
-- `game_tags` - Many-to-many junction table
-
-**Data Types:**
-
-- IDs: UUIDs stored as text (except games.id and tags.id which are auto-increment integers)
-- Timestamps: ISO8601 strings in text columns
-- Booleans: Integers (0 = false, 1 = true)
-- Foreign keys: CASCADE on delete for data integrity
-
-**Database Migrations:** Located in `drizzle/*.sql`
-
-**Schema Definition:** Defined in `lib/schema.ts` using Drizzle ORM
-
-### Authentication Flow
-
-1. User signs up via `/signup` → `signup()` server action
-   - Creates user with bcrypt-hashed password
-   - Creates Lucia session
-   - Sets session cookie
-2. User logs in via `/login` → `login()` server action
-   - Verifies password with bcrypt
-   - Creates Lucia session and sets cookie
-3. Protected routes/actions call `requireAuth()` helper
-   - Validates session from cookie
-   - Auto-refreshes if session is fresh
-   - Redirects to `/login` if invalid
-4. Middleware (`proxy.ts`) redirects logged-in users away from `/login` and `/signup`
-   - Does NOT enforce auth on other routes — pages handle their own auth
-   - Collection detail pages (`/collections/[id]`) are publicly accessible (read-only for non-owners)
-
-**Helper Functions (from `lib/auth.ts`):**
-
-- `requireAuth()` - Get authenticated user or redirect (for Server Components/Actions)
-- `getUser()` - Get user without redirecting, returns null if not authenticated
-
-**Access model:**
-
-- `/collections` (list) — requires login; enforced via `requireAuth()` in the page
-- `/collections/[id]` (detail) — publicly accessible; ownership computed via `isOwner = user?.id === collection.ownerId` and passed as a prop to gate edit UI
-- Mutations (save notes, add/remove tags, import games, etc.) still call `requireAuth()` and verify ownership via an inline join check
-
-**Environment Variables Required:**
-
-- `DATABASE_PATH` - Path to SQLite database file (default: `./data/database.db`)
-- `LICHESS_TOKEN` - Bearer token for Lichess API (for importing games)
-
-### Game Import Flow
-
-1. User creates collection with Chess.com or Lichess username
-2. User clicks "Refresh" button on collection detail page
-3. Server action (`importChesscomGames` or `importLichessGames`) runs:
-   - Fetches games from external API (Chess.com: monthly archives, Lichess: user games endpoint)
-   - Transforms API response to match database schema
-   - Upserts games (conflict handled by unique constraint on URL/game ID)
-   - Updates `collections.last_refreshed` timestamp
-4. Page automatically revalidates via `revalidatePath()`
-
-**External API Endpoints:**
-
-- Chess.com: `https://api.chess.com/pub/player/{username}/games/{year}/{month}`
-- Chess.com moves: `https://www.chess.com/callback/live/game/{gameId}` (TCN format)
-- Lichess: `https://lichess.org/api/games/user/{username}` (NDJSON, requires bearer token)
-
-### Tag System
-
-The application includes a comprehensive tag system for categorizing and organizing games:
-
-**Tag Types:**
-
-- **Private tags**: Created by users, editable only by the creator. Visible to anyone viewing a shared collection (read-only).
-- **Public tags**: System-wide tags visible to all users, not editable by regular users
-
-**Default Public Tags:**
-The database includes default public tags owned by a system user (`system@chesslog.me`):
-
-- "Played too slow" - Burned too much time early in the game and got in time trouble
-- "Played too fast" - Made moves impatiently or without proper consideration
-- "Opening theory" - Got a bad position early due to lack of opening knowledge
-- "Middlegame strategy" - Didn't know the right strategy for my side in the middlegame
-- "Endgame strategy" - Didn't know the right strategy for my side in the endgame
-- "Loose pieces" - Left a piece unprotected and regretted it
-- "King safety" - Allowed weaknesses around my king and regretted it
-- "Allowed tactic" - Allowed a tactic by my opponent
-- "Missed tactic" - Had a win but I missed it
-
-**Tag Management:**
-
-- Tags can be created inline when annotating games (via `CreatableSelect` component)
-- Tags can be managed via the "Manage tags" modal
-- Private tag descriptions are editable by their owners
-- Public tag descriptions are read-only for regular users
-- Tags are associated with games via the `game_tags` junction table
-
-**Adding New Public Tags:**
-To add more default public tags, create a new migration that:
-
-1. Inserts tags with `owner_id = 'system-00000000-0000-0000-0000-000000000000'`
-2. Sets `public = 1` (true in SQL boolean format)
-3. Includes descriptive text in the `description` field
-
-### Chess Board Component
-
-- Located in `app/collections/[id]/chesscom/board.tsx`
-- Uses `chess.js` for move validation and position tracking
-- Uses `react-chessboard` for UI rendering
-- **Lazy loading:** Moves are only fetched when user first clicks navigation buttons
-- Supports forward/backward navigation through game moves
-- Stores Chess instance in `useRef` to persist across renders
-
-### TypeScript Path Aliases
-
-- `@/*` maps to project root (configured in `tsconfig.json`)
-- Example: `import {db} from '@/lib/db'`
-- Example: `import {requireAuth} from '@/lib/auth'`
-
-### Theme System
-
-The application uses **Tailwind CSS v4** with **daisyUI** for automatic light/dark mode switching based on system preferences.
-
-**Configuration:**
-
-The project uses Tailwind CSS v4's CSS-first configuration in `app/globals.css`. Custom light and dark themes are defined using `@plugin "daisyui/theme"` blocks with teal as the primary color:
-
-```css
-@import 'tailwindcss';
-@plugin "daisyui";
-
-/* Light theme with teal primary */
-@plugin "daisyui/theme" {
-  name: 'light';
-  default: true;
-  color-scheme: light;
-
-  --color-primary: oklch(0.6 0.118 185); /* teal-600 */
-  --color-primary-content: oklch(1 0 0); /* white */
-  --color-secondary: oklch(0.511 0.096 186); /* teal-700 */
-  --color-secondary-content: oklch(1 0 0); /* white */
-  --color-accent: oklch(0.704 0.14 183); /* teal-500 */
-  --color-accent-content: oklch(0.2 0 0); /* dark */
-}
-
-/* Dark theme with teal primary */
-@plugin "daisyui/theme" {
-  name: 'dark';
-  default: false;
-  prefersdark: true;
-  color-scheme: dark;
-
-  --color-primary: oklch(0.777 0.152 182); /* teal-400 */
-  --color-primary-content: oklch(0.2 0 0); /* dark */
-  --color-secondary: oklch(0.704 0.14 183); /* teal-500 */
-  --color-secondary-content: oklch(1 0 0); /* white */
-  --color-accent: oklch(0.6 0.118 185); /* teal-600 */
-  --color-accent-content: oklch(1 0 0); /* white */
-}
-
-@theme {
-  --color-chesscom: #2d2c28;
-  --color-lichess: #000000;
-}
-```
-
-**How it works:**
-
-1. **Theme Configuration**: Custom daisyUI themes define the app's color palette
-   - `light` theme is the default
-   - `dark` theme is applied automatically when `prefers-color-scheme: dark`
-   - Primary/secondary/accent colors use teal shades, adjusted for each theme
-   - Each semantic color has a corresponding `-content` variant for text
-   - No manual JavaScript required for theme switching
-
-2. **daisyUI Semantic Classes**: Use these throughout the app:
-   - Background: `bg-base-100`, `bg-base-200`, `bg-base-300`
-   - Text: `text-base-content`, `text-primary`, `text-secondary`
-   - Components: `btn btn-primary`, `modal`, `badge`, `toggle`, etc.
-   - Opacity variants work: `bg-primary/20`, `border-primary/50`
-   - All classes automatically adjust based on the active theme
-
-3. **Platform Colors**: Chess.com and Lichess brand colors are defined via `@theme`:
-   - Chess.com: `#2d2c28` (accessed via `bg-chesscom` or `text-chesscom`)
-   - Lichess: `#000000` (accessed via `bg-lichess` or `text-lichess`)
-
-**Usage in Components:**
-
-Use daisyUI semantic classes for theme-aware styling:
-
-```tsx
-// Good - uses daisyUI semantic classes
-<div className="bg-base-200 text-base-content border-base-300">
-<button className="btn btn-primary">Click me</button>
-<span className="text-primary">Highlighted text</span>
-<div className="bg-primary/20">Subtle primary background</div>
-<div className="bg-gradient-to-br from-accent to-secondary">Gradient</div>
-
-// Avoid - hardcoded colors don't respect theme
-<div className="bg-white text-gray-900 border-gray-200">
-<span className="text-amber-600">Don't use raw color names</span>
-```
-
-**Component Examples:**
-
-- Buttons: `btn`, `btn-primary`, `btn-outline`, `btn-ghost`
-- Modals: `modal`, `modal-box`, `modal-open`
-- Form elements: `toggle`, `input`, `textarea`
-- Layout: `divider`, `badge`
-
-**Icons**: Currently using emoji placeholders (🔒, 🌐, ✏️, ×). Can be replaced with a proper icon library in the future.
-
-## Code Style Conventions
-
-**Prettier Configuration:**
-
-- No semicolons (`semi: false`)
-- Single quotes (`singleQuote: true`)
-- 100 character line width
-- No bracket spacing
-- Uses `prettier-plugin-classnames` for Tailwind class sorting
-
-**Component Patterns:**
-
-- Server Components by default (no `'use client'` directive)
-- Client Components only when needed (forms, modals, interactive elements)
-- Server Actions marked with `'use server'` at top of async functions
-- Props interfaces defined inline or via `type` keyword
-- Minimal prop drilling; use React Context where appropriate (`AppContext` for user state)
-
-## Important Development Notes
-
-### Database & Auth Usage
-
-**Server Components (reading data):**
-
-```typescript
-import {db} from '@/lib/db'
-import {requireAuth} from '@/lib/auth'
-import {collections} from '@/lib/schema'
-import {eq} from 'drizzle-orm'
-
-export default async function Page() {
-  const user = await requireAuth()
-
-  const userCollections = db
-    .select()
-    .from(collections)
-    .where(eq(collections.ownerId, user.id))
-    .all()
-
-  // ...
-}
-```
-
-**Server Actions (mutations):**
-
-```typescript
-'use server'
-import {db} from '@/lib/db'
-import {requireAuth} from '@/lib/auth'
-import {games} from '@/lib/schema'
-import {revalidatePath} from 'next/cache'
-
-export async function deleteGame(gameId: number) {
-  const user = await requireAuth()
-
-  // Delete game
-  db.delete(games).where(eq(games.id, gameId)).run()
-
-  // Refresh UI
-  revalidatePath('/collections')
-}
-```
-
-**Authentication:**
-
-```typescript
-import {lucia, requireAuth, getUser} from '@/lib/auth'
-import bcrypt from 'bcrypt'
-import {cookies} from 'next/headers'
-
-// Sign up
-const hashedPassword = await bcrypt.hash(password, 10)
-// Create user, then:
-const session = await lucia.createSession(userId, {})
-const sessionCookie = lucia.createSessionCookie(session.id)
-// Note: cookies() is async in Next.js 16
-const cookieStore = await cookies()
-cookieStore.set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes)
-
-// Protected route
-const user = await requireAuth() // Redirects if not authenticated
-
-// Optional auth
-const user = await getUser() // Returns null if not authenticated
-```
-
-### Data Fetching Patterns
-
-- Use Server Components for initial data loading
-- Use Server Actions for mutations (create, update, delete)
-- Call `revalidatePath()` after mutations to refresh UI
-- Avoid client-side fetching unless necessary (e.g., lazy loading)
-
-### Drizzle ORM Patterns
-
-**Query Building:**
-
-```typescript
-import {db} from '@/lib/db'
-import {games, collections} from '@/lib/schema'
-import {eq, and, desc} from 'drizzle-orm'
-
-// Select with conditions
-const result = db
-  .select()
-  .from(games)
-  .where(and(eq(games.collectionId, id), eq(games.site, 'chess.com')))
-  .orderBy(desc(games.gameDttm))
-  .all()
-
-// Insert
-db.insert(games).values({collectionId, url /* ... */}).run()
-
-// Update
-db.update(games).set({notes: 'New note'}).where(eq(games.id, gameId)).run()
-
-// Delete
-db.delete(games).where(eq(games.id, gameId)).run()
-
-// Joins
-const result = db
-  .select()
-  .from(games)
-  .leftJoin(collections, eq(games.collectionId, collections.id))
-  .all()
-```
-
-**Upsert Pattern (for game imports):**
-
-```typescript
-// SQLite doesn't have native UPSERT in Drizzle
-// Use INSERT OR REPLACE or manual checking
-db.insert(games).values(gameData).onConflictDoUpdate({target: games.url, set: gameData}).run()
-```
-
-### Chess.com vs Lichess Differences
-
-**Chess.com:**
-
-- Provides ECO codes, FEN, time control as "initial+increment"
-- Moves require separate API call (TCN format in callback endpoint)
-- Custom board component with navigation
-
-**Lichess:**
-
-- Provides clock_initial/clock_increment separately
-- Uses `winner` field instead of white_result/black_result
-- Games can be displayed in embedded iframe or custom board
-- API requires bearer token authentication
-
-### Docker Build
-
-- Uses multi-stage build (deps → builder → runner)
-- Output mode: `standalone` (configured in `next.config.mjs`)
-- Exposes port 3000
-- Runs as non-root user `nextjs`
-
-### Common Gotchas
-
-1. **Database Access:** Always import `db` from `@/lib/db` - never create multiple database instances
-2. **Authentication:** Use `requireAuth()` for protected routes, `getUser()` for optional auth
-3. **Query Methods:** Use `.all()` for multiple rows, `.get()` for single row, `.run()` for mutations
-4. **SQLite Types:**
-   - Timestamps are ISO8601 strings
-   - Booleans are integers (0/1)
-   - UUIDs are text strings
-5. **Foreign Keys:** SQLite foreign keys are enabled via pragma - migrations include CASCADE deletes
-6. **Next.js 16 cookies():** In Next.js 16, `cookies()` is async and must be awaited: `const cookieStore = await cookies()`. This changed from Next.js 14 where it was synchronous.
-7. **Move Format:** Chess.com uses TCN (encoded), Lichess uses standard algebraic notation
-8. **Unique Constraints:** Games are deduplicated by URL (Chess.com) or lichess_game_id (Lichess)
-9. **Schema Changes:** After modifying `lib/schema.ts`, run `yarn drizzle-kit generate` to create migrations
+- Prettier: no semicolons, single quotes, 100 columns, no bracket spacing; `prettier-plugin-classnames` sorts Tailwind classes.
+- Server Components by default; minimal prop drilling (`AppContext` for user state).
+- Theming is automatic light/dark via daisyUI themes in `app/globals.css` (teal primary). Use semantic classes (`bg-base-100`, `text-base-content`, `btn-primary`, `bg-primary/20`), not raw colors like `bg-white` or `text-amber-600`. Platform colors: `bg-chesscom`, `bg-lichess`.
