@@ -130,10 +130,24 @@ export default async function ReadOnlySummary({
   }
 
   // Combine games with their tags
-  const gamesWithTags: Game[] = allGames.map((game) => ({
-    ...game,
-    tags: tagsByGame[game.id] || [],
-  }))
+  // Only show games the user has annotated with tags or notes
+  const gamesWithTags: Game[] = allGames
+    .map((game) => ({
+      ...game,
+      tags: tagsByGame[game.id] || [],
+    }))
+    .filter((game) => game.tags.length > 0 || (game.notes?.trim() ?? '') !== '')
+
+  if (gamesWithTags.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-64 bg-base-200 rounded-lg">
+        <div className="text-center">
+          <p className="text-base-content/70">No tagged or annotated games</p>
+          <p className="text-sm text-base-content/50 mt-1">Add tags or notes to see them here</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-3">
