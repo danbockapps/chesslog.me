@@ -52,6 +52,7 @@ export const collections = sqliteTable(
     >(), // Time class filter
     lastRefreshed: text('last_refreshed'), // ISO8601 timestamp
     deletedAt: text('deleted_at'), // ISO8601 timestamp; null = active, set = soft-deleted/archived
+    insightsBannerDismissed: integer('insights_banner_dismissed').notNull().default(0), // 0/1; owner closed the "insights unlocked" banner
     createdAt: text('created_at')
       .notNull()
       .$defaultFn(() => new Date().toISOString()),

@@ -76,6 +76,17 @@ export const restoreCollection = async (collectionId: string) => {
   revalidatePath('/collections')
 }
 
+export const dismissInsightsBanner = async (collectionId: string) => {
+  const user = await requireAuth()
+
+  db.update(collections)
+    .set({insightsBannerDismissed: 1})
+    .where(and(eq(collections.id, collectionId), eq(collections.ownerId, user.id)))
+    .run()
+
+  revalidatePath(`/collections/${collectionId}`)
+}
+
 export const insertTag = async (name: string) => {
   const user = await requireAuth()
 

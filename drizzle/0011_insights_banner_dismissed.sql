@@ -1,0 +1,1 @@
+ALTER TABLE `collections` ADD `insights_banner_dismissed` integer DEFAULT 0 NOT NULL;

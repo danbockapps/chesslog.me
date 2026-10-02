@@ -1,142 +1,58 @@
 import Link from 'next/link'
-import styles from './analyticsHeroBanner.module.css'
+import DismissBannerButton from './dismissBannerButton'
 
 interface Props {
   collectionId: string
   annotatedCount: number
+  dismissed: boolean
 }
 
-export default function AnalyticsHeroBanner({collectionId, annotatedCount}: Props) {
-  const isLocked = annotatedCount < 5
+export const ANALYTICS_UNLOCK_COUNT = 5
+// Past this many logged games the collection is no longer "new", so the unlock banner is retired
+const UNLOCK_BANNER_MAX = 10
 
-  return (
-    <div className={`${styles.banner} ${isLocked ? styles.locked : ''}`}>
-      <div className={styles.content}>
-        <div className={styles.text}>
-          <h2 className={styles.title}>
-            {isLocked ? 'Start Logging Your Games' : 'Unlock Your Chess Insights'}
-          </h2>
-          <p className={styles.description}>
-            {isLocked
-              ? 'Add tags or notes to your games to unlock analytics. Log at least 5 games to get started.'
-              : 'Discover patterns, track improvements, and understand your playing style with powerful visual analytics'}
-          </p>
-          {isLocked && (
-            <div className={styles.progress}>
-              <div className={styles.progressBar}>
-                <div
-                  className={styles.progressFill}
-                  style={{width: `${(Math.min(annotatedCount, 5) / 5) * 100}%`}}
-                />
-              </div>
-              <span className={styles.progressText}>{annotatedCount} of 5 games logged</span>
-            </div>
-          )}
-        </div>
-        <div className={styles.visuals}>
-          <svg
-            className={styles.icon}
-            width="48"
-            height="48"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M3 3v18h18" />
-            <path d="M18 17V9" />
-            <path d="M13 17V5" />
-            <path d="M8 17v-3" />
-          </svg>
-          <svg
-            className={styles.icon}
-            width="48"
-            height="48"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <circle cx="12" cy="12" r="10" />
-            <path d="M12 6v6l4 2" />
-          </svg>
-          <svg
-            className={styles.icon}
-            width="48"
-            height="48"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-          </svg>
+export default function AnalyticsHeroBanner({collectionId, annotatedCount, dismissed}: Props) {
+  if (annotatedCount < ANALYTICS_UNLOCK_COUNT) {
+    return (
+      <div className="mb-6 rounded-lg border border-base-300 bg-base-200 p-4">
+        <h2 className="font-semibold">Log {ANALYTICS_UNLOCK_COUNT} games to unlock analytics</h2>
+        <p className="mt-1 text-sm text-base-content/70">
+          Add tags or notes to a game and it counts as logged.
+        </p>
+        <div className="mt-3 flex items-center gap-3">
+          <progress
+            className="progress progress-primary w-48"
+            value={annotatedCount}
+            max={ANALYTICS_UNLOCK_COUNT}
+          />
+          <span className="text-sm text-base-content/70">
+            {annotatedCount} of {ANALYTICS_UNLOCK_COUNT} games logged
+          </span>
         </div>
       </div>
-      {isLocked ? (
-        <div className={styles.ctaButtonDisabled}>
-          <span className={styles.ctaContent}>
-            <svg
-              className={styles.ctaIcon}
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-            </svg>
-            <span className={styles.ctaText}>View Analytics</span>
-          </span>
-        </div>
-      ) : (
-        <Link href={`/collections/${collectionId}?analytics=open`} className={styles.ctaButton}>
-          <span className={styles.ctaGlow}></span>
-          <span className={styles.ctaContent}>
-            <svg
-              className={styles.ctaIcon}
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M3 3v18h18" />
-              <path d="M18 17V9" />
-              <path d="M13 17V5" />
-              <path d="M8 17v-3" />
-            </svg>
-            <span className={styles.ctaText}>View Analytics</span>
-            <svg
-              className={styles.ctaArrow}
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M5 12h14" />
-              <path d="M12 5l7 7-7 7" />
-            </svg>
-          </span>
-        </Link>
-      )}
+    )
+  }
+
+  if (dismissed || annotatedCount >= UNLOCK_BANNER_MAX) return null
+
+  return (
+    <div
+      className="mb-6 flex items-center gap-3 rounded-lg border border-primary/30 bg-primary/10 px-4
+        py-3"
+    >
+      <p className="text-sm">
+        <span className="font-semibold">Analytics unlocked.</span>{' '}
+        <span className="text-base-content/70">
+          See which tags and themes show up most across your games.
+        </span>
+      </p>
+      <Link
+        href={`/collections/${collectionId}?analytics=open`}
+        className="btn btn-sm btn-primary ml-auto shrink-0"
+      >
+        View analytics
+      </Link>
+      <DismissBannerButton collectionId={collectionId} />
     </div>
   )
 }

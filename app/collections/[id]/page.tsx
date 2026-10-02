@@ -1,4 +1,5 @@
 import ArrowLeftIcon from '@/app/ui/icons/arrowLeft'
+import BarChartIcon from '@/app/ui/icons/barChart'
 import ChessBoardIcon from '@/app/ui/icons/chessBoard'
 import ChevronLeftIcon from '@/app/ui/icons/chevronLeft'
 import ChevronRightIcon from '@/app/ui/icons/chevronRight'
@@ -12,7 +13,7 @@ import {FC} from 'react'
 import {ChesscomResult} from './actions/importChesscomGames'
 import AnalyticsModalWrapper from './analytics/analyticsModalWrapper'
 import AnalyticsView from './analytics/analyticsView'
-import AnalyticsHeroBanner from './analyticsHeroBanner'
+import AnalyticsHeroBanner, {ANALYTICS_UNLOCK_COUNT} from './analyticsHeroBanner'
 import AutoRefresh from './autoRefresh'
 import ChesscomGameAccordion from './chesscom/gameAccordion'
 import CollectionMenu from './collectionMenu'
@@ -52,6 +53,7 @@ const Collection: FC<Props> = async (props) => {
       last_refreshed: collections.lastRefreshed,
       ownerId: collections.ownerId,
       deletedAt: collections.deletedAt,
+      insightsBannerDismissed: collections.insightsBannerDismissed,
     })
     .from(collections)
     .where(eq(collections.id, params.id))
@@ -210,6 +212,26 @@ const Collection: FC<Props> = async (props) => {
           {displayName}
         </h1>
         <div className="ml-auto shrink-0 flex items-center gap-2">
+          {user &&
+            (annotatedCount >= ANALYTICS_UNLOCK_COUNT ? (
+              <Link
+                href={`/collections/${params.id}?analytics=open`}
+                className="btn btn-sm btn-primary"
+              >
+                <BarChartIcon className="w-4 h-4" />
+                Analytics
+              </Link>
+            ) : (
+              <div
+                className="tooltip tooltip-bottom"
+                data-tip={`${annotatedCount} of ${ANALYTICS_UNLOCK_COUNT} games logged`}
+              >
+                <button type="button" className="btn btn-sm btn-primary" disabled>
+                  <BarChartIcon className="w-4 h-4" />
+                  Analytics
+                </button>
+              </div>
+            ))}
           {annotatedCount > 0 && (
             <Link
               href={`/collections/${params.id}/export`}
@@ -225,8 +247,12 @@ const Collection: FC<Props> = async (props) => {
       </div>
 
       {/* Analytics Hero Banner */}
-      {page === 1 && (
-        <AnalyticsHeroBanner collectionId={params.id} annotatedCount={annotatedCount} />
+      {page === 1 && isOwner && (
+        <AnalyticsHeroBanner
+          collectionId={params.id}
+          annotatedCount={annotatedCount}
+          dismissed={!!collection?.insightsBannerDismissed}
+        />
       )}
 
       {/* Refresh button (platform collections) */}
