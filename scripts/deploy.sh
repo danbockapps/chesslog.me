@@ -129,7 +129,13 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# 9. Clean up dangling images
+# 9. Post-deploy safety checks (stops the container and exits on failure)
+# ---------------------------------------------------------------------------
+log "Running post-deploy safety checks..."
+./scripts/check-prod.sh
+
+# ---------------------------------------------------------------------------
+# 10. Clean up dangling images
 # ---------------------------------------------------------------------------
 log "Cleaning up dangling images..."
 docker image prune -f || warn "Image prune failed (non-fatal)"
