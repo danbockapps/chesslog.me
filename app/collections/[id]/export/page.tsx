@@ -22,7 +22,7 @@ const Export: FC<{params: Promise<{id: string}>}> = async (props) => {
   }
 
   const tagRows = db
-    .select({gameId: gameTags.gameId, name: tags.name})
+    .select({gameId: gameTags.gameId, name: tags.name, description: tags.description})
     .from(gameTags)
     .innerJoin(tags, eq(gameTags.tagId, tags.id))
     .innerJoin(games, eq(gameTags.gameId, games.id))
@@ -33,6 +33,15 @@ const Export: FC<{params: Promise<{id: string}>}> = async (props) => {
   for (const {gameId, name} of tagRows) {
     tagsByGame.set(gameId, [...(tagsByGame.get(gameId) ?? []), name])
   }
+
+  const usedTagNames = new Set([...tagsByGame.values()].flat())
+  const usedTags = [...new Set(tagRows.map((t) => t.name))]
+    .filter((name) => usedTagNames.has(name))
+    .sort((a, b) => a.localeCompare(b))
+    .map((name) => ({
+      name,
+      description: tagRows.find((t) => t.name === name)!.description,
+    }))
 
   const annotatedGames = db
     .select()
@@ -61,6 +70,7 @@ const Export: FC<{params: Promise<{id: string}>}> = async (props) => {
     name: getCollectionDisplayName(collection),
     username: collection.username,
     exportedAt: new Date(),
+    tags: usedTags,
     games: annotatedGames,
   })
 

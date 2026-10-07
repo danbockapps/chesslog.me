@@ -1,5 +1,5 @@
 import {describe, expect, it} from 'vitest'
-import {ExportGame, formatCollectionExport, getScore} from './exportFormat'
+import {ExportGame, ExportTag, formatCollectionExport, getScore} from './exportFormat'
 
 const baseGame: ExportGame = {
   url: null,
@@ -17,11 +17,12 @@ const baseGame: ExportGame = {
   notes: null,
 }
 
-const format = (games: ExportGame[]) =>
+const format = (games: ExportGame[], tags: ExportTag[] = []) =>
   formatCollectionExport({
     name: 'Test',
     username: 'alice',
     exportedAt: new Date('2026-09-29T12:00:00Z'),
+    tags,
     games,
   })
 
@@ -91,5 +92,34 @@ describe('formatCollectionExport', () => {
     expect(out).toContain('Time control: 600+0')
     expect(out).toContain('Link: https://example.com/g/1')
     expect(out).toContain('Tags: Played too fast, Loose pieces')
+  })
+
+  it('includes a tags section with names and descriptions', () => {
+    const out = format(
+      [{...baseGame, tags: ['Missed tactic', 'Loose pieces']}],
+      [
+        {name: 'Loose pieces', description: 'Left pieces undefended.'},
+        {name: 'Missed tactic', description: 'Missed a winning combination.'},
+        {name: 'Unused tag', description: 'Not on any game.'},
+      ],
+    )
+    expect(out).toContain('## Tags')
+    expect(out).toContain('- Missed tactic\n  Missed a winning combination.')
+    expect(out).toContain('- Loose pieces\n  Left pieces undefended.')
+    expect(out).not.toContain('Unused tag')
+    // Section comes before the games
+    expect(out.indexOf('## Tags')).toBeLessThan(out.indexOf('## Game 1:'))
+  })
+
+  it('omits blank tag descriptions and the section when no tags are used', () => {
+    const out = format(
+      [{...baseGame, tags: ['Missed tactic'], notes: 'x'}],
+      [{name: 'Missed tactic', description: null}],
+    )
+    expect(out).toContain('- Missed tactic')
+    expect(out).not.toContain('  ')
+
+    const noTags = format([{...baseGame, notes: 'x'}], [{name: 'Unused', description: 'd'}])
+    expect(noTags).not.toContain('## Tags')
   })
 })

@@ -14,10 +14,16 @@ export interface ExportGame {
   notes: string | null
 }
 
+export interface ExportTag {
+  name: string
+  description: string | null
+}
+
 export interface ExportCollection {
   name: string
   username: string | null
   exportedAt: Date
+  tags: ExportTag[]
   games: ExportGame[]
 }
 
@@ -73,5 +79,20 @@ export function formatCollectionExport(collection: ExportCollection): string {
     .filter(Boolean)
     .join('\n')
 
-  return [header, ...collection.games.map(formatGame)].join('\n\n')
+  // Only tags actually used on the games below
+  const usedNames = new Set(collection.games.flatMap((g) => g.tags))
+  const usedTags = collection.tags.filter((tag) => usedNames.has(tag.name))
+
+  const tagsSection =
+    usedTags.length > 0
+      ? `## Tags\n\n${usedTags
+          .map((tag) => {
+            const lines = [`- ${tag.name}`]
+            if (tag.description?.trim()) lines.push(`  ${tag.description.trim()}`)
+            return lines.join('\n')
+          })
+          .join('\n\n')}`
+      : null
+
+  return [header, tagsSection, ...collection.games.map(formatGame)].filter(Boolean).join('\n\n')
 }
