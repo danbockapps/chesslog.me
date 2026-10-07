@@ -21,6 +21,8 @@ import RestoreCollectionButton from './restoreCollectionButton'
 import ImportPgnModal from './importPgn/importPgnModal'
 import PgnGameAccordion from './importPgn/pgnGameAccordion'
 import LastRefreshedDisplay from './lastRefreshedDisplay'
+import ExportModalWrapper from './export/exportModalWrapper'
+import ExportView from './export/exportView'
 import LichessGameAccordion from './lichess/gameAccordion'
 import LoadOlderGamesButton from './loadOlderGamesButton'
 import AddGameButton from './manual/addGameButton'
@@ -31,7 +33,7 @@ export const dynamic = 'force-dynamic'
 
 interface Props {
   params: Promise<{id: string}>
-  searchParams: Promise<{page: string; analytics: string; expandGameId: string}>
+  searchParams: Promise<{page: string; analytics: string; expandGameId: string; export: string}>
 }
 
 const PAGE_SIZE = 50
@@ -233,12 +235,7 @@ const Collection: FC<Props> = async (props) => {
               </div>
             ))}
           {annotatedCount > 0 && (
-            <Link
-              href={`/collections/${params.id}/export`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn btn-sm btn-outline"
-            >
+            <Link href={`/collections/${params.id}?export=open`} className="btn btn-sm btn-outline">
               Export
             </Link>
           )}
@@ -472,6 +469,11 @@ const Collection: FC<Props> = async (props) => {
           />
         )}
       </AnalyticsModalWrapper>
+
+      {/* Export Modal */}
+      <ExportModalWrapper collectionId={params.id}>
+        {searchParams.export === 'open' && <ExportView collectionId={params.id} />}
+      </ExportModalWrapper>
     </div>
   )
 }

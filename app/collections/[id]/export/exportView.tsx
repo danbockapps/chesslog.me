@@ -6,19 +6,11 @@ import {and, desc, eq, isNull} from 'drizzle-orm'
 import {FC} from 'react'
 import CopyButton from './copyButton'
 
-export const dynamic = 'force-dynamic'
-
-const Export: FC<{params: Promise<{id: string}>}> = async (props) => {
-  const {id} = await props.params
-
-  const collection = db.select().from(collections).where(eq(collections.id, id)).get()
+const ExportView: FC<{collectionId: string}> = ({collectionId}) => {
+  const collection = db.select().from(collections).where(eq(collections.id, collectionId)).get()
 
   if (!collection || collection.deletedAt) {
-    return (
-      <div className="max-w-5xl mx-auto px-4 py-6 sm:px-6">
-        <p className="text-base-content/50 text-lg">This collection is not available.</p>
-      </div>
-    )
+    return <p className="text-base-content/50">This collection is not available.</p>
   }
 
   const tagRows = db
@@ -26,7 +18,7 @@ const Export: FC<{params: Promise<{id: string}>}> = async (props) => {
     .from(gameTags)
     .innerJoin(tags, eq(gameTags.tagId, tags.id))
     .innerJoin(games, eq(gameTags.gameId, games.id))
-    .where(and(eq(games.collectionId, id), isNull(tags.deletedAt)))
+    .where(and(eq(games.collectionId, collectionId), isNull(tags.deletedAt)))
     .all()
 
   const tagsByGame = new Map<number, string[]>()
@@ -46,7 +38,7 @@ const Export: FC<{params: Promise<{id: string}>}> = async (props) => {
   const annotatedGames = db
     .select()
     .from(games)
-    .where(eq(games.collectionId, id))
+    .where(eq(games.collectionId, collectionId))
     .orderBy(desc(games.gameDttm))
     .all()
     .map((g) => ({
@@ -75,9 +67,9 @@ const Export: FC<{params: Promise<{id: string}>}> = async (props) => {
   })
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-6 sm:px-6">
-      <div className="mb-4 flex items-center gap-3">
-        <h1 className="font-display text-2xl sm:text-3xl font-semibold tracking-tight">Export</h1>
+    <div className="space-y-4 py-4">
+      <div className="flex items-center gap-3 pr-4">
+        <h2 className="text-lg font-semibold">Export</h2>
         {annotatedGames.length > 0 && (
           <div className="ml-auto shrink-0">
             <CopyButton text={text} />
@@ -88,7 +80,7 @@ const Export: FC<{params: Promise<{id: string}>}> = async (props) => {
       {annotatedGames.length > 0 ? (
         <pre
           className="bg-base-100 border border-base-300 rounded-lg p-4 text-sm whitespace-pre-wrap
-            break-words font-mono"
+            break-words font-mono max-h-[60vh] overflow-y-auto"
         >
           {text}
         </pre>
@@ -99,4 +91,4 @@ const Export: FC<{params: Promise<{id: string}>}> = async (props) => {
   )
 }
 
-export default Export
+export default ExportView
