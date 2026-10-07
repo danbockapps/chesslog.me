@@ -1,4 +1,5 @@
 import {useRouter} from 'next/navigation'
+import ModalCloseButton from '@/app/ui/modalCloseButton'
 import {FC, useState} from 'react'
 import {createCollection} from './actions'
 import StepName from './stepName'
@@ -75,13 +76,7 @@ const CreateNewModal: FC<Props> = (props) => {
   return (
     <dialog className={`modal ${props.isOpen ? 'modal-open' : ''}`}>
       <div className="modal-box">
-        <button
-          className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-          onClick={handleClose}
-          disabled={loading}
-        >
-          ✕
-        </button>
+        <ModalCloseButton onClick={handleClose} disabled={loading} />
         <div className="space-y-4">
           <h2 className="text-xl font-bold">Create new collection</h2>
           {step === 'type' && <StepType {...{setType, setStep: goToStep}} />}

@@ -2,6 +2,7 @@
 
 import Accordion from '@/app/ui/accordion'
 import {gameAccordionClassNames} from '@/app/ui/accordionClassNames'
+import ModalCloseButton from '@/app/ui/modalCloseButton'
 import {FC, useState} from 'react'
 import {deleteManualGame, updateManualGame} from '../actions/manualGameActions'
 import GameAccordionHeader from '../gameAccordionHeader'
@@ -181,13 +182,7 @@ const ManualGameAccordion: FC<Props> = (props) => {
 
       <dialog className={`modal ${isEditing ? 'modal-open' : ''}`}>
         <div className="modal-box">
-          <button
-            className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-            onClick={() => setIsEditing(false)}
-            disabled={saving}
-          >
-            ✕
-          </button>
+          <ModalCloseButton onClick={() => setIsEditing(false)} disabled={saving} />
           <h2 className="text-xl font-bold mb-4">Edit game</h2>
           <div className="flex flex-col gap-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

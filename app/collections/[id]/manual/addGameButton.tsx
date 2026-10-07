@@ -1,6 +1,7 @@
 'use client'
 
 import {useRouter} from 'next/navigation'
+import ModalCloseButton from '@/app/ui/modalCloseButton'
 import {FC, useState} from 'react'
 import {createManualGame} from '../actions/manualGameActions'
 
@@ -64,13 +65,7 @@ const AddGameButton: FC<Props> = ({collectionId}) => {
       <dialog className={`modal ${isOpen ? 'modal-open' : ''}`}>
         <div className="modal-box">
           <h3 className="font-bold text-lg mb-4">Add game</h3>
-          <button
-            onClick={handleClose}
-            className="btn btn-ghost btn-circle absolute top-2 right-2"
-            aria-label="close"
-          >
-            ✕
-          </button>
+          <ModalCloseButton onClick={handleClose} />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="form-control">

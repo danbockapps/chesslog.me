@@ -1,4 +1,5 @@
 import SectionHeader from '@/app/ui/SectionHeader'
+import ModalCloseButton from '@/app/ui/modalCloseButton'
 import {FC, useCallback, useEffect, useState} from 'react'
 import {getTagsWithDetails} from '../actions/crudActions'
 import {
@@ -107,13 +108,7 @@ const ManageTags: FC<Props> = (props) => {
       <div className="modal-box w-full max-w-3xl h-[90vh] p-0 flex flex-col">
         <div className="p-6 pb-4 relative">
           <SectionHeader title="Manage Tags" description="View and edit your tag descriptions" />
-          <button
-            onClick={props.close}
-            className="btn btn-ghost btn-circle absolute top-2 right-2 text-xl"
-            aria-label="close"
-          >
-            ×
-          </button>
+          <ModalCloseButton onClick={props.close} />
         </div>
 
         <div className="divider m-0"></div>

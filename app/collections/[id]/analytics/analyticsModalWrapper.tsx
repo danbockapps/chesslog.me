@@ -1,6 +1,7 @@
 'use client'
 
 import {useRouter, useSearchParams} from 'next/navigation'
+import ModalCloseButton from '@/app/ui/modalCloseButton'
 
 export default function AnalyticsModalWrapper({
   collectionId,
@@ -24,12 +25,7 @@ export default function AnalyticsModalWrapper({
   return (
     <dialog className="modal modal-open">
       <div className="modal-box w-full max-w-6xl max-h-[90vh] overflow-y-auto">
-        <button
-          className="btn btn-sm btn-circle btn-ghost sticky float-right right-2 top-2 z-10"
-          onClick={close}
-        >
-          ✕
-        </button>
+        <ModalCloseButton onClick={close} sticky />
         {children}
       </div>
       <form method="dialog" className="modal-backdrop backdrop-blur-sm">

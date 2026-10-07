@@ -1,6 +1,7 @@
 'use client'
 
 import {useRouter, useSearchParams} from 'next/navigation'
+import ModalCloseButton from '@/app/ui/modalCloseButton'
 import {FC, useCallback, useEffect, useRef, useState} from 'react'
 import {getStudyPgn, importPgnGames, previewPgnImport} from '../actions/pgnImportActions'
 import type {PgnImportPreviewItem} from '@/lib/pgnImport'
@@ -161,14 +162,7 @@ const ImportPgnModal: FC<Props> = ({collectionId, mode, triggerLabel, triggerCla
 
       <dialog className={`modal ${isOpen ? 'modal-open' : ''}`}>
         <div className="modal-box max-w-2xl">
-          <button
-            onClick={close}
-            className="btn btn-ghost btn-circle btn-sm absolute top-2 right-2"
-            aria-label="close"
-            disabled={importing}
-          >
-            ✕
-          </button>
+          <ModalCloseButton onClick={close} disabled={importing} />
           <h3 className="font-bold text-lg mb-4">Import PGN</h3>
 
           {/* Input stage (file mode, before a PGN is loaded) */}
