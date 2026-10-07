@@ -85,6 +85,13 @@
       "when": 1790879252542,
       "tag": "0011_insights_banner_dismissed",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "6",
+      "when": 1791239313321,
+      "tag": "0012_lichess_login",
+      "breakpoints": true
     }
   ]
 }

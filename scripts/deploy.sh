@@ -31,11 +31,16 @@ if [[ -f "$ENV_FILE" ]]; then
   source "$ENV_FILE"
   set +o allexport
 else
-  warn "Env file not found at $ENV_FILE — LICHESS_TOKEN must already be in environment"
+  warn "Env file not found at $ENV_FILE — LICHESS_TOKEN and LICHESS_CLIENT_ID must already be in environment"
 fi
 
 if [[ -z "${LICHESS_TOKEN:-}" ]]; then
   error "LICHESS_TOKEN is not set. Add it to $ENV_FILE or export it before running this script."
+  exit 1
+fi
+
+if [[ -z "${LICHESS_CLIENT_ID:-}" ]]; then
+  error "LICHESS_CLIENT_ID is not set. Add it to $ENV_FILE (e.g. https://chesslog.me) or export it before running this script."
   exit 1
 fi
 
@@ -111,6 +116,7 @@ docker run -d \
   -v "$DATA_DIR:/app/data" \
   -e DATABASE_PATH=/app/data/database.db \
   -e LICHESS_TOKEN="$LICHESS_TOKEN" \
+  -e LICHESS_CLIENT_ID="$LICHESS_CLIENT_ID" \
   "$IMAGE_NAME:latest"
 
 # ---------------------------------------------------------------------------
@@ -121,7 +127,7 @@ sleep 5
 
 if docker ps --format '{{.Names}}' | grep -q "^${APP_NAME}$"; then
   log "Deployment successful! App is running on port $HOST_PORT."
-  log "Rollback with: docker stop $APP_NAME && docker rm $APP_NAME && docker run -d --name $APP_NAME --restart unless-stopped -p $HOST_PORT:3000 -v $DATA_DIR:/app/data -e DATABASE_PATH=/app/data/database.db -e LICHESS_TOKEN=\$LICHESS_TOKEN $IMAGE_NAME:previous"
+  log "Rollback with: docker stop $APP_NAME && docker rm $APP_NAME && docker run -d --name $APP_NAME --restart unless-stopped -p $HOST_PORT:3000 -v $DATA_DIR:/app/data -e DATABASE_PATH=/app/data/database.db -e LICHESS_TOKEN=\$LICHESS_TOKEN -e LICHESS_CLIENT_ID=\$LICHESS_CLIENT_ID $IMAGE_NAME:previous"
 else
   error "Container is not running. Check logs:"
   error "  docker logs $APP_NAME"

@@ -1,6 +1,7 @@
 'use client'
 
 import {AuthLayout} from '@/app/ui/AuthLayout'
+import {LichessLoginButton} from '@/app/ui/LichessLoginButton'
 import React, {useState} from 'react'
 import {signup} from './actions'
 
@@ -61,9 +62,10 @@ const SignUpPage: React.FC = () => {
             onChange={(e) => setEmail(e.target.value)}
             disabled={disabled}
             placeholder="you@example.com"
-            className="w-full px-0 py-4 bg-transparent border-0 border-b-2 border-base-300 text-base-content text-lg
-              placeholder:text-base-content/30 focus:outline-none focus:border-primary transition-colors
-              disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full px-0 py-4 bg-transparent border-0 border-b-2 border-base-300
+              text-base-content text-lg placeholder:text-base-content/30 focus:outline-none
+              focus:border-primary transition-colors disabled:opacity-50
+              disabled:cursor-not-allowed"
             required
           />
         </div>
@@ -82,15 +84,19 @@ const SignUpPage: React.FC = () => {
             onChange={(e) => setPassword(e.target.value)}
             disabled={disabled}
             placeholder="Enter a secure password"
-            className="w-full px-0 py-4 bg-transparent border-0 border-b-2 border-base-300 text-base-content text-lg
-              placeholder:text-base-content/30 focus:outline-none focus:border-primary transition-colors
-              disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full px-0 py-4 bg-transparent border-0 border-b-2 border-base-300
+              text-base-content text-lg placeholder:text-base-content/30 focus:outline-none
+              focus:border-primary transition-colors disabled:opacity-50
+              disabled:cursor-not-allowed"
             required
           />
         </div>
 
         {errorMessage && (
-          <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-error/10 border border-error/20 text-error">
+          <div
+            className="flex items-center gap-3 px-4 py-3 rounded-lg bg-error/10 border
+              border-error/20 text-error"
+          >
             <svg
               className="w-5 h-5 flex-shrink-0"
               fill="none"
@@ -109,7 +115,10 @@ const SignUpPage: React.FC = () => {
         )}
 
         {status === 'success' && (
-          <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-success/10 border border-success/20 text-success">
+          <div
+            className="flex items-center gap-3 px-4 py-3 rounded-lg bg-success/10 border
+              border-success/20 text-success"
+          >
             <svg
               className="w-5 h-5 flex-shrink-0"
               fill="none"
@@ -130,13 +139,15 @@ const SignUpPage: React.FC = () => {
         <button
           type="submit"
           disabled={disabled}
-          className="group relative w-full mt-8 py-4 px-6 bg-primary hover:bg-secondary text-primary-content rounded-lg
-            overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-primary/20
-            disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none font-semibold"
+          className="group relative w-full mt-8 py-4 px-6 bg-primary hover:bg-secondary
+            text-primary-content rounded-lg overflow-hidden transition-all duration-300
+            hover:shadow-xl hover:shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed
+            disabled:hover:shadow-none font-semibold"
         >
           <span
             className={`inline-flex items-center gap-2 transition-all duration-300 ${
-              status === 'loading' ? 'opacity-0' : 'opacity-100' }`}
+              status === 'loading' ? 'opacity-0' : 'opacity-100'
+            }`}
           >
             Create account
             <svg
@@ -155,11 +166,15 @@ const SignUpPage: React.FC = () => {
           </span>
           {status === 'loading' && (
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-5 h-5 border-2 border-primary-content/30 border-t-primary-content rounded-full animate-spin" />
+              <div
+                className="w-5 h-5 border-2 border-primary-content/30 border-t-primary-content
+                  rounded-full animate-spin"
+              />
             </div>
           )}
         </button>
       </form>
+      <LichessLoginButton />
     </AuthLayout>
   )
 }

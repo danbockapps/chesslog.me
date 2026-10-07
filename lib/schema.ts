@@ -5,6 +5,10 @@ export const users = sqliteTable('users', {
   id: text('id').primaryKey(), // UUID as text
   email: text('email').notNull().unique(),
   hashedPassword: text('hashed_password').notNull(),
+  // Set only when the email came from Lichess (which confirms emails itself)
+  emailVerified: integer('email_verified').notNull().default(0),
+  lichessId: text('lichess_id').unique(),
+  lichessUsername: text('lichess_username'),
   createdAt: text('created_at')
     .notNull()
     .$defaultFn(() => new Date().toISOString()),

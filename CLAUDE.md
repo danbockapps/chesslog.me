@@ -19,7 +19,7 @@ yarn drizzle-kit generate   # after editing lib/schema.ts
 yarn drizzle-kit migrate
 ```
 
-**Env vars:** `DATABASE_PATH` (default `./data/database.db`), `LICHESS_TOKEN` (Lichess API bearer token).
+**Env vars:** `DATABASE_PATH` (default `./data/database.db`), `LICHESS_TOKEN` (Lichess API bearer token), `LICHESS_CLIENT_ID` (any stable string; identifies the app for Lichess OAuth login).
 
 ## Architecture
 
@@ -27,6 +27,10 @@ yarn drizzle-kit migrate
 - Path alias: `@/*` maps to the project root.
 - Next.js 16: middleware is `proxy.ts` (export named `proxy`). `cookies()` is async.
 - Auth helpers in `lib/auth.ts`: `requireAuth()` (redirects to `/login`) and `getUser()` (null if signed out). `proxy.ts` only redirects logged-in users away from `/login` and `/signup`; pages enforce their own auth.
+
+### Lichess login (added 2026-10-05)
+
+`/auth/lichess` and `/auth/lichess/callback` run OAuth2 + PKCE (`lib/lichessOAuth.ts`). Only the email from Lichess is trusted: a match on `users.email` links `users.lichess_id` (and revokes that user's sessions); otherwise a user is created with an unusable password hash. Never link on a user-typed email.
 
 ### Access model
 

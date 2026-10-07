@@ -54,6 +54,7 @@ Create `.env.local` file in the root directory:
 ```bash
 DATABASE_PATH=./data/database.db
 LICHESS_TOKEN=your_lichess_api_token
+LICHESS_CLIENT_ID=http://localhost:3002
 ```
 
 4. Set up the database:
@@ -132,12 +133,17 @@ app/
 
 ## Environment Variables
 
-| Variable        | Required | Description                                                  |
-| --------------- | -------- | ------------------------------------------------------------ |
-| `DATABASE_PATH` | No       | Path to SQLite database file (default: `./data/database.db`) |
-| `LICHESS_TOKEN` | Yes\*    | Lichess API token for importing games                        |
+| Variable            | Required | Description                                                                                                          |
+| ------------------- | -------- | -------------------------------------------------------------------------------------------------------------------- |
+| `DATABASE_PATH`     | No       | Path to SQLite database file (default: `./data/database.db`)                                                         |
+| `LICHESS_TOKEN`     | Yes\*    | Lichess API token for importing games                                                                                |
+| `LICHESS_CLIENT_ID` | Yes      | Any stable string (e.g. your site URL) identifying the app for "Log in with Lichess"; no Lichess registration needed |
 
 \* Only required if importing Lichess games
+
+### Log in with Lichess (added 2026-10-05)
+
+OAuth2 + PKCE with scope `email:read`. Only the email Lichess returns is trusted (Lichess confirms emails). If it matches an existing account's email, the Lichess account is linked to that account and its existing sessions are revoked; otherwise a new account is created. Lichess users with no confirmed email are refused.
 
 ### Getting a Lichess API Token
 

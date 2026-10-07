@@ -39,6 +39,17 @@ interface DatabaseUserAttributes {
 }
 
 /**
+ * Helper: Create a session and set the session and user_email cookies
+ */
+export async function startSession(userId: string, email: string) {
+  const session = await lucia.createSession(userId, {})
+  const sessionCookie = lucia.createSessionCookie(session.id)
+  const cookieStore = await cookies()
+  cookieStore.set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes)
+  cookieStore.set('user_email', email, {path: '/', httpOnly: true, sameSite: 'lax'})
+}
+
+/**
  * Helper: Get current authenticated user or redirect to login
  * Use this in Server Components and Server Actions to ensure user is authenticated
  */
