@@ -11,7 +11,7 @@ APP_NAME="chesslog.me"
 IMAGE_NAME="chesslog.me"
 DATA_DIR="/var/lib/chesslog.me"
 HOST_PORT=3002
-ENV_FILE="/etc/chesslog.me/env"
+ENV_FILE="/home/dan/projects/chesslog.me/.env.production"
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -22,27 +22,19 @@ warn()  { echo -e "${YELLOW}[$(date '+%H:%M:%S')] WARN: $*${NC}"; }
 error() { echo -e "${RED}[$(date '+%H:%M:%S')] ERROR: $*${NC}" >&2; }
 
 # ---------------------------------------------------------------------------
-# Load environment variables from env file
+# Check env file (passed to containers with --env-file)
 # ---------------------------------------------------------------------------
-if [[ -f "$ENV_FILE" ]]; then
-  log "Loading env from $ENV_FILE"
-  set -o allexport
-  # shellcheck disable=SC1090
-  source "$ENV_FILE"
-  set +o allexport
-else
-  warn "Env file not found at $ENV_FILE — LICHESS_TOKEN and LICHESS_CLIENT_ID must already be in environment"
-fi
-
-if [[ -z "${LICHESS_TOKEN:-}" ]]; then
-  error "LICHESS_TOKEN is not set. Add it to $ENV_FILE or export it before running this script."
+if [[ ! -f "$ENV_FILE" ]]; then
+  error "Env file not found at $ENV_FILE. It must define LICHESS_TOKEN and LICHESS_CLIENT_ID."
   exit 1
 fi
 
-if [[ -z "${LICHESS_CLIENT_ID:-}" ]]; then
-  error "LICHESS_CLIENT_ID is not set. Add it to $ENV_FILE (e.g. https://chesslog.me) or export it before running this script."
-  exit 1
-fi
+for var in LICHESS_TOKEN LICHESS_CLIENT_ID; do
+  if ! grep -q "^${var}=." "$ENV_FILE"; then
+    error "$var is not set in $ENV_FILE."
+    exit 1
+  fi
+done
 
 # ---------------------------------------------------------------------------
 # 1. Git pull
@@ -74,8 +66,8 @@ mkdir -p "$DATA_DIR"
 log "Running database migrations..."
 docker run --rm \
   -v "$DATA_DIR:/app/data" \
+  --env-file "$ENV_FILE" \
   -e DATABASE_PATH=/app/data/database.db \
-  -e LICHESS_TOKEN="$LICHESS_TOKEN" \
   "$IMAGE_NAME:builder" \
   sh -c "cd /app && yarn drizzle-kit migrate"
 
@@ -114,9 +106,8 @@ docker run -d \
   --restart unless-stopped \
   -p "$HOST_PORT:3000" \
   -v "$DATA_DIR:/app/data" \
+  --env-file "$ENV_FILE" \
   -e DATABASE_PATH=/app/data/database.db \
-  -e LICHESS_TOKEN="$LICHESS_TOKEN" \
-  -e LICHESS_CLIENT_ID="$LICHESS_CLIENT_ID" \
   "$IMAGE_NAME:latest"
 
 # ---------------------------------------------------------------------------
@@ -127,7 +118,7 @@ sleep 5
 
 if docker ps --format '{{.Names}}' | grep -q "^${APP_NAME}$"; then
   log "Deployment successful! App is running on port $HOST_PORT."
-  log "Rollback with: docker stop $APP_NAME && docker rm $APP_NAME && docker run -d --name $APP_NAME --restart unless-stopped -p $HOST_PORT:3000 -v $DATA_DIR:/app/data -e DATABASE_PATH=/app/data/database.db -e LICHESS_TOKEN=\$LICHESS_TOKEN -e LICHESS_CLIENT_ID=\$LICHESS_CLIENT_ID $IMAGE_NAME:previous"
+  log "Rollback with: docker stop $APP_NAME && docker rm $APP_NAME && docker run -d --name $APP_NAME --restart unless-stopped -p $HOST_PORT:3000 -v $DATA_DIR:/app/data --env-file $ENV_FILE -e DATABASE_PATH=/app/data/database.db $IMAGE_NAME:previous"
 else
   error "Container is not running. Check logs:"
   error "  docker logs $APP_NAME"
