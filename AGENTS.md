@@ -1,8 +1,4 @@
-# CLAUDE.md
-
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
-Last trimmed: 2026-09-29. Details omitted here (schema, directory layout, API shapes) live in the code: see `lib/schema.ts`, `drizzle/*.sql`, and `app/`.
+# AGENTS.md
 
 ## Project Overview
 
@@ -20,6 +16,8 @@ yarn drizzle-kit migrate
 ```
 
 **Env vars:** `DATABASE_PATH` (default `./data/database.db`), `LICHESS_TOKEN` (Lichess API bearer token), `LICHESS_CLIENT_ID` (any stable string; identifies the app for Lichess OAuth login).
+
+**Git operations** Don't commit or change branches unless explicitly asked.
 
 ## Architecture
 
