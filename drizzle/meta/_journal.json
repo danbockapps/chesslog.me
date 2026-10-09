@@ -92,6 +92,13 @@
       "when": 1791239313321,
       "tag": "0012_lichess_login",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "6",
+      "when": 1791581248259,
+      "tag": "0013_game_comments",
+      "breakpoints": true
     }
   ]
 }

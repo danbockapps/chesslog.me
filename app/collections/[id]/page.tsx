@@ -319,6 +319,7 @@ const Collection: FC<Props> = async (props) => {
                   tagCount={g.tagCount}
                   hasNotes={g.hasNotes}
                   isOwner={isOwner}
+                  currentUserId={user?.id ?? null}
                 />
               ) : null
             }
@@ -341,6 +342,7 @@ const Collection: FC<Props> = async (props) => {
                   tagCount={g.tagCount}
                   hasNotes={g.hasNotes}
                   isOwner={isOwner}
+                  currentUserId={user?.id ?? null}
                 />
               ) : null
             }
@@ -363,6 +365,7 @@ const Collection: FC<Props> = async (props) => {
                   tagCount={g.tagCount}
                   hasNotes={g.hasNotes}
                   isOwner={isOwner}
+                  currentUserId={user?.id ?? null}
                   initialOpen={g.id === expandGameId}
                 />
               )
@@ -382,6 +385,7 @@ const Collection: FC<Props> = async (props) => {
                 tagCount={g.tagCount}
                 hasNotes={g.hasNotes}
                 isOwner={isOwner}
+                currentUserId={user?.id ?? null}
                 initialOpen={g.id === expandGameId}
               />
             ) : null

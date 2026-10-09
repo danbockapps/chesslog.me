@@ -7,6 +7,7 @@ import Board from '../chesscom/board'
 import GameAccordionHeader from '../gameAccordionHeader'
 import Notes from '../notes'
 import Tags from '../tags'
+import Discussion from '../discussion'
 
 interface Props {
   id: number
@@ -23,6 +24,7 @@ interface Props {
   tagCount: number
   hasNotes: boolean
   isOwner: boolean
+  currentUserId: string | null
 }
 
 const {cardClassName, headerClassName, contentClassName, lichessClassName} = gameAccordionClassNames
@@ -82,6 +84,7 @@ const LichessGameAccordion: FC<Props> = (props) => {
 
       <Tags gameId={props.id} isOwner={props.isOwner} onTagCountChange={setTagCount} />
       <Notes gameId={props.id} isOwner={props.isOwner} onNotesChange={setHasNotes} />
+      <Discussion gameId={props.id} currentUserId={props.currentUserId} />
     </Accordion>
   )
 }

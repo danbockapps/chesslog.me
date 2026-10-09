@@ -7,6 +7,7 @@ import {ChesscomResult} from '../actions/importChesscomGames'
 import GameAccordionHeader from '../gameAccordionHeader'
 import Notes from '../notes'
 import Tags from '../tags'
+import Discussion from '../discussion'
 import Board from './board'
 
 interface Props {
@@ -24,6 +25,7 @@ interface Props {
   tagCount: number
   hasNotes: boolean
   isOwner: boolean
+  currentUserId: string | null
 }
 
 const {cardClassName, headerClassName, contentClassName} = gameAccordionClassNames
@@ -63,6 +65,7 @@ const ChesscomGameAccordion: FC<Props> = (props) => {
 
       <Tags gameId={props.id} isOwner={props.isOwner} onTagCountChange={setTagCount} />
       <Notes gameId={props.id} isOwner={props.isOwner} onNotesChange={setHasNotes} />
+      <Discussion gameId={props.id} currentUserId={props.currentUserId} />
     </Accordion>
   )
 }

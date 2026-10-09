@@ -146,6 +146,28 @@ export const gameTags = sqliteTable(
   }),
 )
 
+// Game comments - discussion thread per game
+export const gameComments = sqliteTable(
+  'game_comments',
+  {
+    id: integer('id').primaryKey({autoIncrement: true}),
+    gameId: integer('game_id')
+      .notNull()
+      .references(() => games.id, {onDelete: 'cascade'}),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, {onDelete: 'cascade'}),
+    text: text('text').notNull(),
+    createdAt: text('created_at')
+      .notNull()
+      .$defaultFn(() => new Date().toISOString()),
+  },
+  (table) => ({
+    gameIdIdx: index('idx_game_comments_game').on(table.gameId),
+    userIdIdx: index('idx_game_comments_user').on(table.userId),
+  }),
+)
+
 // Type exports for use in queries
 export type User = typeof users.$inferSelect
 export type InsertUser = typeof users.$inferInsert
@@ -155,3 +177,4 @@ export type Collection = typeof collections.$inferSelect
 export type Game = typeof games.$inferSelect
 export type Tag = typeof tags.$inferSelect
 export type GameTag = typeof gameTags.$inferSelect
+export type GameComment = typeof gameComments.$inferSelect
