@@ -89,7 +89,7 @@ const ImportPgnModal: FC<Props> = ({collectionId, mode, triggerLabel, triggerCla
     if (mode !== 'study' || searchParams.get('import') !== 'study') return
     autoOpened.current = true
     router.replace(`/collections/${collectionId}`, {scroll: false})
-    open()
+    queueMicrotask(() => void open())
   }, [mode, searchParams, router, collectionId, open])
 
   const handleFile = async (file: File | undefined) => {

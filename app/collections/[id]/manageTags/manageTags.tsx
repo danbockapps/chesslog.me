@@ -61,7 +61,7 @@ const ManageTags: FC<Props> = (props) => {
 
   useEffect(() => {
     if (props.open) {
-      refresh()
+      queueMicrotask(() => void refresh())
     }
   }, [props.open, refresh])
 
