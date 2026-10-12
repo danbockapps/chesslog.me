@@ -104,21 +104,22 @@ export default async function Home() {
 
       {/* Navigation */}
       <nav
-        className="relative z-10 flex items-center justify-between px-6 md:px-12 py-6
-          animate-fade-in"
+        className="relative z-10 flex items-center justify-between px-4 sm:px-6 md:px-12 py-4
+          sm:py-6 animate-fade-in"
       >
-        <Logo height={80} width={233} className="h-20 w-auto" />
-        <div className="flex items-center gap-4">
+        <Logo height={80} width={233} className="h-11 sm:h-14 md:h-20 w-auto shrink-0" />
+        <div className="flex items-center gap-3 sm:gap-4 shrink-0">
           <Link
             href="/login"
-            className="text-sm text-base-content/70 hover:text-base-content transition-colors"
+            className="text-sm text-base-content/70 hover:text-base-content transition-colors
+              whitespace-nowrap"
           >
             Log in
           </Link>
           <Link
             href="/signup"
-            className="text-sm bg-primary hover:bg-secondary text-primary-content px-4 py-2
-              rounded-lg transition-colors font-medium"
+            className="text-sm bg-primary hover:bg-secondary text-primary-content px-3 sm:px-4 py-2
+              rounded-lg transition-colors font-medium whitespace-nowrap"
           >
             Get started
           </Link>
