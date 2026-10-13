@@ -1,8 +1,8 @@
 import {ChessboardPattern} from '@/app/ui/ChessboardPattern'
 import {Logo} from '@/app/ui/Logo'
+import {getUser} from '@/lib/auth'
 import analyticsScreenshot from '@/public/screenshots/analytics.png'
 import gameViewScreenshot from '@/public/screenshots/game-view.png'
-import {getUser} from '@/lib/auth'
 import Image from 'next/image'
 import Link from 'next/link'
 import {redirect} from 'next/navigation'
@@ -158,7 +158,7 @@ export default async function Home() {
                   hover:bg-secondary text-primary-content px-6 py-3 rounded-lg transition-all
                   font-medium text-lg hover:shadow-lg hover:shadow-primary/20"
               >
-                Start for free
+                Start
                 <span className="text-xl">&rarr;</span>
               </Link>
               <a
@@ -170,6 +170,12 @@ export default async function Home() {
                 See how it works
               </a>
             </div>
+            <p
+              className="text-sm text-base-content/50 mt-4 animate-fade-in-up"
+              style={{animationDelay: '0.35s'}}
+            >
+              Completely free — no trial, no premium tier, no credit card.
+            </p>
           </div>
         </div>
       </section>
@@ -450,10 +456,16 @@ export default async function Home() {
             <span className="text-primary">are really telling you?</span>
           </h2>
           <p
-            className="text-lg text-base-content/70 mb-8 animate-fade-in-up"
+            className="text-lg text-base-content/70 mb-4 animate-fade-in-up"
             style={{animationDelay: '0.2s'}}
           >
             Stop guessing at your weaknesses. Start seeing them clearly.
+          </p>
+          <p
+            className="text-sm text-base-content/50 mb-8 animate-fade-in-up"
+            style={{animationDelay: '0.25s'}}
+          >
+            chesslog.me is completely free. Not a free trial, not freemium — just free.
           </p>
           <Link
             href="/signup"
