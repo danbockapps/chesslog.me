@@ -1,6 +1,8 @@
 import {Lucia, TimeSpan} from 'lucia'
 import {BetterSqlite3Adapter} from '@lucia-auth/adapter-sqlite'
-import {sqlite} from './db'
+import {sqlite, db} from './db'
+import {users} from './schema'
+import {eq} from 'drizzle-orm'
 import {cookies} from 'next/headers'
 import {redirect} from 'next/navigation'
 
@@ -78,6 +80,22 @@ export async function requireAuth() {
       const sessionCookie = lucia.createSessionCookie(session.id)
       cookieStore.set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes)
     } catch {}
+  }
+
+  return user
+}
+
+/**
+ * Helper: Require the current user to be an admin (users.is_admin = 1).
+ * Redirects to the home page if signed out or not an admin.
+ */
+export async function requireAdmin() {
+  const user = await requireAuth()
+
+  const row = db.select({isAdmin: users.isAdmin}).from(users).where(eq(users.id, user.id)).get()
+
+  if (!row?.isAdmin) {
+    redirect('/')
   }
 
   return user

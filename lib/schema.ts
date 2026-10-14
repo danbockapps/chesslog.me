@@ -12,6 +12,7 @@ export const users = sqliteTable('users', {
   createdAt: text('created_at')
     .notNull()
     .$defaultFn(() => new Date().toISOString()),
+  isAdmin: integer('is_admin').notNull().default(0), // 0/1; set manually via SQL, no UI
 })
 
 // Sessions table - for Lucia auth
