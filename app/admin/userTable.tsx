@@ -1,6 +1,6 @@
 'use client'
 
-import {useMemo, useState} from 'react'
+import {Fragment, useMemo, useState} from 'react'
 
 export type AdminCollection = {
   id: string
@@ -67,7 +67,7 @@ export default function AdminUserTable({rows}: {rows: AdminUserRow[]}) {
 
   return (
     <div className="overflow-x-auto">
-      <table className="table table-zebra">
+      <table className="table">
         <thead>
           <tr>
             {COLUMNS.map(({key, label}) => (
@@ -76,39 +76,49 @@ export default function AdminUserTable({rows}: {rows: AdminUserRow[]}) {
                 {sortKey === key && <span className="ml-1">{sortDir === 'asc' ? '▲' : '▼'}</span>}
               </th>
             ))}
-            <th>Collections</th>
           </tr>
         </thead>
         <tbody>
-          {sorted.map((u) => (
-            <tr key={u.id}>
-              <td>{u.email}</td>
-              <td>{u.lichessUsername ?? '—'}</td>
-              <td>{u.totalLoggedCount}</td>
-              <td suppressHydrationWarning>{formatDateTime(u.createdAt)}</td>
-              <td suppressHydrationWarning>{formatDateTime(u.lastActivity)}</td>
-              <td>
-                {u.collections.length === 0 ? (
-                  <span className="text-base-content/40">—</span>
-                ) : (
-                  <ul className="space-y-1">
-                    {u.collections.map((c) => (
-                      <li key={c.id} className="text-sm">
-                        <a
-                          href={`/collections/${c.id}`}
-                          className={`link link-hover
-                            ${c.deleted ? 'line-through text-base-content/40' : ''}`}
-                        >
-                          {c.displayName}
-                        </a>
-                        <span className="ml-2 text-base-content/60">{c.loggedCount}</span>
-                      </li>
-                    ))}
-                  </ul>
+          {sorted.map((u) => {
+            const hasCollections = u.collections.length > 0
+            // Only drop the bottom border when a collections row follows it
+            const noBottom = hasCollections ? 'border-b-0' : undefined
+            return (
+              <Fragment key={u.id}>
+                <tr>
+                  <td className={noBottom}>{u.email}</td>
+                  <td className={noBottom}>{u.lichessUsername ?? '—'}</td>
+                  <td className={noBottom}>{u.totalLoggedCount}</td>
+                  <td className={noBottom} suppressHydrationWarning>
+                    {formatDateTime(u.createdAt)}
+                  </td>
+                  <td className={noBottom} suppressHydrationWarning>
+                    {formatDateTime(u.lastActivity)}
+                  </td>
+                </tr>
+                {hasCollections && (
+                  <tr>
+                    <td colSpan={COLUMNS.length} className="border-t-0 pt-0">
+                      <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs">
+                        {u.collections.map((c) => (
+                          <span key={c.id}>
+                            <a
+                              href={`/collections/${c.id}`}
+                              className={`link link-hover
+                              ${c.deleted ? 'line-through text-base-content/40' : ''}`}
+                            >
+                              {c.displayName}
+                            </a>
+                            <span className="ml-1.5 text-base-content/60">{c.loggedCount}</span>
+                          </span>
+                        ))}
+                      </div>
+                    </td>
+                  </tr>
                 )}
-              </td>
-            </tr>
-          ))}
+              </Fragment>
+            )
+          })}
         </tbody>
       </table>
     </div>
