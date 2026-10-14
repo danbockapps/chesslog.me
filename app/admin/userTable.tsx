@@ -87,7 +87,20 @@ export default function AdminUserTable({rows}: {rows: AdminUserRow[]}) {
               <Fragment key={u.id}>
                 <tr>
                   <td className={noBottom}>{u.email}</td>
-                  <td className={noBottom}>{u.lichessUsername ?? '—'}</td>
+                  <td className={noBottom}>
+                    {u.lichessUsername ? (
+                      <a
+                        href={`https://lichess.org/@/${u.lichessUsername}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="link link-hover"
+                      >
+                        {u.lichessUsername}
+                      </a>
+                    ) : (
+                      '—'
+                    )}
+                  </td>
                   <td className={noBottom}>{u.totalLoggedCount}</td>
                   <td className={noBottom} suppressHydrationWarning>
                     {formatDateTime(u.createdAt)}
