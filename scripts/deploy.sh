@@ -59,6 +59,13 @@ docker build -t "$IMAGE_NAME:latest" .
 log "Ensuring data directory $DATA_DIR exists..."
 mkdir -p "$DATA_DIR"
 
+# The app container runs as uid 1001 (nextjs). The dir above is created by root,
+# and the migration container (step 4) runs as root, so files can end up
+# root-owned. SQLite needs to create WAL/-shm files in this directory even for
+# reads, so wrong ownership causes SQLITE_READONLY_DIRECTORY at runtime.
+log "Ensuring $DATA_DIR is owned by uid 1001 (nextjs)..."
+sudo chown -R 1001:1001 "$DATA_DIR"
+
 # ---------------------------------------------------------------------------
 # 4. Run database migrations
 #    Uses the builder image which has drizzle-kit installed.
@@ -70,6 +77,9 @@ docker run --rm \
   -e DATABASE_PATH=/app/data/database.db \
   "$IMAGE_NAME:builder" \
   sh -c "cd /app && yarn drizzle-kit migrate"
+
+# Migration ran as root; re-apply ownership in case it created new files.
+sudo chown -R 1001:1001 "$DATA_DIR"
 
 # ---------------------------------------------------------------------------
 # 5. Tag current image as previous (enables manual rollback)
