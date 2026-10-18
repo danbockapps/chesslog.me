@@ -1,6 +1,6 @@
 import {preparePgnForChessJs} from '@/lib/pgnSanitize'
 import {Chess} from 'chess.js'
-import {FC, useEffect, useRef, useState} from 'react'
+import {FC, useEffect, useMemo, useRef, useState} from 'react'
 import {Chessboard} from 'react-chessboard'
 import getSingleChesscomGame from '../actions/getSingleChesscomGame'
 import getSingleLichessGame from '../actions/getSingleLichessGame'
@@ -115,6 +115,26 @@ const Board: FC<ChesscomProps | LichessProps | PgnProps> = (props) => {
     }
   }
 
+  const goToMove = async (index: number) => {
+    if (index === currentMove) return
+
+    if (!moves || currentMove === undefined) {
+      // Game not loaded yet — load it and replay from the start.
+      const loaded = await loadGame()
+      chess.current.reset()
+      for (let i = 0; i < index; i++) chess.current.move(loaded[i])
+    } else if (index < currentMove) {
+      for (let i = 0; i < currentMove - index; i++) chess.current.undo()
+    } else {
+      moves.forEach((move, i) => {
+        if (i >= currentMove && i < index) chess.current.move(move)
+      })
+    }
+
+    setCurrentFen(chess.current.fen())
+    setCurrentMove(index)
+  }
+
   const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     switch (e.key) {
       case 'ArrowLeft':
@@ -145,6 +165,35 @@ const Board: FC<ChesscomProps | LichessProps | PgnProps> = (props) => {
       ? [{backgroundColor: '#779955'}, {backgroundColor: '#e9eecd'}]
       : [undefined, undefined]
 
+  // Moves may be SAN (Lichess, PGN) or TCN (Chess.com) — replay them through
+  // chess.js to get displayable SAN for every move.
+  const sans = useMemo(() => {
+    if (!moves) return []
+    const board = new Chess()
+    return moves.map((move) => board.move(move as ChessJsMoveParam).san)
+  }, [moves])
+
+  const currentMoveRef = useRef<HTMLSpanElement>(null)
+  const movesListRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (currentMove === 0) {
+      movesListRef.current?.scrollTo({left: 0, behavior: 'smooth'})
+    } else {
+      currentMoveRef.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'center',
+      })
+    }
+  }, [currentMove, sans])
+
+  // Group SAN moves into rows of "1. e4 e5" for display.
+  const moveRows: {number: number; white: string; black?: string}[] = []
+  for (let i = 0; i < sans.length; i += 2) {
+    moveRows.push({number: i / 2 + 1, white: sans[i], black: sans[i + 1]})
+  }
+
   return (
     <div ref={containerRef} tabIndex={0} onKeyDown={onKeyDown} className="outline-none">
       <Chessboard
@@ -153,6 +202,38 @@ const Board: FC<ChesscomProps | LichessProps | PgnProps> = (props) => {
         position={currentFen ?? props.fen}
         {...{customDarkSquareStyle, customLightSquareStyle}}
       />
+
+      <div className="py-2">
+        <div ref={movesListRef} className="overflow-x-auto whitespace-nowrap scrollbar-none">
+          {moveRows.length > 0 && (
+            <span className="inline-block">
+              {moveRows.map((row) => (
+                <span key={row.number} className="mr-4">
+                  <span className="text-base-content/50">{row.number}.</span>{' '}
+                  <span
+                    ref={currentMove === row.number * 2 - 1 ? currentMoveRef : undefined}
+                    className={`cursor-pointer hover:text-primary
+                    ${currentMove === row.number * 2 - 1 ? 'font-bold' : undefined}`}
+                    onClick={() => goToMove(row.number * 2 - 1)}
+                  >
+                    {row.white}
+                  </span>{' '}
+                  {row.black && (
+                    <span
+                      ref={currentMove === row.number * 2 ? currentMoveRef : undefined}
+                      className={`cursor-pointer hover:text-primary
+                      ${currentMove === row.number * 2 ? 'font-bold' : undefined}`}
+                      onClick={() => goToMove(row.number * 2)}
+                    >
+                      {row.black}
+                    </span>
+                  )}
+                </span>
+              ))}
+            </span>
+          )}
+        </div>
+      </div>
 
       <div className="py-2 flex">
         <button

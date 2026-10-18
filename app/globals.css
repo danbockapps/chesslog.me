@@ -43,6 +43,15 @@
   height: 400px;
 }
 
+/* Hide scrollbars while keeping scroll functionality */
+.scrollbar-none {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none; /* WebKit */
+}
+
 /* Animations */
 @keyframes fade-in {
   from {
