@@ -12,6 +12,12 @@ export interface ExportGame {
   timeControl: string | null
   tags: string[]
   notes: string | null
+  comments: ExportComment[]
+}
+
+export interface ExportComment {
+  author: string
+  text: string
 }
 
 export interface ExportTag {
@@ -64,6 +70,15 @@ function formatGame(game: ExportGame, index: number) {
     game.url && `Link: ${game.url}`,
     game.tags.length > 0 && `Tags: ${game.tags.join(', ')}`,
     notes && `Notes:\n${notes}`,
+    game.comments.length > 0 &&
+      `Comments:\n${game.comments
+        .map((c) =>
+          c.text
+            .split('\n')
+            .map((line, i) => `> ${i === 0 ? `${c.author}: ` : ''}${line}`)
+            .join('\n'),
+        )
+        .join('\n>\n')}`,
   ]
 
   return lines.filter(Boolean).join('\n')
@@ -74,7 +89,7 @@ export function formatCollectionExport(collection: ExportCollection): string {
     `# ${collection.name}`,
     collection.username && `Player: ${collection.username}`,
     `Exported: ${collection.exportedAt.toISOString().slice(0, 10)}`,
-    `Games with tags or notes: ${collection.games.length}`,
+    `Games with tags, notes, or comments: ${collection.games.length}`,
   ]
     .filter(Boolean)
     .join('\n')

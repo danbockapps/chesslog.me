@@ -15,6 +15,7 @@ const baseGame: ExportGame = {
   timeControl: null,
   tags: [],
   notes: null,
+  comments: [],
 }
 
 const format = (games: ExportGame[], tags: ExportTag[] = []) =>
@@ -52,7 +53,7 @@ describe('formatCollectionExport', () => {
     expect(out).toContain('# Test')
     expect(out).toContain('Player: alice')
     expect(out).toContain('Exported: 2026-09-29')
-    expect(out).toContain('Games with tags or notes: 1')
+    expect(out).toContain('Games with tags, notes, or comments: 1')
   })
 
   it('omits empty fields', () => {
@@ -121,5 +122,25 @@ describe('formatCollectionExport', () => {
 
     const noTags = format([{...baseGame, notes: 'x'}], [{name: 'Unused', description: 'd'}])
     expect(noTags).not.toContain('## Tags')
+  })
+
+  it('formats comments as blockquotes with authors', () => {
+    const out = format([
+      {
+        ...baseGame,
+        comments: [
+          {author: 'carol', text: 'Nice sac on move 12!'},
+          {author: 'dave', text: 'White should have played\nNf3 here.'},
+        ],
+      },
+    ])
+    expect(out).toContain('Comments:\n> carol: Nice sac on move 12!\n>\n> dave: White should have')
+    expect(out).toContain('\n> Nf3 here.')
+  })
+
+  it('includes comment-only games in the count and omits the section otherwise', () => {
+    const commentOnly = format([{...baseGame, comments: [{author: 'carol', text: 'hi'}]}])
+    expect(commentOnly).toContain('Comments:\n> carol: hi')
+    expect(format([{...baseGame, notes: 'x'}])).not.toContain('Comments:')
   })
 })
