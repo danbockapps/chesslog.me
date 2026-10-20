@@ -96,10 +96,6 @@ docker tag "$IMAGE_NAME:latest" "$IMAGE_NAME:current"
 # 6. Stop and remove existing container (if any)
 # ---------------------------------------------------------------------------
 if docker ps -a --format '{{.Names}}' | grep -q "^${APP_NAME}$"; then
-  log "Saving logs before container removal..."
-  LOG_FILE="$DATA_DIR/logs/$(date '+%Y-%m-%dT%H:%M:%S').log"
-  mkdir -p "$DATA_DIR/logs"
-  docker logs "$APP_NAME" &>> "$LOG_FILE" || warn "Could not save logs"
   log "Stopping existing container..."
   docker stop "$APP_NAME" || warn "Container already stopped"
   docker rm "$APP_NAME"
@@ -111,9 +107,16 @@ fi
 # 7. Start new container
 # ---------------------------------------------------------------------------
 log "Starting new container on port $HOST_PORT..."
+# Logs go to the host's systemd journal (--log-driver journald), so they
+# survive container removal and rebuilds. View with:
+#   journalctl CONTAINER_NAME=chesslog.me          # all history
+#   journalctl CONTAINER_NAME=chesslog.me -f       # follow
+#   journalctl CONTAINER_NAME=chesslog.me --since today
+# NOTE: `docker logs` does not work with this driver.
 docker run -d \
   --name "$APP_NAME" \
   --restart unless-stopped \
+  --log-driver journald \
   -p "$HOST_PORT:3000" \
   -v "$DATA_DIR:/app/data" \
   --env-file "$ENV_FILE" \
@@ -128,10 +131,10 @@ sleep 5
 
 if docker ps --format '{{.Names}}' | grep -q "^${APP_NAME}$"; then
   log "Deployment successful! App is running on port $HOST_PORT."
-  log "Rollback with: docker stop $APP_NAME && docker rm $APP_NAME && docker run -d --name $APP_NAME --restart unless-stopped -p $HOST_PORT:3000 -v $DATA_DIR:/app/data --env-file $ENV_FILE -e DATABASE_PATH=/app/data/database.db $IMAGE_NAME:previous"
+  log "Rollback with: docker stop $APP_NAME && docker rm $APP_NAME && docker run -d --name $APP_NAME --restart unless-stopped --log-driver journald -p $HOST_PORT:3000 -v $DATA_DIR:/app/data --env-file $ENV_FILE -e DATABASE_PATH=/app/data/database.db $IMAGE_NAME:previous"
 else
   error "Container is not running. Check logs:"
-  error "  docker logs $APP_NAME"
+  error "  journalctl CONTAINER_NAME=$APP_NAME --since today"
   exit 1
 fi
 
