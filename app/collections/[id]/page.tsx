@@ -17,6 +17,7 @@ import AnalyticsHeroBanner, {ANALYTICS_UNLOCK_COUNT} from './analyticsHeroBanner
 import AutoRefresh from './autoRefresh'
 import ChesscomGameAccordion from './chesscom/gameAccordion'
 import CollectionMenu from './collectionMenu'
+import ShareButton from './shareButton'
 import RestoreCollectionButton from './restoreCollectionButton'
 import ImportPgnModal from './importPgn/importPgnModal'
 import PgnGameAccordion from './importPgn/pgnGameAccordion'
@@ -201,7 +202,7 @@ const Collection: FC<Props> = async (props) => {
       )}
 
       {/* Page header */}
-      <div className="mt-4 mb-6 flex items-center gap-3">
+      <div className="mt-4 mb-6 flex flex-wrap items-center gap-3">
         {site && (
           <span
             className={`shrink-0 inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium
@@ -213,7 +214,10 @@ const Collection: FC<Props> = async (props) => {
         <h1 className="font-display text-2xl sm:text-3xl font-semibold tracking-tight">
           {displayName}
         </h1>
-        <div className="ml-auto shrink-0 flex items-center gap-2">
+        <div
+          className="w-full sm:w-auto ml-auto shrink-0 flex items-center gap-2 justify-end
+            sm:justify-start"
+        >
           {user &&
             (annotatedCount >= ANALYTICS_UNLOCK_COUNT ? (
               <Link
@@ -239,6 +243,7 @@ const Collection: FC<Props> = async (props) => {
               Export
             </Link>
           )}
+          <ShareButton collectionId={params.id} />
           {isOwner && <CollectionMenu collectionId={params.id} />}
         </div>
       </div>
