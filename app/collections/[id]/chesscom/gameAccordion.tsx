@@ -98,6 +98,12 @@ const getReadableEco = (eco: string) => {
 }
 
 const getReadableTimeControl = (timeControl: string) => {
+  // Daily games use a days-per-move format like "1/86400" (1 move per 1 day), while timed
+  // games use "seconds+increment" like "600+5".
+  if (timeControl.includes('/')) {
+    const days = Number(timeControl.split('/')[1]) / 86400
+    return days === 1 ? '1 day' : `${days} days`
+  }
   const [seconds, increment] = timeControl.split('+').map(Number)
   return `${seconds / 60} ${increment ?? 0}`
 }

@@ -15,7 +15,7 @@ interface Props {
 
 export type Step = 'type' | 'username' | 'timeClass' | 'name' | 'studyUrl'
 export type Type = 'manual' | 'chess.com' | 'lichess' | 'lichess-study' | null
-export type TimeClass = 'ultraBullet' | 'bullet' | 'blitz' | 'rapid' | 'classical' | null
+export type TimeClass = 'ultraBullet' | 'bullet' | 'blitz' | 'rapid' | 'classical' | 'daily' | null
 
 const CreateNewModal: FC<Props> = (props) => {
   const router = useRouter()

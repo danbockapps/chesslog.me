@@ -53,7 +53,7 @@ export const collections = sqliteTable(
     username: text('username'),
     studyId: text('study_id'), // Lichess study id (for 'lichess-study' collections)
     timeClass: text('time_class').$type<
-      'ultraBullet' | 'bullet' | 'blitz' | 'rapid' | 'classical' | null
+      'ultraBullet' | 'bullet' | 'blitz' | 'rapid' | 'classical' | 'daily' | null
     >(), // Time class filter
     lastRefreshed: text('last_refreshed'), // ISO8601 timestamp
     deletedAt: text('deleted_at'), // ISO8601 timestamp; null = active, set = soft-deleted/archived

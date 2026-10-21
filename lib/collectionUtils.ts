@@ -4,6 +4,7 @@ const TIME_CLASS_LABELS: Record<string, string> = {
   blitz: 'blitz',
   rapid: 'rapid',
   classical: 'classical',
+  daily: 'daily',
 }
 
 export function getCollectionDisplayName(collection: {

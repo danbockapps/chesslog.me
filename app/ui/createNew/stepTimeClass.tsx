@@ -25,6 +25,7 @@ const StepTimeClass: FC<Props> = (props) => {
           {value: 'bullet' as const, label: 'Bullet'},
           {value: 'blitz' as const, label: 'Blitz'},
           {value: 'rapid' as const, label: 'Rapid'},
+          {value: 'daily' as const, label: 'Daily'},
         ]
 
   return (
@@ -39,7 +40,7 @@ const StepTimeClass: FC<Props> = (props) => {
               onClick={() => props.setTimeClass(option.value)}
               disabled={props.loading}
               className={`w-full p-3 rounded border-2 transition-colors ${
-              props.timeClass === option.value
+                props.timeClass === option.value
                   ? 'border-primary bg-primary/10'
                   : 'border-base-300 hover:border-base-content'
               }`}

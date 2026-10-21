@@ -9,6 +9,10 @@ import {revalidatePath} from 'next/cache'
 
 export type {ChesscomResult} from '@/lib/gameImport'
 
+// Cap for the first-import backwards walk so a user with very few games doesn't trigger an
+// unbounded number of archive fetches. Anything older is covered by "load older".
+const MAX_BACKFILL_MONTHS = 6
+
 const importChesscomGames = async (
   collectionId: string,
   lastRefreshed: Date | null,
@@ -44,23 +48,48 @@ const importChesscomGames = async (
       }
     })
 
-    // Include months at or after lastRefreshed's month (game-level filter handles within-month precision)
-    const monthsToFetch = archiveMonths.filter(({year, jsMonth}) => {
-      if (!lastRefreshed) return true
+    // Incremental refresh: Chess.com places a game in the archive month in which it ENDED, so
+    // fetching months from lastRefreshed's month onward (capped) plus an end_time filter is
+    // guaranteed not to miss anything, and keeps refreshes cheap.
+    //
+    // First import (lastRefreshed null — the creation auto-import may have found nothing): the
+    // newest matching game can be many months old (a Daily collection where the last game
+    // finished 6 months ago), so walk backwards newest-first until a month yields matching
+    // games, up to a cap. Older games beyond that come in via "load older".
+    const monthsToFetch: typeof archiveMonths = []
+    if (lastRefreshed) {
       const lastYear = lastRefreshed.getFullYear()
       const lastMonth = lastRefreshed.getMonth()
-      return year > lastYear || (year === lastYear && jsMonth >= lastMonth)
-    })
+      monthsToFetch.push(
+        ...[...archiveMonths]
+          .reverse()
+          .filter(
+            ({year, jsMonth}) => year > lastYear || (year === lastYear && jsMonth >= lastMonth),
+          )
+          .slice(0, 2),
+      )
+    } else {
+      for (const month of [...archiveMonths].reverse().slice(0, MAX_BACKFILL_MONTHS)) {
+        monthsToFetch.push(month)
+        const count = await importChesscomGamesForMonth({
+          ...month,
+          username,
+          collectionId,
+          lastRefreshed: null,
+          timeClass,
+        })
+        if (count > 0) break
+      }
+    }
 
-    // Cap at 2 most recent months
-    for (const {year, jsMonth} of monthsToFetch.slice(-2)) {
+    for (const {year, jsMonth} of monthsToFetch) {
       await importChesscomGamesForMonth({
         year,
         jsMonth,
         username,
         collectionId,
-        lastRefreshed,
         timeClass,
+        lastRefreshed,
       })
     }
 
@@ -106,6 +135,7 @@ const importChesscomGamesForMonth = async ({
   saveGames(gamesData, collectionId, 'chesscom')
 
   console.timeLog('importChesscomGames', 'attempted to insert')
+  return gamesData.length
 }
 
 export default importChesscomGames

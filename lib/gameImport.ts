@@ -168,10 +168,14 @@ export function saveGames(
         : [games.collectionId, games.lichessGameId]
 
     db.insert(games).values(gamesData).onConflictDoNothing({target}).run()
-  }
 
-  db.update(collections)
-    .set({lastRefreshed: new Date().toISOString()})
-    .where(eq(collections.id, collectionId))
-    .run()
+    // Only mark the collection as refreshed when something was imported. Otherwise a
+    // collection whose games all fall in an earlier month (e.g. a Chess.com daily collection
+    // where the last game finished last month) would be stamped as up-to-date on creation and
+    // subsequent refreshes would never look back far enough to fetch them.
+    db.update(collections)
+      .set({lastRefreshed: new Date().toISOString()})
+      .where(eq(collections.id, collectionId))
+      .run()
+  }
 }
