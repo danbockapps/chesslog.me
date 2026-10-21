@@ -18,8 +18,8 @@ interface Props {
   whiteResult: ChesscomResult
   blackResult: ChesscomResult
   gameDttm: Date
-  eco: string
-  timeControl: string
+  eco: string | null
+  timeControl: string | null
   url: string
   fen: string
   tagCount: number
@@ -90,14 +90,16 @@ const getPoints = (result: ChesscomResult): 0 | 0.5 | 1 => {
   }
 }
 
-const getReadableEco = (eco: string) => {
+const getReadableEco = (eco: string | null) => {
+  if (!eco) return ''
   if (eco.startsWith('http')) {
     // example: https://www.chess.com/openings/Queens-Pawn-Opening-Stonewall-Attack-3...c5-4.c3-Nc6-5.f4
     return eco.split('openings/').pop()?.split(/\d+/)[0]?.replace(/-/g, ' ') ?? ''
   } else return eco
 }
 
-const getReadableTimeControl = (timeControl: string) => {
+const getReadableTimeControl = (timeControl: string | null) => {
+  if (!timeControl) return ''
   // Daily games use a days-per-move format like "1/86400" (1 move per 1 day), while timed
   // games use "seconds+increment" like "600+5".
   if (timeControl.includes('/')) {

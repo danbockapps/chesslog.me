@@ -317,8 +317,8 @@ const Collection: FC<Props> = async (props) => {
                   whiteResult={g.whiteResult}
                   blackResult={g.blackResult}
                   gameDttm={g.gameDttm}
-                  eco={g.eco!}
-                  timeControl={g.timeControl!}
+                  eco={g.eco ?? ''}
+                  timeControl={g.timeControl ?? ''}
                   url={g.url!}
                   fen={g.fen!}
                   tagCount={g.tagCount}
@@ -339,7 +339,7 @@ const Collection: FC<Props> = async (props) => {
                   blackUsername={g.blackUsername!}
                   winner={g.winner as 'white' | 'black' | 'draw'}
                   gameDttm={g.gameDttm}
-                  eco={g.eco!}
+                  eco={g.eco ?? ''}
                   clockInitial={g.clockInitial!}
                   clockIncrement={g.clockIncrement!}
                   lichessGameId={g.lichessGameId!}
