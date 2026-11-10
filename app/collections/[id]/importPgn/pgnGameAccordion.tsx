@@ -33,6 +33,7 @@ const contentClassName = `${gameAccordionClassNames.contentClassName} min-h-96`
 const PgnGameAccordion: FC<Props> = (props) => {
   const [tagCount, setTagCount] = useState(props.tagCount)
   const [hasNotes, setHasNotes] = useState(props.hasNotes)
+  const [orientation, setOrientation] = useState<'white' | 'black'>('white')
 
   const resultText =
     props.winner === 'white'
@@ -68,7 +69,15 @@ const PgnGameAccordion: FC<Props> = (props) => {
       initialOpen={props.initialOpen}
     >
       <div>
-        <Board type="pgn" pgn={props.pgn} fen={props.fen} orientation="white" />
+        <div className="flex justify-end">
+          <button
+            className="btn btn-ghost btn-xs"
+            onClick={() => setOrientation((o) => (o === 'white' ? 'black' : 'white'))}
+          >
+            Flip board
+          </button>
+        </div>
+        <Board type="pgn" pgn={props.pgn} fen={props.fen} orientation={orientation} />
         {props.isOwner && (
           <div className="flex justify-end pt-2">
             <button className="btn btn-ghost btn-xs text-error" onClick={handleDelete}>
