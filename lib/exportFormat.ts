@@ -57,21 +57,29 @@ function formatGame(game: ExportGame, index: number) {
   const heading = [
     `## Game ${index + 1}: ${formatPlayer(game.whiteUsername, game.whiteRating)} (White) vs ${formatPlayer(game.blackUsername, game.blackRating)} (Black)`,
     score && `Result: ${score}`,
-    date && `Date: ${date}`,
+    date,
   ]
     .filter(Boolean)
     .join(' — ')
 
   const notes = game.notes?.trim()
-  const lines = [
-    heading,
+  // Metadata as a list and blank lines before Notes/Comments so markdown
+  // viewers render each field on its own line instead of one merged paragraph.
+  const metadata = [
     game.eco && `Opening (ECO): ${game.eco}`,
     game.timeControl && `Time control: ${game.timeControl}`,
     game.url && `Link: ${game.url}`,
     game.tags.length > 0 && `Tags: ${game.tags.join(', ')}`,
-    notes && `Notes:\n${notes}`,
+  ]
+    .filter(Boolean)
+    .map((line) => `- ${line}`)
+    .join('\n')
+
+  const blocks = [
+    metadata,
+    notes && `**Notes**\n\n${notes}`,
     game.comments.length > 0 &&
-      `Comments:\n${game.comments
+      `**Comments**\n\n${game.comments
         .map((c) =>
           c.text
             .split('\n')
@@ -79,17 +87,18 @@ function formatGame(game: ExportGame, index: number) {
             .join('\n'),
         )
         .join('\n>\n')}`,
-  ]
+  ].filter(Boolean)
 
-  return lines.filter(Boolean).join('\n')
+  return [heading, ...blocks].join('\n\n')
 }
 
 export function formatCollectionExport(collection: ExportCollection): string {
   const header = [
     `# ${collection.name}`,
-    collection.username && `Player: ${collection.username}`,
-    `Exported: ${collection.exportedAt.toISOString().slice(0, 10)}`,
-    `Games with tags, notes, or comments: ${collection.games.length}`,
+    '',
+    collection.username && `- Player: ${collection.username}`,
+    `- Exported: ${collection.exportedAt.toISOString().slice(0, 10)}`,
+    `- Games with tags, notes, or comments: ${collection.games.length}`,
   ]
     .filter(Boolean)
     .join('\n')

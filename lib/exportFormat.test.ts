@@ -67,7 +67,7 @@ describe('formatCollectionExport', () => {
 
   it('formats notes-only games and trims whitespace', () => {
     const out = format([{...baseGame, notes: '  Blundered the queen  '}])
-    expect(out).toContain('Notes:\nBlundered the queen')
+    expect(out).toContain('**Notes**\n\nBlundered the queen')
     expect(out).not.toContain('Tags:')
   })
 
@@ -87,12 +87,12 @@ describe('formatCollectionExport', () => {
       },
     ])
     expect(out).toContain(
-      '## Game 1: alice (1500) (White) vs bob (1520) (Black) — Result: 0-1 — Date: 2026-09-01',
+      '## Game 1: alice (1500) (White) vs bob (1520) (Black) — Result: 0-1 — 2026-09-01',
     )
-    expect(out).toContain('Opening (ECO): B12')
-    expect(out).toContain('Time control: 600+0')
-    expect(out).toContain('Link: https://example.com/g/1')
-    expect(out).toContain('Tags: Played too fast, Loose pieces')
+    expect(out).toContain('- Opening (ECO): B12')
+    expect(out).toContain('- Time control: 600+0')
+    expect(out).toContain('- Link: https://example.com/g/1')
+    expect(out).toContain('- Tags: Played too fast, Loose pieces')
   })
 
   it('includes a tags section with names and descriptions', () => {
@@ -134,13 +134,15 @@ describe('formatCollectionExport', () => {
         ],
       },
     ])
-    expect(out).toContain('Comments:\n> carol: Nice sac on move 12!\n>\n> dave: White should have')
+    expect(out).toContain(
+      '**Comments**\n\n> carol: Nice sac on move 12!\n>\n> dave: White should have',
+    )
     expect(out).toContain('\n> Nf3 here.')
   })
 
   it('includes comment-only games in the count and omits the section otherwise', () => {
     const commentOnly = format([{...baseGame, comments: [{author: 'carol', text: 'hi'}]}])
-    expect(commentOnly).toContain('Comments:\n> carol: hi')
+    expect(commentOnly).toContain('**Comments**\n\n> carol: hi')
     expect(format([{...baseGame, notes: 'x'}])).not.toContain('Comments:')
   })
 })
