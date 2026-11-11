@@ -1,5 +1,8 @@
 FROM node:26-alpine AS base
 
+# Node 25+ images no longer bundle Yarn (Corepack was removed from the runtime)
+RUN npm install -g yarn@1.22.22
+
 LABEL org.opencontainers.image.source=https://github.com/danbockapps/chesslog.me
 
 # Install dependencies only when needed
