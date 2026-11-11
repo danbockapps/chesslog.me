@@ -26,7 +26,7 @@ A Next.js application to help users improve at chess by keeping track of what ha
 
 ### Prerequisites
 
-- Node.js 18+
+- Node.js 26+
 - Yarn 1.22.22+
 - Lichess API token (to import Lichess games)
 
